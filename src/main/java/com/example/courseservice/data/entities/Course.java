@@ -12,6 +12,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.example.courseservice.data.constants.CourseStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +40,8 @@ public class Course {
     private Double price;
 
     private int level;
+
+    private CourseStatus courseStatus;
 
     @OneToMany(mappedBy = "course")
     private List<Rating> ratings;

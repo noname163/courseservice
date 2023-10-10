@@ -1,7 +1,9 @@
 package com.example.courseservice.data.entities;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,24 +19,29 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Material")
+@Table(name = "Student_Note")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Material {
+public class StudentNote {
     @Id
-    @SequenceGenerator(name = "material_sequence", sequenceName = "material_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "material_sequence")
+    @SequenceGenerator(name = "student_note_sequence", sequenceName = "student_note_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "student_note_sequence")
     private long id;
 
-    private String url;
+    @Column(columnDefinition = "TEXT")
+    private String note;
 
     private LocalDateTime createDate;
 
     private LocalDateTime updateTime;
 
+    private Time duration;
+
+    private Long studentId;
+
     private CommonStatus commonStatus;
-    
+
     @ManyToOne()
-    private Course course;
+    private Video video;
 }
