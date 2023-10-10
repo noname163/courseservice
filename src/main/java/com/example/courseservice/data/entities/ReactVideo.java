@@ -13,33 +13,33 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.example.courseservice.data.constants.StudentEnrolledStatus;
+import com.example.courseservice.data.constants.ReactStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "student_enrolled_courses", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "course_id"}))
+@Table(name = "React_Video",uniqueConstraints = @UniqueConstraint(columnNames = {"video_id", "student_id"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentEnrolledCourses {
+public class ReactVideo {
     @Id
-    @SequenceGenerator(name = "student_enrolled_courses_sequence", sequenceName = "student_enrolled_courses_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "student_enrolled_courses_sequence")
+    @SequenceGenerator(name = "react_video_sequence", sequenceName = "react_video_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "react_video_sequence")
     private long id;
+
+    @Column(name = "student_id")
+    private long studentId;
 
     private LocalDateTime createDate;
 
     private LocalDateTime updateTime;
 
-    private StudentEnrolledStatus status;
-    
-    @Column(name = "student_id")
-    private Long studentId;
+    private ReactStatus reactStatus;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @JoinColumn(name = "video_id")
+    private Video video;
 }

@@ -6,35 +6,37 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.constants.ReportType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Material")
+@Table(name = "Report")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Material {
+public class Report {
     @Id
-    @SequenceGenerator(name = "material_sequence", sequenceName = "material_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "material_sequence")
-    private long id;
+    @SequenceGenerator(name = "reply_sequence", sequenceName = "reply_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "reply_sequence")
+    private Long id;
+
+    private ReportType reportType;
+
+    private String message;
+
+    private Long userId;
 
     private String url;
+
+    private Long objectId;
 
     private LocalDateTime createDate;
 
     private LocalDateTime updateTime;
-
-    private CommonStatus commonStatus;
-    
-    @ManyToOne()
-    private Course course;
 }
