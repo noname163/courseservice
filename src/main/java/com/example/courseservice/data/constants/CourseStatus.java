@@ -1,8 +1,7 @@
 package com.example.courseservice.data.constants;
 
-public enum VideoStatus {
+public enum CourseStatus {
     PUBLIC,
     PRIVATE,
-    DELETED,
-    AVAILABLE
+    BANNED
 }
