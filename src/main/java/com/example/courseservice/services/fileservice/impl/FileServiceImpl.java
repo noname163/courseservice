@@ -13,7 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.utils.InputStreamMultipartFile;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class FileServiceImpl implements FileService {
 
     @Override
@@ -32,10 +35,9 @@ public class FileServiceImpl implements FileService {
                     "-i", inputFile.getAbsolutePath(),
                     "-fs", Long.toString(maxSegmentSize),
                     "-f", "segment",
-                    "-segment_time", "2", 
+                    "-segment_time", "2",
                     "-reset_timestamps", "1",
-                    tempDir.getAbsolutePath() + File.separator + "output%d.mp4"
-            );
+                    tempDir.getAbsolutePath() + File.separator + "output%d.mp4");
             Process process = processBuilder.start();
             process.waitFor();
 
@@ -59,5 +61,5 @@ public class FileServiceImpl implements FileService {
 
         return videoSegments;
     }
-    
+
 }
