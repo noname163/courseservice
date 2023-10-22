@@ -1,10 +1,11 @@
 package com.example.courseservice.services.fileservice;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.courseservice.data.dto.response.FileResponse;
+
 public interface FileService {
-    public List<MultipartFile> splitFile(MultipartFile inputMultipartFile) throws IOException;
+    public FileResponse fileStorage(MultipartFile file);
 }

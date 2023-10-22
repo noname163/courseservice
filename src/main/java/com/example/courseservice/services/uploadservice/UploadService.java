@@ -1,12 +1,10 @@
 package com.example.courseservice.services.uploadservice;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
+import com.example.courseservice.data.dto.response.FileResponse;
 
 public interface UploadService {
-    public String uploadMedia(MultipartFile file);
-    public List<String> uploadMediaList(List<MultipartFile> files);
-    public List<String> splitAndUploadVideo(String url) throws IOException;
+    public String uploadMedia(FileResponse fileResponse);
+    public List<String> uploadMediaList(List<FileResponse> files);
 }

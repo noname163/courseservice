@@ -5,12 +5,16 @@ import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.example.courseservice.data.dto.response.FileResponse;
+import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.uploadservice.UploadService;
@@ -28,6 +32,8 @@ public class UploadController {
     private FileService fileService;
     @Autowired
     private UploadService uploadService;
+    @Autowired
+    private EventPublisher eventPublisher;
 
     @Operation(summary = "Upload Video")
     @ApiResponses(value = {
@@ -38,7 +44,7 @@ public class UploadController {
     })
     @PostMapping("/video")
     public ResponseEntity<Void> uploadVideo(@RequestPart("file") MultipartFile multipartFile) throws IOException {
-        // uploadService.splitAndUploadVideo(multipartFile);
+        eventPublisher.publishEvent(fileService.fileStorage(multipartFile));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 }
