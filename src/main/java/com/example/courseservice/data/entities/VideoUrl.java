@@ -1,7 +1,9 @@
 package com.example.courseservice.data.entities;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,7 +27,12 @@ public class VideoUrl {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "video_url_sequence")
     private long id;
     
+    @Column(columnDefinition = "TEXT")
     private String url;
+
+    private Integer startTime;
+
+    private Integer endTime;
 
     private LocalDateTime createDate;
 
