@@ -26,11 +26,6 @@ public class EnvironmentVariable {
     @Value("${jwt.secret-key}")
     private String jwtSecret;
 
-    @Value("${spring.cloud.azure.storage.blob.account-name}")
-    private String azureStorageName;
-    @Value("${spring.cloud.azure.storage.blob.endpoint}")
-    private String azureStorageEndPoint;
-
 
     public Map<String,String> initializeAllowedContentTypes() {
         Map<String, String> result = new HashMap<>();
