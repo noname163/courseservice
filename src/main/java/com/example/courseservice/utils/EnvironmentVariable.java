@@ -26,6 +26,12 @@ public class EnvironmentVariable {
     @Value("${jwt.secret-key}")
     private String jwtSecret;
 
+    @Value("${jwt.secret-key}")
+    private String jwtSecretService;
+
+    @Value("${jwt.expires-time}")
+    private long expireTime;
+
 
     public Map<String,String> initializeAllowedContentTypes() {
         Map<String, String> result = new HashMap<>();
