@@ -1,6 +1,7 @@
 package com.example.courseservice.utils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,15 @@ public class EnvironmentVariable {
 
     @Value("${jwt.secret-key}")
     private String jwtSecret;
+
+    @Value("${jwt.secret-key-service}")
+    private String jwtSecretService;
+
+    @Value("${jwt.expires-time}")
+    private long expireTime;
+
+    @Value("${authentication.whitelistedUris}")
+    private List<String> whiteListUrls;
 
 
     public Map<String,String> initializeAllowedContentTypes() {
