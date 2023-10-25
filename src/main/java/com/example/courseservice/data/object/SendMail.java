@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInformation {
-    private Long id;
-    private String email;
-    private String role;
-    private String fullname;
+public class SendMail {
+    private String mailTemplate;
+    private String userEmail;
+    private String subject;
 }

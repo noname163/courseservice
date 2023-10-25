@@ -36,6 +36,11 @@ public class EnvironmentVariable {
     @Value("${authentication.whitelistedUris}")
     private List<String> whiteListUrls;
 
+    @Value("${general.base-url}")
+    private String generalServiceBaseUrl;
+
+    @Value("${system.request.method}")
+    private String systemMethod;
 
     public Map<String,String> initializeAllowedContentTypes() {
         Map<String, String> result = new HashMap<>();
