@@ -26,8 +26,7 @@ public class GeneralServiceImpl implements GeneralService {
     @Autowired
     private OpenConnect openConnect;
 
-    private final String generalBaseURL = environmentVariable.getSystemMethod()
-            + environmentVariable.getGeneralServiceBaseUrl();
+    private final String generalBaseURL = "http://localhost:8080/api/service";
 
     @Override
     public void sendMail(SendMail sendMail) {
@@ -43,12 +42,14 @@ public class GeneralServiceImpl implements GeneralService {
 
     @Override
     public boolean checkToken(String token) {
-        WebClient webClient = openConnect.openConnect(generalBaseURL);
+        WebClient webClient = openConnect.openConnectWithToken(generalBaseURL);
 
         // Use a Mono<Boolean> instead of Mono<Object> to represent the response
         Mono<Boolean> responseMono = webClient
                 .get()
-                .uri("/check-token")
+                .uri(uriBuilder -> uriBuilder
+                    .path("/check-token/{token}")
+                    .build(token))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
                     log.error("Errors {}", clientResponse.createException().block().getMessage());
@@ -60,9 +61,7 @@ public class GeneralServiceImpl implements GeneralService {
                 })
                 .bodyToMono(Boolean.class);
 
-        boolean result = responseMono.blockOptional().orElse(false);
-
-        return result;
+        return responseMono.blockOptional().orElse(false);
     }
 
 }

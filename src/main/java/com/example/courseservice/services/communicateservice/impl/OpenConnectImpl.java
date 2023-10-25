@@ -1,5 +1,6 @@
 package com.example.courseservice.services.communicateservice.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -7,9 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.courseservice.data.constants.Common;
 import com.example.courseservice.services.communicateservice.OpenConnect;
+import com.example.courseservice.utils.JwtTokenUtil;
 
 @Service
 public class OpenConnectImpl implements OpenConnect {
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @Override
     public WebClient openConnect(String baseUrl) {
@@ -21,8 +25,8 @@ public class OpenConnectImpl implements OpenConnect {
     }
 
     @Override
-    public WebClient openConnectWithToken(String baseUrl, String token) {
-        String authenToken = Common.BEARER + token;
+    public WebClient openConnectWithToken(String baseUrl) {
+        String authenToken = Common.SERVICE + jwtTokenUtil.generateJwtSytemToken();
         return WebClient
                 .builder()
                 .baseUrl(baseUrl)

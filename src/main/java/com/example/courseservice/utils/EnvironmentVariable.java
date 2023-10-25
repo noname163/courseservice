@@ -33,6 +33,9 @@ public class EnvironmentVariable {
     @Value("${jwt.expires-time}")
     private long expireTime;
 
+    @Value("${jwt.expires-time-system}")
+    private int expireTimeSystem;
+
     @Value("${authentication.whitelistedUris}")
     private List<String> whiteListUrls;
 
@@ -41,6 +44,9 @@ public class EnvironmentVariable {
 
     @Value("${system.request.method}")
     private String systemMethod;
+
+    @Value("${system.email}")
+    private String systemEmail;
 
     public Map<String,String> initializeAllowedContentTypes() {
         Map<String, String> result = new HashMap<>();
