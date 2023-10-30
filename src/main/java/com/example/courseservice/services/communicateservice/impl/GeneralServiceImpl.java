@@ -1,11 +1,16 @@
 package com.example.courseservice.services.communicateservice.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.example.courseservice.data.object.SendMail;
 import com.example.courseservice.data.object.UserInformation;
@@ -25,8 +30,10 @@ public class GeneralServiceImpl implements GeneralService {
     private EnvironmentVariable environmentVariable;
     @Autowired
     private OpenConnect openConnect;
+    @Autowired
+    private RestTemplate restTemplate;
 
-    private final String generalBaseURL = "http://localhost:8080/api/service";
+    private final String generalBaseURL = "https://general-service/api/service";
 
     @Override
     public void sendMail(SendMail sendMail) {
@@ -42,26 +49,24 @@ public class GeneralServiceImpl implements GeneralService {
 
     @Override
     public boolean checkToken(String token) {
-        WebClient webClient = openConnect.openConnectWithToken(generalBaseURL);
+        HttpEntity<?> requestEntity = openConnect.authenticationHeader();
+        try {
+            ResponseEntity<Boolean> responseEntity = restTemplate.exchange(
+                generalBaseURL + "/check-token/{token}",
+                HttpMethod.GET,
+                requestEntity,
+                Boolean.class,
+                token
+            );
 
-        // Use a Mono<Boolean> instead of Mono<Object> to represent the response
-        Mono<Boolean> responseMono = webClient
-                .get()
-                .uri(uriBuilder -> uriBuilder
-                    .path("/check-token/{token}")
-                    .build(token))
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, clientResponse -> {
-                    log.error("Errors {}", clientResponse.createException().block().getMessage());
-                    throw new BadRequestException("Errors");
-                })
-                .onStatus(HttpStatus::is5xxServerError, clientResponse -> {
-                    log.error("Errors {}", clientResponse.createException().block().getMessage());
-                    throw new BadRequestException("Errors");
-                })
-                .bodyToMono(Boolean.class);
-
-        return responseMono.blockOptional().orElse(false);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return responseEntity.getBody();
+            } else {
+                throw new BadRequestException("Error 1: " + responseEntity.getBody());
+            }
+        } catch (HttpStatusCodeException ex) {
+            throw new BadRequestException("Error 2: " + ex.getMessage());
+        }
     }
 
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.event.EventPublisher;
@@ -36,6 +37,8 @@ public class UploadController {
     private EventPublisher eventPublisher;
     @Autowired
     private GeneralService generalService;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Operation(summary = "Upload Video")
     @ApiResponses(value = {
