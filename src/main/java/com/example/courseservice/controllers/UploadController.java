@@ -6,14 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.services.communicateservice.GeneralService;
+import com.example.courseservice.services.communicateservice.OpenConnect;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.uploadservice.UploadService;
 
@@ -31,6 +35,10 @@ public class UploadController {
     private FileService fileService;
     @Autowired
     private EventPublisher eventPublisher;
+    @Autowired
+    private GeneralService generalService;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Operation(summary = "Upload Video")
     @ApiResponses(value = {
@@ -43,6 +51,11 @@ public class UploadController {
     public ResponseEntity<Void> uploadVideo(@RequestPart("file") MultipartFile multipartFile) throws IOException {
         eventPublisher.publishEvent(fileService.fileStorage(multipartFile));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> check(String token){
+        return ResponseEntity.status(HttpStatus.OK).body(generalService.checkToken(token));
     }
 }
 

@@ -27,25 +27,23 @@ public class JwtTokenUtil {
                 .setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(
                         new Date(System.currentTimeMillis() + environmentVariables.getExpireTime() * expriesTime))
-                .signWith(SignatureAlgorithm.HS512, environmentVariables.getJwtSecret()).compact();
+                .signWith(SignatureAlgorithm.HS512, environmentVariables.getJwtSecretService()).compact();
     }
 
-    // public String generateJwtToken(Integer expiresTime) {
-    //     Map<String, Object> claims = new HashMap<>();
-    //     claims.put("email", user.getEmail());
-    //     claims.put("role", user.getRole());
-    //     claims.put("avatar", user.getImageURL());
-    //     claims.put("fullName", user.getFullName());
-    //     return doGenerateToken(claims, user.getEmail(), expiresTime);
-    // }
-
+    public String generateJwtSytemToken() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", environmentVariables.getSystemEmail());
+        return doGenerateToken(claims,
+                environmentVariables.getSystemEmail(),
+                environmentVariables.getExpireTimeSystem());
+    }
 
     public Jws<Claims> getJwsClaims(String token, String from) {
         String secretKey = "";
-        if(Common.BEARER.equals(from)){
+        if (Common.BEARER.equals(from)) {
             secretKey = environmentVariables.getJwtSecret();
         }
-        if(Common.SERVICE.equals(from)){
+        if (Common.SERVICE.equals(from)) {
             secretKey = environmentVariables.getJwtSecretService();
         }
         Jws<Claims> tokenInfor = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
@@ -61,6 +59,7 @@ public class JwtTokenUtil {
 
         return tokenInfor;
     }
+
     public Jws<Claims> getJwsClaimsForService(String token) {
         Jws<Claims> tokenInfor = Jwts.parser().setSigningKey(environmentVariables.getJwtSecret()).parseClaimsJws(token);
         Claims claims = tokenInfor.getBody();
@@ -76,7 +75,8 @@ public class JwtTokenUtil {
     }
 
     public Claims verifyRefreshToken(String refreshToken) {
-        Jws<Claims> refreshTokenClaims = Jwts.parser().setSigningKey(environmentVariables.getJwtSecret()).parseClaimsJws(refreshToken);
+        Jws<Claims> refreshTokenClaims = Jwts.parser().setSigningKey(environmentVariables.getJwtSecret())
+                .parseClaimsJws(refreshToken);
         if (refreshTokenClaims.getBody().getExpiration().before(new Date())) {
             throw new InValidAuthorizationException("Refresh token has expired");
         }
