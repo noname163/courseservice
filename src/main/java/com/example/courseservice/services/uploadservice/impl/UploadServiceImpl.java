@@ -37,36 +37,49 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public CloudinaryUrl uploadMedia(FileResponse file) {
         try {
-            if (file.getContentType() != null
-                    && environmentVariable.initializeAllowedContentTypes().containsKey(file.getContentType())) {
-                Map<String, String> options = new HashMap<>();
-                options.put("resource_type", "auto");
-                log.info("----------------Start upload file name {}-----------------", file.getFileName());
-                var uploadResult = cloudinary.uploader().upload(file.getFileStorage(), options);
-
-                String publicId = uploadResult.get("public_id").toString();
-                String url = cloudinary.url()
-                        .resourceType("auto")
-                        .generate(publicId);
-                float videoDuration = Float.parseFloat(uploadResult.get("duration").toString());
-                log.info("Upload success with url {}", url);
-                return CloudinaryUrl.builder().url(url).duration(videoDuration).build();
-
-            } else {
+            // Check if the content type is supported
+            String contentType = file.getContentType();
+            if (contentType == null || !environmentVariable.initializeAllowedContentTypes().containsKey(contentType)) {
                 throw new BadRequestException("Unsupported file type. Supported types are: "
                         + String.join(", ", environmentVariable.initializeAllowedContentTypes().values()));
             }
+    
+            // Define upload options
+            Map<String, String> options = new HashMap<>();
+            options.put("resource_type", "auto");
+    
+            log.info("Start uploading file: {}", file.getFileName());
+            // Perform the upload
+            var uploadResult = cloudinary.uploader().upload(file.getFileStorage(), options);
+    
+            // Extract information from the upload result
+            String publicId = uploadResult.get("public_id").toString();
+            String url = cloudinary.url().resourceType("auto").generate(publicId);
+            float videoDuration = 0;
+            if (uploadResult.get("duration") != null) {
+                videoDuration = Float.parseFloat(uploadResult.get("duration").toString());
+            }
+    
+            log.info("Upload successful. URL: {}", url);
+            
+            // Create and return a CloudinaryUrl object
+            return CloudinaryUrl.builder()
+                    .url(url)
+                    .duration(videoDuration)
+                    .build();
         } catch (IOException e) {
             throw new MediaUploadException("Failed to upload media", e);
         }
     }
+    
 
     @Override
     public List<CloudinaryUrl> uploadMediaList(List<FileResponse> files) {
         return files.stream().map(this::uploadMedia).collect(Collectors.toList());
     }
 
-    public List<VideoUrls> splitVideo(Cloudinary cloudinary, String publicId, int maxSegmentDuration,
+    @Override
+    public List<VideoUrls> splitVideo(String publicId, int maxSegmentDuration,
             float videoDuration) {
         List<VideoUrls> videoSegments = new ArrayList<>();
         int startTime = 0;

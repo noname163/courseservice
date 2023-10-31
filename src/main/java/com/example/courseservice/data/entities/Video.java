@@ -3,11 +3,11 @@ package com.example.courseservice.data.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -18,11 +18,13 @@ import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.constants.VideoStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "Video")
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,8 +36,16 @@ public class Video {
 
     private String name;
 
-    @Lob
-    private byte[] file;
+    private Integer order;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String urlVideo;
+    
+    @Column(columnDefinition = "TEXT")
+    private String urlThumbnail;
 
     private LocalDateTime createDate;
 
