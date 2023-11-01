@@ -16,12 +16,14 @@ import javax.persistence.UniqueConstraint;
 import com.example.courseservice.data.constants.ReactStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "React_Video",uniqueConstraints = @UniqueConstraint(columnNames = {"video_id", "student_id"}))
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReactVideo {

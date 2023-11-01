@@ -12,5 +12,6 @@ import lombok.Setter;
 public class VideoRequest {
     private String name;
     private Long courseId;
-    private MultipartFile video;
+    private String description;
+    private Integer order;
 }

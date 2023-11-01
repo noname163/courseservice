@@ -1,6 +1,5 @@
 package com.example.courseservice.data.entities;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -13,12 +12,14 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Video_URL")
+@Table(name = "Video_Url")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class VideoUrl {
@@ -37,8 +38,6 @@ public class VideoUrl {
     private LocalDateTime createDate;
 
     private LocalDateTime updateTime;
-
-    private Integer order;
 
     @ManyToOne()
     private Video video;
