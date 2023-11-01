@@ -15,12 +15,14 @@ import javax.persistence.Transient;
 import com.example.courseservice.data.constants.CourseStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "Course")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Course {

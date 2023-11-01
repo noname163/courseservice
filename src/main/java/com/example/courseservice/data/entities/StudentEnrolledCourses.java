@@ -16,12 +16,14 @@ import javax.persistence.UniqueConstraint;
 import com.example.courseservice.data.constants.StudentEnrolledStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "student_enrolled_courses", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "course_id"}))
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentEnrolledCourses {

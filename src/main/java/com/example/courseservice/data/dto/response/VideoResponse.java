@@ -4,11 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+@Builder
 @Getter
 @Setter
-@Builder
-public class CloudinaryUrl {
-    private String url;
-    private String publicId;
-    private Float duration;
+public class VideoResponse {
+    private long videoId;
+    private FileResponse video;
+    private FileResponse thumbnail;
+
 }

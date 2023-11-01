@@ -16,12 +16,14 @@ import javax.persistence.Table;
 import com.example.courseservice.data.constants.CommonStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "Comment")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Comment {
