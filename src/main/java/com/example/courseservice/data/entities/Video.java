@@ -24,7 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Video",uniqueConstraints = @UniqueConstraint(columnNames = {"ordinal_number", "course_id"}))
+@Table(name = "Video",uniqueConstraints = @UniqueConstraint(columnNames = {"ordinalNumber", "course_id"}))
 @Data
 @Builder
 @NoArgsConstructor
