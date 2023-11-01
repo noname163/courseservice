@@ -15,9 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
+import com.example.courseservice.data.dto.response.VideoUrls;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.services.videoservice.VideoService;
+import com.example.courseservice.services.videourlservice.VideoUrlService;
 import com.example.courseservice.utils.EnvironmentVariable;
 
 import lombok.extern.log4j.Log4j2;
@@ -32,6 +34,8 @@ public class EventHandler implements ApplicationListener<Event> {
     private UploadService uploadService;
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private VideoUrlService videoUrlService;
 
     @Override
     @Async
@@ -48,6 +52,8 @@ public class EventHandler implements ApplicationListener<Event> {
                     .thumbnailUrl(thumbnial.getUrl())
                     .build();
             videoService.insertVideoUrl(videoUpdate);
+            List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(), environmentVariables.getVideoMaxSegment(), video.getDuration());
+            videoUrlService.insertVideoUrl(videoUrls, videoResponse.getVideoId());
         }
     }
 }

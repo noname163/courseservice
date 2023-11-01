@@ -65,6 +65,7 @@ public class UploadServiceImpl implements UploadService {
             // Create and return a CloudinaryUrl object
             return CloudinaryUrl.builder()
                     .url(url)
+                    .publicId(publicId)
                     .duration(videoDuration)
                     .build();
         } catch (IOException e) {

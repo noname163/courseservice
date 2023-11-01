@@ -14,12 +14,14 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "Course_Topic",uniqueConstraints = @UniqueConstraint(columnNames = {"topic_id", "course_id"}))
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseTopic {

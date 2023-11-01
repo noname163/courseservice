@@ -48,6 +48,9 @@ public class EnvironmentVariable {
     @Value("${system.email}")
     private String systemEmail;
 
+    @Value("${video.max.segment}")
+    private Integer videoMaxSegment;
+
     public Map<String,String> initializeAllowedContentTypes() {
         Map<String, String> result = new HashMap<>();
         String[] types = allowedContentTypes.split(",");

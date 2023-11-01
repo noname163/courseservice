@@ -7,12 +7,12 @@ import com.example.courseservice.data.entities.Video;
 
 @Component
 public class VideoMapper {
-    public Video mapDtoToEntity(VideoRequest videoRequest){
+    public Video mapDtoToEntity(VideoRequest videoRequest) {
         return Video
-        .builder()
-        .order(videoRequest.getOrder())
-        .name(videoRequest.getName())
-        .description(videoRequest.getDescription())
-        .build();
+                .builder()
+                .ordinalNumber(videoRequest.getOrder())
+                .name(videoRequest.getName())
+                .description(videoRequest.getDescription())
+                .build();
     }
 }

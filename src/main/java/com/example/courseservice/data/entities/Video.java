@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.constants.VideoStatus;
@@ -23,9 +24,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Video")
-@Builder
+@Table(name = "Video",uniqueConstraints = @UniqueConstraint(columnNames = {"ordinal_number", "course_id"}))
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Video {
@@ -35,8 +36,6 @@ public class Video {
     private long id;
 
     private String name;
-
-    private Integer order;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -52,6 +51,8 @@ public class Video {
     private LocalDateTime updateTime;
 
     private VideoStatus status;
+
+    private Integer ordinalNumber;
 
     @ManyToOne()
     private Course course;
@@ -74,4 +75,5 @@ public class Video {
                 .filter(reactVideo -> reactVideo.getReactStatus() == reactStatus)
                 .count();
     }
+
 }

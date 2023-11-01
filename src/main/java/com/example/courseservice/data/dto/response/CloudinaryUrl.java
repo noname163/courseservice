@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CloudinaryUrl {
-    String url;
-    Float duration;
+    private String url;
+    private String publicId;
+    private Float duration;
 }
