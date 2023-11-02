@@ -21,8 +21,6 @@ import com.example.courseservice.filters.AuthenticationFilter;
 import com.example.courseservice.filters.ExceptionHandlerFilter;
 
 
-
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
