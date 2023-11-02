@@ -1,19 +1,15 @@
 package com.example.courseservice.event;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
-import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.dto.response.VideoUrls;
 import com.example.courseservice.data.object.VideoUpdate;
