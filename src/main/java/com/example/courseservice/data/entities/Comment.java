@@ -36,7 +36,7 @@ public class Comment {
 
     private LocalDateTime updateTime;
 
-    private Long studentId;
+    private String studentEmail;
 
     @Column(columnDefinition = "TEXT")
     private String commented;
