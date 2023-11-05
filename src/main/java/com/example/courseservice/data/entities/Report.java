@@ -32,7 +32,7 @@ public class Report {
 
     private String message;
 
-    private Long userId;
+    private String userEmail;
 
     private String url;
 

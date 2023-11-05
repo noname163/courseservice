@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
@@ -50,6 +51,7 @@ public class VideoServiceImpl implements VideoService {
         Video video = getVideoById(videoUpdate.getVideoId());
         video.setUrlVideo(videoUpdate.getVideoUrl());
         video.setUrlThumbnail(videoUpdate.getThumbnailUrl());
+        video.setStatus(CommonStatus.UNAVAILABLE);
         videoRepository.save(video);
     }
 

@@ -54,7 +54,7 @@ public class UploadServiceImpl implements UploadService {
     
             // Extract information from the upload result
             String publicId = uploadResult.get("public_id").toString();
-            String url = cloudinary.url().resourceType("auto").generate(publicId);
+            String url = cloudinary.url().resourceType(contentType).generate(publicId);
             float videoDuration = 0;
             if (uploadResult.get("duration") != null) {
                 videoDuration = Float.parseFloat(uploadResult.get("duration").toString());

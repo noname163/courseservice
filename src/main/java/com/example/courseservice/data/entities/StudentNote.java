@@ -40,7 +40,7 @@ public class StudentNote {
 
     private Time duration;
 
-    private Long studentId;
+    private String studentEmail;
 
     private CommonStatus commonStatus;
 

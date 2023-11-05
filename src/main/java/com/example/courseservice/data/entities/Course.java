@@ -3,16 +3,21 @@ package com.example.courseservice.data.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.example.courseservice.data.constants.CourseStatus;
+import com.example.courseservice.data.constants.CommonStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,7 +38,16 @@ public class Course {
 
     private String name;
 
-    private Long teacherId;
+    private String teacherEmail;
+
+    private String teacherName;
+
+    private String thumbinial;
+
+    private String subject;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     private LocalDateTime createDate;
 
@@ -41,9 +55,12 @@ public class Course {
 
     private Double price;
 
-    private int level;
+    @Enumerated(EnumType.STRING)
+    private CommonStatus commonStatus;
 
-    private CourseStatus courseStatus;
+    @ManyToOne()
+    @JoinColumn(name = "level_id")
+    private Level level;
 
     @OneToMany(mappedBy = "course")
     private List<Rating> ratings;

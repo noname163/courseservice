@@ -2,6 +2,7 @@ package com.example.courseservice.data.entities;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @Table(name = "Rating")
@@ -34,7 +34,10 @@ public class Rating {
 
     private LocalDateTime updateTime;
 
-    private Long studentId;
+    private String studentEmail;
+
+    @Column(columnDefinition = "TEXT")
+    private String comment;
 
     @ManyToOne()
     private Course course;
