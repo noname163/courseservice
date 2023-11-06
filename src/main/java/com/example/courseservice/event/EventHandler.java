@@ -45,6 +45,7 @@ public class EventHandler implements ApplicationListener<Event> {
                     .builder()
                     .videoId(videoResponse.getVideoId())
                     .videoUrl(video.getUrl())
+                    .duration(video.getDuration())
                     .thumbnailUrl(thumbnial.getUrl())
                     .build();
             videoService.insertVideoUrl(videoUpdate);

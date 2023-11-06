@@ -13,5 +13,5 @@ public class CourseRequest {
     private String name;
     private Double price;
     private String subject;
-    private int levelId;
+    private long levelId;
 }

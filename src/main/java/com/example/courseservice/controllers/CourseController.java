@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
+import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.exceptions.BadRequestException;
@@ -27,7 +28,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-
 
 @RestController
 @RequestMapping("/api/courses")
@@ -44,10 +44,11 @@ public class CourseController {
     })
     @PostMapping()
     @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
-    public ResponseEntity<Void> createCourse(@Valid @RequestBody CourseRequest courseRequest){
+    public ResponseEntity<Void> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
         courseService.createCourse(courseRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
     @Operation(summary = "Get courses")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
@@ -57,7 +58,6 @@ public class CourseController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping()
-    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCourses(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
@@ -66,5 +66,43 @@ public class CourseController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourse(page, size, field, sortType));
+    }
+
+    @Operation(summary = "Get courses for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/teacher")
+    @PreAuthorize("hasAnyAuthority('TEACHER')")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesByTeacherEmail(
+            @RequestParam(required = true) String email,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.getListCourseByEmail(email, page, size, field, sortType));
+    }
+
+    @Operation(summary = "Get courses detail")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course detail successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDetailResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/detail")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
+    public ResponseEntity<CourseDetailResponse> getCoursesDetail(
+            @RequestParam(required = true, defaultValue = "0") Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.courseDetailResponse(id));
     }
 }

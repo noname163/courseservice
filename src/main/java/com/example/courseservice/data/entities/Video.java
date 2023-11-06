@@ -50,6 +50,8 @@ public class Video {
 
     private LocalDateTime createDate;
 
+    private float duration;
+
     private LocalDateTime updateTime;
 
     @Enumerated(EnumType.STRING)

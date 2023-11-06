@@ -28,7 +28,7 @@ public class LevelServiceImpl implements LevelService {
     @Override
     public List<LevelResponse> getListLevel() {
         List<Level> levels = levelRepository.findAll();
-        if(levels.isEmpty()){
+        if (levels.isEmpty()) {
             return List.of();
         }
         List<LevelResponse> levelResponses = new ArrayList<>();
@@ -42,5 +42,11 @@ public class LevelServiceImpl implements LevelService {
         return levelResponses;
     }
 
-    
+    @Override
+    public Level getLevel(Long id) {
+        return levelRepository
+                .findById(id)
+                .orElseThrow(() -> new BadRequestException("Can not found level with id " + id));
+    }
+
 }
