@@ -16,8 +16,9 @@ public class WhitelistedUri {
 
     public boolean matches(HttpServletRequest request) {
         boolean uriMatches = request.getRequestURI().startsWith(uri);
+        boolean uriAdmin = request.getRequestURI().contains("admin");
         boolean methodMatches = httpMethod == null || request.getMethod().equals(httpMethod);
-        return uriMatches && methodMatches;
+        return uriMatches && methodMatches && !uriAdmin;
     }
 
     public WhitelistedUri parseWhitelistedUri(String uriString) {

@@ -6,22 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
-import com.example.courseservice.services.communicateservice.GeneralService;
-import com.example.courseservice.services.communicateservice.OpenConnect;
-import com.example.courseservice.services.fileservice.FileService;
-import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.services.videoservice.VideoService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,11 +28,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 @RequestMapping("/api/upload")
 public class UploadController {
     @Autowired
-    private FileService fileService;
-    @Autowired
     private EventPublisher eventPublisher;
-    @Autowired
-    private GeneralService generalService;
     @Autowired
     private VideoService videoService;
 
@@ -57,11 +46,6 @@ public class UploadController {
             @RequestPart() MultipartFile thumbnail) throws IOException {
         eventPublisher.publishEvent(videoService.saveVideo(videoRequest, video, thumbnail));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
-    }
-
-    @GetMapping("/check")
-    public ResponseEntity<Boolean> check(String token){
-        return ResponseEntity.status(HttpStatus.OK).body(generalService.checkToken(token));
     }
 }
 

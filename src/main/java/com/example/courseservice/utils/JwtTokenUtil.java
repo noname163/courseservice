@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.constants.Common;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
+import com.example.courseservice.services.communicateservice.GeneralService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -20,6 +21,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtTokenUtil {
     @Autowired
     private EnvironmentVariable environmentVariables;
+    @Autowired
+    private GeneralService generalService;
 
     private String doGenerateToken(Map<String, Object> claims, String subject, Integer expriesTime) {
         return Jwts.builder()
@@ -41,6 +44,7 @@ public class JwtTokenUtil {
     public Jws<Claims> getJwsClaims(String token, String from) {
         String secretKey = "";
         if (Common.BEARER.equals(from)) {
+            generalService.checkToken(token);
             secretKey = environmentVariables.getJwtSecret();
         }
         if (Common.SERVICE.equals(from)) {

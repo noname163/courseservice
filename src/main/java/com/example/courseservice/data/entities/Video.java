@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,8 +17,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.ReactStatus;
-import com.example.courseservice.data.constants.VideoStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,9 +50,12 @@ public class Video {
 
     private LocalDateTime createDate;
 
+    private float duration;
+
     private LocalDateTime updateTime;
 
-    private VideoStatus status;
+    @Enumerated(EnumType.STRING)
+    private CommonStatus status;
 
     private Integer ordinalNumber;
 

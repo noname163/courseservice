@@ -34,10 +34,10 @@ public class ReplyComment {
 
     private LocalDateTime updateTime;
 
-    private Long studentId;
+    private String studentEmail;
 
     @Column(columnDefinition = "TEXT")
-    private String commented;
+    private String comment;
 
     private CommonStatus commonStatus;
 
@@ -45,5 +45,5 @@ public class ReplyComment {
     private Video video;
 
     @ManyToOne
-    private Comment comment;
+    private Comment commentObject;
 }
