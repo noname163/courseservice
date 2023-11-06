@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class CourseResponse {
+    private long id;
     private String thumbinial;
     private String teacherName;
     private String courseName;

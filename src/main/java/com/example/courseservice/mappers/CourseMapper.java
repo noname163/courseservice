@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.dto.request.CourseRequest;
+import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.object.UserInformation;
@@ -30,9 +31,18 @@ public class CourseMapper {
                 .build();
     }
 
+    public CourseDetailResponse mapCourseDetailEntityToDto(Course course) {
+        return CourseDetailResponse
+                .builder()
+                .updateDate(course.getUpdateTime())
+                .totalStudent(course.getStudentEnrolledCourses().size())
+                .build();
+    }
+
     public CourseResponse mapEntityToDto(Course course) {
         return CourseResponse
                 .builder()
+                .id(course.getId())
                 .courseName(course.getName())
                 .teacherName(course.getTeacherName())
                 .thumbinial(course.getThumbinial())
@@ -43,7 +53,7 @@ public class CourseMapper {
                 .build();
     }
 
-    public List<CourseResponse> mapEntitiesToDtos(List<Course> courses){
+    public List<CourseResponse> mapEntitiesToDtos(List<Course> courses) {
         return courses.stream().map(this::mapEntityToDto).collect(Collectors.toList());
     }
 }
