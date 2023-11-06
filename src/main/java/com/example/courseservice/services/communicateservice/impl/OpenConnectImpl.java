@@ -15,29 +15,9 @@ import com.example.courseservice.utils.JwtTokenUtil;
 public class OpenConnectImpl implements OpenConnect {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    // @Autowired
-    // private WebClient.Builder webClientBuilder;
-
-    // @Override
-    // public WebClient openConnect(String baseUrl) {
-    //     return webClientBuilder
-    //             .baseUrl(baseUrl)
-    //             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-    //             .build();
-    // }
-
-    // @Override
-    // public WebClient openConnectWithToken(String baseUrl) {
-    //     String authenToken = Common.SERVICE + jwtTokenUtil.generateJwtSytemToken();
-    //     return webClientBuilder
-    //             .baseUrl(baseUrl)
-    //             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-    //             .defaultHeader(HttpHeaders.AUTHORIZATION, authenToken)
-    //             .build();
-    // }
 
     @Override
-    public HttpEntity<?>  authenticationHeader() {
+    public HttpEntity<?> authenticationHeader() {
         String authenToken = Common.SERVICE + jwtTokenUtil.generateJwtSytemToken();
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);

@@ -33,6 +33,7 @@ public class CourseMapper {
     public CourseResponse mapEntityToDto(Course course) {
         return CourseResponse
                 .builder()
+                .id(course.getId())
                 .courseName(course.getName())
                 .teacherName(course.getTeacherName())
                 .thumbinial(course.getThumbinial())

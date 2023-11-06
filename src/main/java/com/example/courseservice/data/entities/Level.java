@@ -29,6 +29,6 @@ public class Level {
 
     private String name;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "level")
     private List<Course> courses;
 }
