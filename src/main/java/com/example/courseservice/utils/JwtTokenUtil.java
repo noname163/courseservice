@@ -44,7 +44,6 @@ public class JwtTokenUtil {
     public Jws<Claims> getJwsClaims(String token, String from) {
         String secretKey = "";
         if (Common.BEARER.equals(from)) {
-            generalService.checkToken(token);
             secretKey = environmentVariables.getJwtSecret();
         }
         if (Common.SERVICE.equals(from)) {
