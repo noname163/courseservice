@@ -11,5 +11,5 @@ import com.example.courseservice.data.entities.Video;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
     List<Video> findByCourse(Course course);
-    Optional<Video> findByIdAndCommonStatus(Long id, CommonStatus commonStatus);
+    Optional<Video> findByIdAndStatus(Long id, CommonStatus status);
 }
