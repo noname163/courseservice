@@ -19,7 +19,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Course_Topic",uniqueConstraints = @UniqueConstraint(columnNames = {"topic_id", "course_id"}))
+@Table(name = "Course_Topic",uniqueConstraints = @UniqueConstraint(columnNames = {"topic_name", "course_id"}))
 @Data
 @Builder
 @NoArgsConstructor
@@ -34,8 +34,8 @@ public class CourseTopic {
 
     private LocalDateTime updateTime;
     
-    @Column(name = "topic_id")
-    private Long topicId;
+    @Column(name = "topic_name")
+    private String topicName;
 
     @ManyToOne
     @JoinColumn(name = "course_id")

@@ -43,6 +43,7 @@ public class CourseMapper {
         return CourseResponse
                 .builder()
                 .id(course.getId())
+                .level(course.getLevel().getName())
                 .courseName(course.getName())
                 .teacherName(course.getTeacherName())
                 .thumbinial(course.getThumbinial())
