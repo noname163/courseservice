@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CommentResponse {
-    private String fullName;
+    private String email;
     private LocalDate createDate;
     private String comment;
 }
