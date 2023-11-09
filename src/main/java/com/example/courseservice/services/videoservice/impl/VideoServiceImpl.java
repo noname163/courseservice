@@ -65,12 +65,12 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Video getVideoById(Long videoId) {
         return videoRepository
-                .findById(videoId)
+                .findByIdAndCommonStatus(videoId, CommonStatus.AVAILABLE)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoId));
     }
 
     @Override
-    public VideoDetailResponse getVideoDetailById(Long videoId) {
+    public VideoDetailResponse getAvailableVideoDetailById(Long videoId) {
         Video video = videoRepository
                 .findById(videoId)
                 .orElseThrow(() -> new BadRequestException("Cannot found video with id " + videoId));
@@ -83,6 +83,12 @@ public class VideoServiceImpl implements VideoService {
         VideoDetailResponse videoResponse = videoMapper.mapEntityToDto(video);
         videoResponse.setVideoItemResponses(videoItemResponses);
         return videoResponse;
+    }
+
+    @Override
+    public List<VideoItemResponse> getListVideoAvailableByCourse(Long courseId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getListVideoAvailableByCourse'");
     }
 
 }
