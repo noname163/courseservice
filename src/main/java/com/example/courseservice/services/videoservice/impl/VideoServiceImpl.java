@@ -65,7 +65,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Video getVideoById(Long videoId) {
         return videoRepository
-                .findByIdAndCommonStatus(videoId, CommonStatus.AVAILABLE)
+                .findByIdAndStatus(videoId, CommonStatus.AVAILABLE)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoId));
     }
 
