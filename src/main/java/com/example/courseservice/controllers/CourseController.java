@@ -43,7 +43,7 @@ public class CourseController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @PostMapping()
-    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
+    @PreAuthorize("hasAuthority('TEACHER')")
     public ResponseEntity<Void> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
         courseService.createCourse(courseRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -98,11 +98,10 @@ public class CourseController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping("/detail")
-    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
     public ResponseEntity<CourseDetailResponse> getCoursesDetail(
             @RequestParam(required = true, defaultValue = "0") Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.courseDetailResponse(id));
+                .body(courseService.getCourseDetail(id));
     }
 }

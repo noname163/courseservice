@@ -43,10 +43,11 @@ public class CourseMapper {
         return CourseResponse
                 .builder()
                 .id(course.getId())
+                .price(course.getPrice())
                 .level(course.getLevel().getName())
                 .courseName(course.getName())
                 .teacherName(course.getTeacherName())
-                .thumbinial(course.getThumbinial())
+                .thumbnial(course.getThumbnial())
                 .rating(course.getAverageRating())
                 .numberOfRate(course.getRatings().size())
                 .subject(course.getSubject())

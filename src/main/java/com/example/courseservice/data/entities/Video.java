@@ -19,6 +19,7 @@ import javax.persistence.UniqueConstraint;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.ReactStatus;
+import com.example.courseservice.data.constants.VideoStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,6 +57,9 @@ public class Video {
 
     @Enumerated(EnumType.STRING)
     private CommonStatus status;
+    
+    @Enumerated(EnumType.STRING)
+    private VideoStatus videoStatus;
 
     private Integer ordinalNumber;
 

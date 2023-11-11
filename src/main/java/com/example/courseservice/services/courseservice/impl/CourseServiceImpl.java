@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
@@ -23,6 +24,7 @@ import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.mappers.VideoCourseMapper;
 import com.example.courseservice.services.courseservice.CourseService;
+import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.levelservice.LevelService;
 import com.example.courseservice.services.uploadservice.UploadService;
@@ -41,6 +43,8 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private PageableUtil pageableUtil;
     @Autowired
+    private CourseTopicService courseTopicService;
+    @Autowired
     private LevelService levelService;
     @Autowired
     private VideoCourseMapper videoCourseMapper;
@@ -51,9 +55,10 @@ public class CourseServiceImpl implements CourseService {
         CloudinaryUrl thumbinial = uploadService.uploadMedia(fileResponse);
         Level level = levelService.getLevel(courseRequest.getLevelId());
         Course course = courseMapper.mapDtoToEntity(courseRequest);
-        course.setThumbinial(thumbinial.getUrl());
+        course.setThumbnial(thumbinial.getUrl());
         course.setLevel(level);
         course.setCommonStatus(CommonStatus.AVAILABLE);
+        course.setCourseTopics(courseTopicService.courseTopicsByString(courseRequest.getTopic()));
         courseRepository.save(course);
     }
 
@@ -87,7 +92,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseDetailResponse courseDetailResponse(long id) {
+    public CourseDetailResponse getCourseDetail(long id) {
         Course course = courseRepository
                 .findById(id)
                 .orElseThrow(() -> new BadRequestException("Cannot found course with id " + id));
@@ -98,6 +103,13 @@ public class CourseServiceImpl implements CourseService {
         }
         courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
         return courseDetailResponse;
+    }
+
+    @Override
+    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, String value, Integer page,
+            Integer size, String field, SortType sortType) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'filterCourseBy'");
     }
 
 }
