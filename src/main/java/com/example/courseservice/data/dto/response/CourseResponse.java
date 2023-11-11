@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class CourseResponse {
     private long id;
-    private String thumbinial;
+    private String thumbnial;
     private String teacherName;
     private String courseName;
     private float rating;

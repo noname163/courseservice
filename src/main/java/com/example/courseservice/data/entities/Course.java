@@ -34,7 +34,7 @@ public class Course {
     @Id
     @SequenceGenerator(name = "course_sequence", sequenceName = "course_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "course_sequence")
-    private long id;
+    private Long id;
 
     private String name;
 
@@ -42,7 +42,7 @@ public class Course {
 
     private String teacherName;
 
-    private String thumbinial;
+    private String thumbnial;
 
     private String subject;
 

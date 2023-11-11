@@ -1,5 +1,7 @@
 package com.example.courseservice.data.dto.request;
 
+import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Builder;
@@ -14,4 +16,5 @@ public class CourseRequest {
     private Double price;
     private String subject;
     private long levelId;
+    private List<String> topic;
 }
