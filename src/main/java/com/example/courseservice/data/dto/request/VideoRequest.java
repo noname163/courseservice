@@ -2,6 +2,8 @@ package com.example.courseservice.data.dto.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.courseservice.data.constants.VideoStatus;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,5 +15,6 @@ public class VideoRequest {
     private String name;
     private Long courseId;
     private String description;
+    private VideoStatus videoStatus;
     private Integer order;
 }

@@ -26,9 +26,9 @@ public class Rating {
     @Id
     @SequenceGenerator(name = "rating_sequence", sequenceName = "rating_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rating_sequence")
-    private long id;
+    private Long id;
 
-    private int rate;
+    private Float rate;
 
     private LocalDateTime createDate;
 

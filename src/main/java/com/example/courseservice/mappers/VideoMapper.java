@@ -16,6 +16,7 @@ public class VideoMapper {
     public Video mapDtoToEntity(VideoRequest videoRequest) {
         return Video
                 .builder()
+                .videoStatus(videoRequest.getVideoStatus())
                 .ordinalNumber(videoRequest.getOrder())
                 .name(videoRequest.getName())
                 .description(videoRequest.getDescription())
