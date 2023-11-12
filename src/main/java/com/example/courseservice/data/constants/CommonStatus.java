@@ -4,5 +4,6 @@ public enum CommonStatus {
     AVAILABLE,
     AVAILABLE1,
     UNAVAILABLE,
-    BANNED
+    BANNED,
+    ALL
 }

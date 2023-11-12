@@ -28,4 +28,5 @@ public class VideoCourseMapper {
                 .map(this::mapEntityToDto)
                 .collect(Collectors.toList());
     }
+
 }
