@@ -9,6 +9,7 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
@@ -21,6 +22,12 @@ public interface VideoService {
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
     public Video getVideoById(Long videoId);
+
+    public PaginationResponse<List<VideoAdminResponse>>  getVideoForAdmin(CommonStatus commonStatus, Integer page,
+            Integer size, String field, SortType sortType);
+
+    public PaginationResponse<List<VideoAdminResponse>>  getVideoForTeacher(String email,CommonStatus commonStatus, Integer page,
+            Integer size, String field, SortType sortType);
 
     public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus);
 

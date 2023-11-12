@@ -51,7 +51,6 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private VideoCourseMapper videoCourseMapper;
 
-
     private final Double maxRate = 5d;
 
     @Override
@@ -82,12 +81,22 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getListCourse(Integer page, Integer size, String field,
+    public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size,
+            String field,
             SortType sortType) {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<Course> listSubject = courseRepository.findByCommonStatus(pageable, CommonStatus.AVAILABLE);
+        if (commonStatus.equals(CommonStatus.ALL)) {
+            Page<Course> listSubject = courseRepository.findAll(pageable);
+            return PaginationResponse.<List<CourseResponse>>builder()
+                    .data(courseMapper.mapEntitiesToDtos(listSubject.getContent()))
+                    .totalPage(listSubject.getTotalPages())
+                    .totalRow(listSubject.getTotalElements())
+                    .build();
+        }
+
+        Page<Course> listSubject = courseRepository.findByCommonStatus(pageable, commonStatus);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapEntitiesToDtos(listSubject.getContent()))
@@ -119,30 +128,31 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, List<String> value,
+    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, CommonStatus commonStatus,
+            List<String> value,
             Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         PaginationResponse<List<CourseResponse>> result = PaginationResponse.<List<CourseResponse>>builder().build();
         switch (filterBy) {
             case SUBJECT:
-                Page<Course> course = courseRepository.findByCommonStatusAndSubjectIn(pageable, CommonStatus.AVAILABLE,
+                Page<Course> course = courseRepository.findByCommonStatusAndSubjectIn(pageable, commonStatus,
                         value);
                 result.setData(courseMapper.mapEntitiesToDtos(course.getContent()));
                 result.setTotalPage(course.getTotalPages());
                 result.setTotalRow(course.getNumberOfElements());
                 break;
             case RATE:
-                result = filterCourseByRate(value, CommonStatus.AVAILABLE, pageable);
+                result = filterCourseByRate(value, commonStatus, pageable);
                 break;
             case PRICE:
-                result = filterByPrice(value, CommonStatus.AVAILABLE, pageable);
+                result = filterByPrice(value, commonStatus, pageable);
                 break;
             case LEVEL:
-                result = filterCourseByLevel(value, CommonStatus.AVAILABLE, pageable);
+                result = filterCourseByLevel(value, commonStatus, pageable);
                 break;
             default:
-                result = getListCourse(page, size, field, sortType);
+                result = getListCourse(commonStatus, page, size, field, sortType);
                 break;
         }
         return result;

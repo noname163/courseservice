@@ -51,7 +51,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "Get courses")
+    @Operation(summary = "Get courses for user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
@@ -67,7 +67,27 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getListCourse(page, size, field, sortType));
+                .body(courseService.getListCourse(CommonStatus.AVAILABLE, page, size, field, sortType));
+    }
+    @Operation(summary = "Get courses for admin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesForAdmin(
+            @RequestParam(required = false, defaultValue = "ALL") CommonStatus commonStatus,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.getListCourse(commonStatus, page, size, field, sortType));
     }
 
     @Operation(summary = "Get courses for teacher")
@@ -79,7 +99,7 @@ public class CourseController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping("/teacher")
-    @PreAuthorize("hasAnyAuthority('TEACHER')")
+    @PreAuthorize("hasAuthority('TEACHER')")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesByTeacherEmail(
             @RequestParam(required = true) String email,
             @RequestParam(required = false, defaultValue = "0") Integer page,
@@ -108,7 +128,7 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.filterCourseBy(filterBy, value,page, size, field, sortType));
+                .body(courseService.filterCourseBy(filterBy, CommonStatus.AVAILABLE, value,page, size, field, sortType));
     }
 
     @Operation(summary = "Get courses detail")
