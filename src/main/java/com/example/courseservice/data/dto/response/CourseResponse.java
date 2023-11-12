@@ -1,5 +1,9 @@
 package com.example.courseservice.data.dto.response;
 
+import java.time.LocalDateTime;
+
+import com.example.courseservice.data.constants.CommonStatus;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,4 +20,7 @@ public class CourseResponse {
     private String subject;
     private String level;
     private double price;
+    private LocalDateTime createdDate;
+    private LocalDateTime updateDate;
+    private CommonStatus status;
 }

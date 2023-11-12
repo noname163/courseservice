@@ -14,6 +14,6 @@ public interface CourseService {
     public void createCourse(CourseRequest courseRequest);
     public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus);
     public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String email, Integer page, Integer size, String field, SortType sortType);
-    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy,List<String> value, Integer page, Integer size, String field, SortType sortType);
-    public PaginationResponse<List<CourseResponse>> getListCourse(Integer page, Integer size, String field, SortType sortType);
+    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy,CommonStatus commonStatus,List<String> value, Integer page, Integer size, String field, SortType sortType);
+    public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size, String field, SortType sortType);
 }

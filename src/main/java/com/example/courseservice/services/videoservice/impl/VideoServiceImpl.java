@@ -15,6 +15,7 @@ import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
@@ -107,6 +108,51 @@ public class VideoServiceImpl implements VideoService {
                 .totalRow(videos.getTotalElements())
                 .build();
 
+    }
+
+    @Override
+    public PaginationResponse<List<VideoAdminResponse>> getVideoForAdmin(CommonStatus commonStatus, Integer page,
+            Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        if (CommonStatus.ALL.equals(commonStatus)) {
+            Page<Video> videos = videoRepository.findAll(pageable);
+            return PaginationResponse.<List<VideoAdminResponse>>builder()
+                    .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                    .totalPage(videos.getTotalPages())
+                    .totalRow(videos.getTotalElements())
+                    .build();
+        }
+        Page<Video> videos = videoRepository.findByStatus(commonStatus, pageable);
+        return PaginationResponse.<List<VideoAdminResponse>>builder()
+                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                .totalPage(videos.getTotalPages())
+                .totalRow(videos.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(String email, CommonStatus commonStatus,
+            Integer page,
+            Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
+        if(courses.isEmpty()){
+            throw new BadRequestException("Cannot found any courses with email " + email);
+        }
+        if (CommonStatus.ALL.equals(commonStatus)) {
+            Page<Video> videos = videoRepository.findByCourseIn(courses,pageable);
+            return PaginationResponse.<List<VideoAdminResponse>>builder()
+                    .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                    .totalPage(videos.getTotalPages())
+                    .totalRow(videos.getTotalElements())
+                    .build();
+        }
+        Page<Video> videos = videoRepository.findByStatusAndCourseIn(commonStatus, courses,pageable);
+        return PaginationResponse.<List<VideoAdminResponse>>builder()
+                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                .totalPage(videos.getTotalPages())
+                .totalRow(videos.getTotalElements())
+                .build();
     }
 
 }

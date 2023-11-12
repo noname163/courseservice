@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Video;
@@ -40,6 +41,28 @@ public class VideoMapper {
                 .duration(video.getDuration())
                 .name(video.getName())
                 .build();
+    }
+
+    public VideoAdminResponse mapVideoToVideoAdminResponse(Video video) {
+        return VideoAdminResponse
+                .builder()
+                .id(video.getId())
+                .courseName(video.getCourse().getName())
+                .name(video.getName())
+                .createDate(video.getCreateDate())
+                .updateDate(video.getUpdateTime())
+                .dislike(video.getReaction(ReactStatus.DISLIKE))
+                .like(video.getReaction(ReactStatus.LIKE))
+                .status(video.getStatus())
+                .videoStatus(video.getVideoStatus())
+                .build();
+    }
+
+    public List<VideoAdminResponse> mapVideosToVideoAdminResponses(List<Video> videos) {
+        return videos
+                .stream()
+                .map(this::mapVideoToVideoAdminResponse)
+                .collect(Collectors.toList());
     }
 
     public List<VideoItemResponse> mapVideosToVideoItemResponses(List<Video> videos) {
