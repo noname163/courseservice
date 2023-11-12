@@ -51,7 +51,8 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private VideoCourseMapper videoCourseMapper;
 
-    private final float maxRate = 5;
+
+    private final Double maxRate = 5d;
 
     @Override
     public void createCourse(CourseRequest courseRequest) {
@@ -132,11 +133,16 @@ public class CourseServiceImpl implements CourseService {
                 result.setTotalRow(course.getNumberOfElements());
                 break;
             case RATE:
-                filterCourseByRate(value, CommonStatus.AVAILABLE, pageable);
+                result = filterCourseByRate(value, CommonStatus.AVAILABLE, pageable);
                 break;
-
+            case PRICE:
+                result = filterByPrice(value, CommonStatus.AVAILABLE, pageable);
+                break;
+            case LEVEL:
+                result = filterCourseByLevel(value, CommonStatus.AVAILABLE, pageable);
+                break;
             default:
-                courseRepository.findByCommonStatus(pageable, CommonStatus.AVAILABLE);
+                result = getListCourse(page, size, field, sortType);
                 break;
         }
         return result;
@@ -147,7 +153,7 @@ public class CourseServiceImpl implements CourseService {
         if (value.size() > 1) {
             throw new BadRequestException("Invalid data require for filter by rate");
         }
-        Float minRate = Float.parseFloat(value.stream().findFirst().get());
+        Double minRate = Double.parseDouble(value.stream().findFirst().get());
         if (minRate < 0) {
             throw new BadRequestException("Rate cannot smaller than 0");
         }
@@ -160,9 +166,42 @@ public class CourseServiceImpl implements CourseService {
                 .build();
     }
 
-    // private PaginationResponse<List<CourseResponse>> filterByPrice(List<String>
-    // value, CommonStatus commonStatus,Pageable pageable){
+    private PaginationResponse<List<CourseResponse>> filterCourseByLevel(List<String> value, CommonStatus commonStatus,
+            Pageable pageable) {
+        if (value.size() > 3) {
+            throw new BadRequestException("Invalid data require for filter by rate");
+        }
+        List<Long> levelIds = value
+                .stream()
+                .map(id -> Long.parseLong(id))
+                .collect(Collectors.toList());
+        List<Level> levels = levelService.getListLevel(levelIds);
+        Page<Course> courses = courseRepository.findByCommonStatusAndLevelIn(pageable, commonStatus, levels);
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
+                .totalPage(courses.getTotalPages())
+                .totalRow(courses.getTotalElements())
+                .build();
+    }
 
-    // }
+    private PaginationResponse<List<CourseResponse>> filterByPrice(List<String> value, CommonStatus commonStatus,
+            Pageable pageable) {
+        if (value.size() > 2) {
+            throw new BadRequestException("Invalid data for filter by price");
+        }
+        Double price1 = Double.parseDouble(value.get(0));
+        Double price2 = Double.parseDouble(value.get(1));
+
+        Double min = Math.min(price1, price2);
+        Double max = Math.max(price1, price2);
+        Page<Course> courses = courseRepository.findByCommonStatusAndPriceBetween(commonStatus, min,
+                max, pageable);
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
+                .totalPage(courses.getTotalPages())
+                .totalRow(courses.getTotalElements())
+                .build();
+
+    }
 
 }

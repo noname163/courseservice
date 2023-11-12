@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CourseDetailResponse{
+    private Long id;
     private CourseResponse courseResponse;
     private int totalStudent;
     private LocalDateTime updateDate;
