@@ -59,7 +59,7 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping()
-    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT', 'TEACHER')")
     public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoByCourseId(
             @RequestParam(required = true) Long courseId,
             @RequestParam(required = false, defaultValue = "0") Integer page,
