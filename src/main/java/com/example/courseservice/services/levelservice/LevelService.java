@@ -9,4 +9,5 @@ public interface LevelService {
     public void createLevel(String name);
     public List<LevelResponse> getListLevel();
     public Level getLevel(Long id);
+    public List<Level> getListLevel(List<Long> ids);
 }
