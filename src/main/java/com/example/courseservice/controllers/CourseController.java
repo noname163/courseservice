@@ -98,8 +98,8 @@ public class CourseController {
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
-    @GetMapping("/teacher")
     @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/teacher")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesByTeacherEmail(
             @RequestParam(required = true) String email,
             @RequestParam(required = false, defaultValue = "0") Integer page,
