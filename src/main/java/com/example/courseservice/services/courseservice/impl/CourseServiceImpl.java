@@ -1,6 +1,7 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
+import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
@@ -48,6 +50,8 @@ public class CourseServiceImpl implements CourseService {
     private LevelService levelService;
     @Autowired
     private VideoCourseMapper videoCourseMapper;
+
+    private final float maxRate = 5;
 
     @Override
     public void createCourse(CourseRequest courseRequest) {
@@ -92,24 +96,73 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseDetailResponse getCourseDetail(long id) {
+    public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus) {
         Course course = courseRepository
-                .findById(id)
-                .orElseThrow(() -> new BadRequestException("Cannot found course with id " + id));
+                .findByIdAndCommonStatus(id, commonStatus)
+                .orElseThrow(() -> new BadRequestException("Cannot find course with id " + id));
+
         CourseDetailResponse courseDetailResponse = courseMapper.mapCourseDetailEntityToDto(course);
+
         if (!course.getVideos().isEmpty()) {
-            List<CourseVideoResponse> courseVideoResponses = videoCourseMapper.mapEntitiesToDtos(course.getVideos());
+            List<Video> videos = course.getVideos()
+                    .stream()
+                    .filter(video -> video.getStatus().equals(CommonStatus.AVAILABLE))
+                    .collect(Collectors.toList());
+
+            List<CourseVideoResponse> courseVideoResponses = videoCourseMapper.mapEntitiesToDtos(videos);
             courseDetailResponse.setVideoResponse(courseVideoResponses);
         }
+
         courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
         return courseDetailResponse;
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, String value, Integer page,
+    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, List<String> value,
+            Integer page,
             Integer size, String field, SortType sortType) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'filterCourseBy'");
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        PaginationResponse<List<CourseResponse>> result = PaginationResponse.<List<CourseResponse>>builder().build();
+        switch (filterBy) {
+            case SUBJECT:
+                Page<Course> course = courseRepository.findByCommonStatusAndSubjectIn(pageable, CommonStatus.AVAILABLE,
+                        value);
+                result.setData(courseMapper.mapEntitiesToDtos(course.getContent()));
+                result.setTotalPage(course.getTotalPages());
+                result.setTotalRow(course.getNumberOfElements());
+                break;
+            case RATE:
+                filterCourseByRate(value, CommonStatus.AVAILABLE, pageable);
+                break;
+
+            default:
+                courseRepository.findByCommonStatus(pageable, CommonStatus.AVAILABLE);
+                break;
+        }
+        return result;
     }
+
+    private PaginationResponse<List<CourseResponse>> filterCourseByRate(List<String> value, CommonStatus commonStatus,
+            Pageable pageable) {
+        if (value.size() > 1) {
+            throw new BadRequestException("Invalid data require for filter by rate");
+        }
+        Float minRate = Float.parseFloat(value.stream().findFirst().get());
+        if (minRate < 0) {
+            throw new BadRequestException("Rate cannot smaller than 0");
+        }
+        Page<Course> courses = courseRepository.findByCommonStatusAndAverageRateBetween(commonStatus, minRate,
+                maxRate, pageable);
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
+                .totalPage(courses.getTotalPages())
+                .totalRow(courses.getTotalElements())
+                .build();
+    }
+
+    // private PaginationResponse<List<CourseResponse>> filterByPrice(List<String>
+    // value, CommonStatus commonStatus,Pageable pageable){
+
+    // }
 
 }

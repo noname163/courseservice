@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
@@ -102,6 +103,6 @@ public class CourseController {
             @RequestParam(required = true, defaultValue = "0") Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getCourseDetail(id));
+                .body(courseService.getCourseDetail(id,CommonStatus.AVAILABLE));
     }
 }

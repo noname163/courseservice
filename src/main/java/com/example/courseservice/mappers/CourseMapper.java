@@ -34,6 +34,8 @@ public class CourseMapper {
     public CourseDetailResponse mapCourseDetailEntityToDto(Course course) {
         return CourseDetailResponse
                 .builder()
+                .createDate(course.getCreateDate())
+                .description(course.getDescription())
                 .updateDate(course.getUpdateTime())
                 .totalStudent(course.getStudentEnrolledCourses().size())
                 .build();
