@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
@@ -88,6 +89,26 @@ public class CourseController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourseByEmail(email, page, size, field, sortType));
+    }
+    @Operation(summary = "Filter courses for student")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/filter")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> filterCourseBy(
+            @RequestParam(required = true) CourseFilter filterBy,
+            @RequestParam(required = true) List<String> value,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.filterCourseBy(filterBy, value,page, size, field, sortType));
     }
 
     @Operation(summary = "Get courses detail")

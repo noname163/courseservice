@@ -2,6 +2,7 @@ package com.example.courseservice.services.levelservice.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,12 @@ public class LevelServiceImpl implements LevelService {
         return levelRepository
                 .findById(id)
                 .orElseThrow(() -> new BadRequestException("Can not found level with id " + id));
+    }
+
+    @Override
+    public List<Level> getListLevel(List<Long> ids) {
+        ids = ids.stream().distinct().collect(Collectors.toList());
+        return levelRepository.findByIdIn(ids);
     }
 
 }

@@ -44,8 +44,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "HAVING AVG(r.rate) BETWEEN :minRate AND :maxRate")
     Page<Course> findByCommonStatusAndAverageRateBetween(
             @Param("commonStatus") CommonStatus commonStatus,
-            @Param("minRate") Float minRate,
-            @Param("maxRate") Float maxRate,
+            @Param("minRate") Double minRate,
+            @Param("maxRate") Double maxRate,
             Pageable pageable);
 
     public Page<Course> findByCommonStatusAndLevelIn(Pageable pageable, CommonStatus commonStatus,
