@@ -15,6 +15,7 @@ public class VideoCourseMapper {
         return CourseVideoResponse
                 .builder()
                 .id(video.getId())
+                .name(video.getName())
                 .duration(video.getDuration())
                 .totalComment(video.getComments().size())
                 .totalLike(video.getReaction(ReactStatus.LIKE))
