@@ -4,29 +4,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
+import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.VideoUpdate;
+import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.videoservice.VideoService;
+import com.example.courseservice.utils.PageableUtil;
 
 @Service
 public class VideoServiceImpl implements VideoService {
     @Autowired
     private VideoRepository videoRepository;
     @Autowired
+    private CourseRepository courseRepository;
+    @Autowired
     private VideoMapper videoMapper;
+    @Autowired
+    private PageableUtil pageableUtil;
     @Autowired
     private FileService fileService;
 
@@ -68,11 +80,9 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public VideoDetailResponse getAvailableVideoDetailById(Long videoId) {
-        Video video = videoRepository
-                .findById(videoId)
-                .orElseThrow(() -> new BadRequestException("Cannot found video with id " + videoId));
-        List<Video> videos = videoRepository.findByCourse(video.getCourse());
+    public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus) {
+        Video video = getVideoById(videoId);
+        List<Video> videos = videoRepository.findByCourseAndStatus(video.getCourse(), commonStatus);
 
         List<VideoItemResponse> videoItemResponses = new ArrayList<>();
         if (videos != null && !videos.isEmpty()) {
@@ -84,9 +94,19 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public List<VideoItemResponse> getListVideoAvailableByCourse(Long courseId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getListVideoAvailableByCourse'");
+    public PaginationResponse<List<VideoItemResponse>> getListVideoAvailableByCourse(Long courseId, Integer page,
+            Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Course course = courseRepository
+                .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
+                .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
+        Page<Video> videos = videoRepository.findByCourseAndStatus(course, CommonStatus.AVAILABLE, pageable);
+        return PaginationResponse.<List<VideoItemResponse>>builder()
+                .data(videoMapper.mapVideosToVideoItemResponses(videos.getContent()))
+                .totalPage(videos.getTotalPages())
+                .totalRow(videos.getTotalElements())
+                .build();
+
     }
 
 }

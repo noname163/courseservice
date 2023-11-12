@@ -14,6 +14,8 @@ import lombok.Setter;
 public class CourseDetailResponse{
     private CourseResponse courseResponse;
     private int totalStudent;
-    private List<CourseVideoResponse> videoResponse;
     private LocalDateTime updateDate;
+    private String description;
+    private LocalDateTime createDate;
+    private List<CourseVideoResponse> videoResponse;
 }

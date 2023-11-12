@@ -2,6 +2,7 @@ package com.example.courseservice.data.repositories;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -40,14 +41,17 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "LEFT JOIN c.ratings r " +
             "WHERE c.commonStatus = :commonStatus " +
             "GROUP BY c.id " +
-            "HAVING AVG(r.rate) IN :rates")
+            "HAVING AVG(r.rate) BETWEEN :minRate AND :maxRate")
     Page<Course> findByCommonStatusAndAverageRateBetween(
             @Param("commonStatus") CommonStatus commonStatus,
-            @Param("rates") List<Float> rate,
+            @Param("minRate") Float minRate,
+            @Param("maxRate") Float maxRate,
             Pageable pageable);
 
-    public Page<Course> findByCommonStatusAndLevelIn(Pageable pageable, CommonStatus commonStatus, List<Level> level);
+    public Page<Course> findByCommonStatusAndLevelIn(Pageable pageable, CommonStatus commonStatus,
+            List<Level> level);
 
     public List<Course> findByIdInAndCommonStatus(Set<Long> ids, CommonStatus commonStatus);
+    public Optional<Course> findByIdAndCommonStatus(Long id, CommonStatus commonStatus);
 
 }
