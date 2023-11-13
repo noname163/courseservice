@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class VideoDetailResponse {
     private String url;
+    private String thumbnail;
     private String name;
     private long like;
     private long dislike;

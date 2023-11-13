@@ -28,6 +28,7 @@ public class VideoMapper {
         return VideoDetailResponse
                 .builder()
                 .url(video.getUrlVideo())
+                .thumbnail(video.getUrlThumbnail())
                 .like(video.getReaction(ReactStatus.LIKE))
                 .dislike(video.getReaction(ReactStatus.DISLIKE))
                 .name(video.getName())
@@ -47,6 +48,7 @@ public class VideoMapper {
         return VideoAdminResponse
                 .builder()
                 .id(video.getId())
+                .thumbnail(video.getUrlThumbnail())
                 .courseName(video.getCourse().getName())
                 .name(video.getName())
                 .createDate(video.getCreateDate())

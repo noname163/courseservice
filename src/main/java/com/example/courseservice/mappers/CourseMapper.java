@@ -35,9 +35,7 @@ public class CourseMapper {
         return CourseDetailResponse
                 .builder()
                 .id(course.getId())
-                .createDate(course.getCreateDate())
                 .description(course.getDescription())
-                .updateDate(course.getUpdateTime())
                 .totalStudent(course.getStudentEnrolledCourses().size())
                 .build();
     }
