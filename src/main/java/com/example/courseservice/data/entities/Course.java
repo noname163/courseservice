@@ -70,9 +70,6 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<CourseTopic> courseTopics;
-
-    @OneToMany(mappedBy = "course")
-    private List<Material> materials;
     
     @OneToMany(mappedBy = "course")
     private List<Video> videos;

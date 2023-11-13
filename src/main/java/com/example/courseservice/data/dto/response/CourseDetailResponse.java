@@ -1,7 +1,5 @@
 package com.example.courseservice.data.dto.response;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.Builder;
@@ -13,10 +11,8 @@ import lombok.Setter;
 @Builder
 public class CourseDetailResponse{
     private Long id;
-    private CourseResponse courseResponse;
     private int totalStudent;
-    private LocalDateTime updateDate;
     private String description;
-    private LocalDateTime createDate;
+    private CourseResponse courseResponse;
     private List<CourseVideoResponse> videoResponse;
 }

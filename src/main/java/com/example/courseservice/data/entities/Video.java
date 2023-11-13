@@ -78,6 +78,9 @@ public class Video {
     @OneToMany(mappedBy = "video")
     private List<VideoUrl> videoUrls;
 
+    @OneToMany(mappedBy = "video")
+    private List<Material> materials;
+
     @Transient
     public long getReaction(ReactStatus reactStatus) {
         return reactVideos.stream()

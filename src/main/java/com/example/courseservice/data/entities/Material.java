@@ -38,5 +38,5 @@ public class Material {
     private CommonStatus commonStatus;
     
     @ManyToOne()
-    private Course course;
+    private Video video;
 }

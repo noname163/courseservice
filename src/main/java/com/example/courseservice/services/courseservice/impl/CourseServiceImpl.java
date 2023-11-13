@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
@@ -54,8 +55,8 @@ public class CourseServiceImpl implements CourseService {
     private final Double maxRate = 5d;
 
     @Override
-    public void createCourse(CourseRequest courseRequest) {
-        FileResponse fileResponse = fileService.fileStorage(courseRequest.getThumbinial());
+    public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {
+        FileResponse fileResponse = fileService.fileStorage(thumbnail);
         CloudinaryUrl thumbinial = uploadService.uploadMedia(fileResponse);
         Level level = levelService.getLevel(courseRequest.getLevelId());
         Course course = courseMapper.mapDtoToEntity(courseRequest);
