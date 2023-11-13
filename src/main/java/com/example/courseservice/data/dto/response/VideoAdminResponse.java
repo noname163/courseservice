@@ -13,6 +13,7 @@ import lombok.Data;
 public class VideoAdminResponse {
     private Long id;
     private String name;
+    private String thumbnail;
     private String courseName;
     private long like;
     private long dislike;

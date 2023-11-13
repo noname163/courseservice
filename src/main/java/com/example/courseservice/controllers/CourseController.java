@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
@@ -44,10 +46,11 @@ public class CourseController {
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
-    @PostMapping()
     @PreAuthorize("hasAuthority('TEACHER')")
-    public ResponseEntity<Void> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
-        courseService.createCourse(courseRequest);
+    @PostMapping("/teacher/create")
+    public ResponseEntity<Void> createCourse(@Valid @RequestPart CourseRequest courseRequest,
+            @RequestPart() MultipartFile thumbnail) {
+        courseService.createCourse(courseRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -69,6 +72,7 @@ public class CourseController {
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourse(CommonStatus.AVAILABLE, page, size, field, sortType));
     }
+
     @Operation(summary = "Get courses for admin")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
@@ -110,6 +114,7 @@ public class CourseController {
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourseByEmail(email, page, size, field, sortType));
     }
+
     @Operation(summary = "Filter courses for student")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
@@ -128,7 +133,9 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.filterCourseBy(filterBy, CommonStatus.AVAILABLE, value,page, size, field, sortType));
+                .body(courseService.filterCourseBy(filterBy, CommonStatus.AVAILABLE, value, page, size,
+                        field,
+                        sortType));
     }
 
     @Operation(summary = "Get courses detail")
@@ -144,6 +151,6 @@ public class CourseController {
             @RequestParam(required = true, defaultValue = "0") Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getCourseDetail(id,CommonStatus.AVAILABLE));
+                .body(courseService.getCourseDetail(id, CommonStatus.AVAILABLE));
     }
 }
