@@ -7,6 +7,6 @@ import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 
 public interface StudentEnrollCourseService {
-    public PaginationResponse<List<CourseResponse>> getListCourse(String email, Integer page,
+    public PaginationResponse<List<CourseResponse>> getListCourse(Integer page,
             Integer size, String field, SortType sortType);
 }
