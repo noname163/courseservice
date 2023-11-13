@@ -21,6 +21,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
+import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -51,6 +52,18 @@ public class CourseController {
     public ResponseEntity<Void> createCourse(@Valid @RequestPart CourseRequest courseRequest,
             @RequestPart() MultipartFile thumbnail) {
         courseService.createCourse(courseRequest, thumbnail);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @Operation(summary = "Verify courses")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Verify course successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/admin/verify-course")
+    public ResponseEntity<Void> verifyCourse(@Valid @RequestBody VerifyRequest verifyRequest) {
+        courseService.verifyCourse(verifyRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
