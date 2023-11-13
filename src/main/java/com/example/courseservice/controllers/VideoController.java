@@ -2,18 +2,23 @@ package com.example.courseservice.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
@@ -48,6 +53,19 @@ public class VideoController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(videoService.getAvailableVideoDetailById(id, CommonStatus.AVAILABLE));
+    }
+
+    @Operation(summary = "Verify video")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Verify video successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/admin/verify-video")
+    public ResponseEntity<Void> verifyCourse(@Valid @RequestBody VerifyRequest verifyRequest) {
+        videoService.verifyVideo(verifyRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "Get list video course id")
@@ -94,6 +112,7 @@ public class VideoController {
                 .body(videoService.getVideoForTeacher(email, commonStatus, page, size, field,
                         sortType));
     }
+
     @Operation(summary = "Get list video for admin")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get video successfully.", content = {

@@ -15,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import com.example.courseservice.data.constants.CommonStatus;
 
@@ -25,16 +24,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Course")
+@Table(name = "Course_Temporary")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Course {
+public class CourseTemporary {
     @Id
-    @SequenceGenerator(name = "course_sequence", sequenceName = "course_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "course_sequence")
+    @SequenceGenerator(name = "course_temporary_sequence", sequenceName = "course_temporary_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "course_temporary_sequence")
     private Long id;
+
+    @ManyToOne()
+    private Course course;
 
     private String name;
 
@@ -58,36 +60,11 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private CommonStatus commonStatus;
 
-    @ManyToOne()
-    @JoinColumn(name = "level_id")
-    private Level level;
+    // @ManyToOne()
+    // @JoinColumn(name = "level_id")
+    // private Long levelId;
 
-    @OneToMany(mappedBy = "course")
-    private List<Rating> ratings;
-
-    @OneToMany(mappedBy = "course")
-    private List<StudentEnrolledCourses> studentEnrolledCourses;
-
-    @OneToMany(mappedBy = "course")
-    private List<CourseTopic> courseTopics;
-
-    @OneToMany(mappedBy = "course")
-    private List<CourseTemporary> courseTemporaries;
+    // @OneToMany(mappedBy = "course")
+    // private List<CourseTopic> courseTopics;
     
-    @OneToMany(mappedBy = "course")
-    private List<Video> videos;
-
-    @Transient 
-    public float getAverageRating() {
-        if (ratings == null || ratings.isEmpty()) {
-            return 0.0f;
-        }
-
-        int sum = 0;
-        for (Rating rating : ratings) {
-            sum += rating.getRate();
-        }
-
-        return (float) sum / ratings.size();
-    }
 }

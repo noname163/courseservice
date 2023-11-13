@@ -12,7 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.dto.request.CourseRequest;
+import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
@@ -56,9 +58,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {
+        Level level = levelService.getLevel(courseRequest.getLevelId());
         FileResponse fileResponse = fileService.fileStorage(thumbnail);
         CloudinaryUrl thumbinial = uploadService.uploadMedia(fileResponse);
-        Level level = levelService.getLevel(courseRequest.getLevelId());
         Course course = courseMapper.mapDtoToEntity(courseRequest);
         course.setThumbnial(thumbinial.getUrl());
         course.setLevel(level);
@@ -213,6 +215,25 @@ public class CourseServiceImpl implements CourseService {
                 .totalRow(courses.getTotalElements())
                 .build();
 
+    }
+
+    @Override
+    public void verifyCourse(VerifyRequest verifyRequest) {
+        Course course = courseRepository
+                .findById(verifyRequest.getId())
+                .orElseThrow(() -> new BadRequestException("Cannot find course with id " + verifyRequest.getId()));
+        if (course.getCommonStatus() == CommonStatus.AVAILABLE && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
+            throw new BadRequestException("There is no difference to change");
+        }
+        if (course.getCommonStatus() == CommonStatus.REJECT && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)) {
+            throw new BadRequestException("There is no difference to change");
+        }
+        if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
+            course.setCommonStatus(CommonStatus.AVAILABLE);
+        } else {
+            course.setCommonStatus(CommonStatus.REJECT);
+        }
+        courseRepository.save(course);
     }
 
 }
