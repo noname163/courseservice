@@ -222,10 +222,12 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository
                 .findById(verifyRequest.getId())
                 .orElseThrow(() -> new BadRequestException("Cannot find course with id " + verifyRequest.getId()));
-        if (course.getCommonStatus() == CommonStatus.AVAILABLE && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
+        if (course.getCommonStatus() == CommonStatus.AVAILABLE
+                && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
             throw new BadRequestException("There is no difference to change");
         }
-        if (course.getCommonStatus() == CommonStatus.REJECT && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)) {
+        if (course.getCommonStatus() == CommonStatus.REJECT
+                && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)) {
             throw new BadRequestException("There is no difference to change");
         }
         if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
@@ -234,6 +236,14 @@ public class CourseServiceImpl implements CourseService {
             course.setCommonStatus(CommonStatus.REJECT);
         }
         courseRepository.save(course);
+    }
+
+    @Override
+    public Course getCourseByIdAndEmail(Long id, String email) {
+        return courseRepository
+                .findCourseByTeacherEmailAndId(email, id)
+                .orElseThrow(() -> new BadRequestException(
+                        "Cannot found course belong to email " + email + " with id " + id));
     }
 
 }
