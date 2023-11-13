@@ -4,8 +4,8 @@ public enum CommonStatus {
     WAITING,
     REJECT,
     AVAILABLE,
-    AVAILABLE1,
     UNAVAILABLE,
+    UPDATING,
     BANNED,
     ALL
 }

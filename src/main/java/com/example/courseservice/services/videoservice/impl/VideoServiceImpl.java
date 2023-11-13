@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.constants.VerifyStatus;
+import com.example.courseservice.data.constants.VideoStatus;
+import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -44,7 +47,9 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial) {
-        Video videoInsert = videoRepository.save(videoMapper.mapDtoToEntity(videoRequest));
+        Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
+        videoConvert.setStatus(CommonStatus.WAITING);
+        Video videoInsert = videoRepository.save(videoConvert);
         FileResponse videoFile = fileService.fileStorage(video);
         FileResponse thumbnialFile = fileService.fileStorage(thumbnial);
         return VideoResponse
@@ -152,6 +157,24 @@ public class VideoServiceImpl implements VideoService {
                 .totalPage(videos.getTotalPages())
                 .totalRow(videos.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public void verifyVideo(VerifyRequest verifyRequest) {
+        Video video = getVideoById(verifyRequest.getId());
+        if(video.getStatus() == CommonStatus.AVAILABLE && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)){
+            throw new BadRequestException("There is no difference to change");
+        }
+        if(video.getStatus() == CommonStatus.REJECT && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)){
+            throw new BadRequestException("There is no difference to change");
+        }
+        if(VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())){
+            video.setStatus(CommonStatus.AVAILABLE);
+        }
+        else{
+            video.setStatus(CommonStatus.REJECT);
+        }
+        videoRepository.save(video);
     }
 
 }

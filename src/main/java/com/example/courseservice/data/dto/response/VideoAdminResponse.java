@@ -13,10 +13,13 @@ import lombok.Data;
 public class VideoAdminResponse {
     private Long id;
     private String name;
+    private String teacherName;
+    private String subject;
     private String thumbnail;
     private String courseName;
     private long like;
     private long dislike;
+    private float duration;
     private CommonStatus status;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
