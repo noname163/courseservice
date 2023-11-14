@@ -1,6 +1,7 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.mappers.VideoCourseMapper;
 import com.example.courseservice.services.courseservice.CourseService;
+import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.levelservice.LevelService;
@@ -50,6 +52,8 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private CourseTopicService courseTopicService;
     @Autowired
+    private CourseTmpService courseTmpService;
+    @Autowired
     private LevelService levelService;
     @Autowired
     private VideoCourseMapper videoCourseMapper;
@@ -64,7 +68,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseMapper.mapDtoToEntity(courseRequest);
         course.setThumbnial(thumbinial.getUrl());
         course.setLevel(level);
-        course.setCommonStatus(CommonStatus.AVAILABLE);
+        course.setCommonStatus(CommonStatus.WAITING);
         course.setCourseTopics(courseTopicService.courseTopicsByString(courseRequest.getTopic()));
         courseRepository.save(course);
     }
@@ -222,20 +226,26 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository
                 .findById(verifyRequest.getId())
                 .orElseThrow(() -> new BadRequestException("Cannot find course with id " + verifyRequest.getId()));
-        if (course.getCommonStatus() == CommonStatus.AVAILABLE
-                && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
-            throw new BadRequestException("There is no difference to change");
-        }
-        if (course.getCommonStatus() == CommonStatus.REJECT
-                && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)) {
-            throw new BadRequestException("There is no difference to change");
+        if (!courseTmpService.isUpdate(verifyRequest.getId())) {
+            if (course.getCommonStatus() == CommonStatus.AVAILABLE
+                    && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
+                throw new BadRequestException("There is no difference to change");
+            }
+            if (course.getCommonStatus() == CommonStatus.REJECT
+                    && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)) {
+                throw new BadRequestException("There is no difference to change");
+            }
+            if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
+                course.setCommonStatus(CommonStatus.AVAILABLE);
+            } else {
+                course.setCommonStatus(CommonStatus.REJECT);
+            }
+            courseRepository.save(course);
         }
         if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
-            course.setCommonStatus(CommonStatus.AVAILABLE);
-        } else {
-            course.setCommonStatus(CommonStatus.REJECT);
+            courseTmpService.inserCourseTmpToReal(verifyRequest.getId());
         }
-        courseRepository.save(course);
+
     }
 
     @Override
@@ -244,6 +254,19 @@ public class CourseServiceImpl implements CourseService {
                 .findCourseByTeacherEmailAndId(email, id)
                 .orElseThrow(() -> new BadRequestException(
                         "Cannot found course belong to email " + email + " with id " + id));
+    }
+
+    @Override
+    public Course getCourseById(Long id) {
+        return courseRepository
+                .findById(id)
+                .orElseThrow(() -> new BadRequestException(
+                        "Cannot found course with id " + id));
+    }
+
+    @Override
+    public boolean isCourseBelongTo(String email, long courseId) {
+        return courseRepository.existsByTeacherEmailAndId(email, courseId);
     }
 
 }

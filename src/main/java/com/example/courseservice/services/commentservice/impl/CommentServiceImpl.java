@@ -5,27 +5,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CommentRequest;
 import com.example.courseservice.data.dto.request.UpdateCommentRequest;
 import com.example.courseservice.data.dto.response.CommentResponse;
+import com.example.courseservice.data.dto.response.CourseResponse;
+import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Comment;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CommentRepository;
+import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
+import com.example.courseservice.mappers.CommentMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.commentservice.CommentService;
+import com.example.courseservice.services.courseservice.CourseService;
+import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.videoservice.VideoService;
+import com.example.courseservice.utils.PageableUtil;
 
 @Service
 public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
+    private CourseService courseService;
+    @Autowired
+    private StudentEnrollCourseService studentEnrollCourseService;
+    @Autowired
+    private CommentMapper commentMapper;
+    @Autowired
     private SecurityContextService securityContextService;
+    @Autowired
+    private PageableUtil pageableUtil;
     @Autowired
     private VideoService videoService;
 
@@ -33,18 +52,23 @@ public class CommentServiceImpl implements CommentService {
     public void createComment(CommentRequest commentRequest) {
         UserInformation currentUser = securityContextService.getCurrentUser();
         String email = currentUser.getEmail();
-
         Video video = videoService.getVideoById(commentRequest.getVideoId());
+        long courseId = video.getCourse().getId();
+        if (courseService.isCourseBelongTo(email, courseId)
+                || studentEnrollCourseService.isStudentEnrolled(email, courseId)) {
+            Comment comment = Comment.builder()
+                    .createDate(LocalDateTime.now())
+                    .studentEmail(email)
+                    .commented(commentRequest.getCommentContent())
+                    .commonStatus(CommonStatus.AVAILABLE)
+                    .video(video)
+                    .build();
+            commentRepository.save(comment);
+        }
+        else{
+            throw new BadRequestException("Need owner permission to comment");
+        }
 
-        Comment comment = Comment.builder()
-                .createDate(LocalDateTime.now())
-                .studentEmail(email)
-                .commented(commentRequest.getCommentContent())
-                .commonStatus(CommonStatus.AVAILABLE)
-                .video(video)
-                .build();
-
-        commentRepository.save(comment);
     }
 
     @Override
@@ -63,15 +87,18 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponse> getListCommentByVideoId(long videoId) {
-        List<Comment> comments = commentRepository.findByVideoId(videoId);
-        return comments.stream()
-                .map(comment -> CommentResponse.builder()
-                        .email(comment.getStudentEmail())
-                        .createDate(comment.getCreateDate().toLocalDate())
-                        .comment(comment.getCommented())
-                        .build())
-                .collect(Collectors.toList());
+    public PaginationResponse<List<CommentResponse>> getListCommentByVideoId(long videoId, Integer page, Integer size,
+            String field, SortType sortType) {
+
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Page<Comment> comments = commentRepository.findByVideoIdAndCommonStatus(videoId, CommonStatus.AVAILABLE,
+                pageable);
+
+        return PaginationResponse.<List<CommentResponse>>builder()
+                .data(commentMapper.mapEntitiesToDtos(comments.getContent()))
+                .totalPage(comments.getTotalPages())
+                .totalRow(comments.getTotalElements())
+                .build();
 
     }
 
