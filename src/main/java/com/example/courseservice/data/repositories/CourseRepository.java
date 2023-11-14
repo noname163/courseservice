@@ -58,6 +58,9 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             List<Level> level);
 
     public List<Course> findByIdInAndCommonStatus(Set<Long> ids, CommonStatus commonStatus);
+
     public Optional<Course> findByIdAndCommonStatus(Long id, CommonStatus commonStatus);
+
+    public Optional<Course> findByIdAndCommonStatusNot(Long id, CommonStatus commonStatus);
 
 }

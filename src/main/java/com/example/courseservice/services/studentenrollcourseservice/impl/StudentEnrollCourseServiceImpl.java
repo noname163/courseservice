@@ -16,7 +16,9 @@ import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.StudentEnrolledCourses;
 import com.example.courseservice.data.object.UserInformation;
+import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.StudentEnrolledCoursesRepository;
+import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
@@ -26,6 +28,8 @@ import com.example.courseservice.utils.PageableUtil;
 public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseService {
     @Autowired
     private StudentEnrolledCoursesRepository studentEnrolledCoursesRepository;
+    @Autowired
+    private CourseRepository courseRepository;
     @Autowired
     private CourseMapper courseMapper;
     @Autowired
@@ -61,6 +65,19 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void insertStudentEnroll(Long courseId) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new BadRequestException("Not exist course with id " + courseId));
+
+        studentEnrolledCoursesRepository.save(StudentEnrolledCourses
+                .builder()
+                .studentEmail(currentUser.getEmail())
+                .course(course)
+                .build());
     }
 
 }

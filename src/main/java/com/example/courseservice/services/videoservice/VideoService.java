@@ -34,6 +34,8 @@ public interface VideoService {
 
     public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus);
 
+    public VideoDetailResponse getVideoDetailByIdExcept(Long videoId, CommonStatus commonStatus);
+
     public PaginationResponse<List<VideoItemResponse>> getListVideoAvailableByCourse(Long courseId, Integer page,
             Integer size, String field, SortType sortType);
 

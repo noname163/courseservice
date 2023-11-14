@@ -72,6 +72,9 @@ public class Course {
     private List<CourseTopic> courseTopics;
 
     @OneToMany(mappedBy = "course")
+    private List<Transaction> transactions;
+
+    @OneToMany(mappedBy = "course")
     private List<CourseTemporary> courseTemporaries;
 
     @OneToMany(mappedBy = "course")

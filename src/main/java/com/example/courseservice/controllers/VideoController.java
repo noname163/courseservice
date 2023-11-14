@@ -100,6 +100,22 @@ public class VideoController {
                 .body(videoService.getAvailableVideoDetailById(id, CommonStatus.AVAILABLE));
     }
 
+    @Operation(summary = "Get video detail by video id for teacher and admin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get video detail successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoDetailResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/teacher/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
+    public ResponseEntity<VideoDetailResponse> getVideoForTeacherAdminById(@PathVariable Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(videoService.getVideoDetailByIdExcept(id, CommonStatus.DELETED));
+    }
+
     @Operation(summary = "Verify video")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Verify video successfully."),
