@@ -15,10 +15,12 @@ import com.cloudinary.Transformation;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.VideoUrls;
+import com.example.courseservice.data.object.MediaType;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.MediaUploadException;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.utils.EnvironmentVariable;
+import com.example.courseservice.utils.StringUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,6 +35,8 @@ public class UploadServiceImpl implements UploadService {
     private ObjectMapper objectMapper;
     @Autowired
     private EnvironmentVariable environmentVariable;
+    @Autowired
+    private StringUtil stringUtil;
 
     @Override
     public CloudinaryUrl uploadMedia(FileResponse file) {
@@ -44,6 +48,7 @@ public class UploadServiceImpl implements UploadService {
                         + String.join(", ", environmentVariable.initializeAllowedContentTypes().values()));
             }
     
+            MediaType mediaType = stringUtil.convertStringToMediaType(contentType);
             // Define upload options
             Map<String, String> options = new HashMap<>();
             options.put("resource_type", "auto");
@@ -54,7 +59,7 @@ public class UploadServiceImpl implements UploadService {
     
             // Extract information from the upload result
             String publicId = uploadResult.get("public_id").toString();
-            String url = cloudinary.url().resourceType(contentType).generate(publicId);
+            String url = createUrlById(publicId, mediaType.getMediaType(), mediaType.getSubfix());
             float videoDuration = 0;
             if (uploadResult.get("duration") != null) {
                 videoDuration = Float.parseFloat(uploadResult.get("duration").toString());
@@ -120,5 +125,13 @@ public class UploadServiceImpl implements UploadService {
             log.error(e.getMessage());
         }
         return videoSegments;
+    }
+
+
+    @Override
+    public String createUrlById(String id, String mediaType, String subfixType) {
+        return cloudinary.url()
+                    .resourceType(mediaType)
+                    .generate(id + subfixType);
     }
 }
