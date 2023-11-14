@@ -15,6 +15,7 @@ import com.example.courseservice.data.dto.response.VideoUrls;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.services.videoservice.VideoService;
+import com.example.courseservice.services.videotmpservice.VideoTmpService;
 import com.example.courseservice.services.videourlservice.VideoUrlService;
 import com.example.courseservice.utils.EnvironmentVariable;
 
@@ -32,12 +33,16 @@ public class EventHandler implements ApplicationListener<Event> {
     private VideoService videoService;
     @Autowired
     private VideoUrlService videoUrlService;
+    @Autowired
+    private VideoTmpService videoTmpService;
+    private final String UPDATEURI= "/video/update";
 
     @Override
     @Async
     public void onApplicationEvent(Event event) {
         Map<String, Object> data = event.getData();
         VideoResponse videoResponse = (VideoResponse) data.get("videoResponse");
+        String url = (String) data.get("URI");
         if (videoResponse != null) {
             CloudinaryUrl video = uploadService.uploadMedia(videoResponse.getVideo());
             CloudinaryUrl thumbnial = uploadService.uploadMedia(videoResponse.getThumbnail());
@@ -48,6 +53,9 @@ public class EventHandler implements ApplicationListener<Event> {
                     .duration(video.getDuration())
                     .thumbnailUrl(thumbnial.getUrl())
                     .build();
+            if(url.contains(UPDATEURI)){
+                videoTmpService.insertVideoUrl(videoUpdate);
+            }
             videoService.insertVideoUrl(videoUpdate);
             List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(), environmentVariables.getVideoMaxSegment(), video.getDuration());
             videoUrlService.insertVideoUrl(videoUrls, videoResponse.getVideoId());
