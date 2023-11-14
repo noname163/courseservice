@@ -127,6 +127,26 @@ public class CourseController {
                 .body(courseService.getListCourse(commonStatus, page, size, field, sortType));
     }
 
+    @Operation(summary = "Get courses update for admin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin/update-list")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesUpdateForAdmin(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseTmpService.getUpdateCourse(page, size, field, sortType));
+    }
+
     @Operation(summary = "Get courses for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {

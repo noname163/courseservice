@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
-import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
@@ -23,4 +22,5 @@ public interface CourseService {
     public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size, String field, SortType sortType);
     public void verifyCourse(VerifyRequest verifyRequest);
     public Course getCourseByIdAndEmail(Long id, String email);
+    public Course getCourseById(Long id);
 }

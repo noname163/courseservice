@@ -101,7 +101,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         VideoTemporary videoTemporary = videoTemporaryRepository
                 .findByVideoId(videoId)
                 .orElseThrow(() -> new BadRequestException("Cannot found update information of video id " + videoId));
-        video = videoTemporaryMapper.mapVideoTmpToVideo(videoTemporary);
+        video = videoTemporaryMapper.mapVideoTmpToVideo(video, videoTemporary);
         videoRepository.save(video);
         videoTemporaryRepository.delete(videoTemporary);
     }

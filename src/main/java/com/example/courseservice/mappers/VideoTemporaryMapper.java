@@ -24,17 +24,16 @@ public class VideoTemporaryMapper {
                 .build();
     }
 
-    public Video mapVideoTmpToVideo(VideoTemporary videoTemporary) {
-        return Video
-                .builder()
-                .description(videoTemporary.getDescription())
-                .duration(videoTemporary.getDuration())
-                .urlThumbnail(videoTemporary.getUrlThumbnail())
-                .urlVideo(videoTemporary.getUrlVideo())
-                .name(videoTemporary.getName())
-                .videoStatus(videoTemporary.getVideoStatus())
-                .ordinalNumber(videoTemporary.getOrdinalNumber())
-                .build();
+    public Video mapVideoTmpToVideo(Video video, VideoTemporary videoTemporary) {
+        video.setDescription(videoTemporary.getDescription());
+        video.setDuration(videoTemporary.getDuration());
+        video.setName(videoTemporary.getName());
+        video.setUpdateTime(videoTemporary.getUpdateTime());
+        video.setUrlThumbnail(videoTemporary.getUrlThumbnail());
+        video.setUrlVideo(videoTemporary.getUrlVideo());
+        video.setVideoStatus(videoTemporary.getVideoStatus());
+        video.setOrdinalNumber(videoTemporary.getOrdinalNumber());
+        return video;
     }
 
     public VideoAdminResponse mapVideoToVideoAdminResponse(VideoTemporary video) {
