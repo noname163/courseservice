@@ -241,11 +241,12 @@ public class CourseServiceImpl implements CourseService {
                 course.setCommonStatus(CommonStatus.REJECT);
             }
             courseRepository.save(course);
-        }
-        if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
-            courseTmpService.inserCourseTmpToReal(verifyRequest.getId());
-        }
+        } else {
+            if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
+                courseTmpService.inserCourseTmpToReal(verifyRequest.getId());
+            }
 
+        }
     }
 
     @Override
