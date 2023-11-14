@@ -180,9 +180,10 @@ public class VideoServiceImpl implements VideoService {
                 video.setStatus(CommonStatus.REJECT);
             }
             videoRepository.save(video);
-        }
-        if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
-            videoTmpService.insertVideoTmpToReal(verifyRequest.getId());
+        } else {
+            if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
+                videoTmpService.insertVideoTmpToReal(verifyRequest.getId());
+            }
         }
     }
 
