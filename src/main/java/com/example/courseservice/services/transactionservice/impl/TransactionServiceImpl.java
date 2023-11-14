@@ -185,6 +185,10 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setStatus(transactionStatus);
         transactionRepository.save(transaction);
 
+        if(transactionStatus.equals(TransactionStatus.SUCCESS)){
+            studentEnrollCourseService.insertStudentEnroll(transaction.getCourse().getId());
+        }
+
         return transactionMapper.mapEntityToDto(transaction);
     }
 
