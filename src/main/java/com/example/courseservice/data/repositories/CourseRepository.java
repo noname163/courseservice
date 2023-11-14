@@ -24,6 +24,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             Pageable pageable);
 
     public Page<Course> findCourseByTeacherEmail(String email, Pageable pageable);
+
+    public Optional<Course> findCourseByTeacherEmailAndId(String email, Long id);
     
     public List<Course> findCourseByTeacherEmail(String email);
 

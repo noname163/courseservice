@@ -50,18 +50,15 @@ public class VideoTemporary {
     @Column(columnDefinition = "TEXT")
     private String urlThumbnail;
 
-    private LocalDateTime createDate;
-
     private float duration;
 
     private LocalDateTime updateTime;
 
     @Enumerated(EnumType.STRING)
-    private CommonStatus status;
-
-    @Enumerated(EnumType.STRING)
     private VideoStatus videoStatus;
 
     private Integer ordinalNumber;
+
+    private CommonStatus status;
 
 }

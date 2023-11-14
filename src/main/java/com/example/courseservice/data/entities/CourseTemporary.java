@@ -40,10 +40,6 @@ public class CourseTemporary {
 
     private String name;
 
-    private String teacherEmail;
-
-    private String teacherName;
-
     private String thumbnial;
 
     private String subject;
@@ -51,20 +47,12 @@ public class CourseTemporary {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private LocalDateTime createDate;
-
     private LocalDateTime updateTime;
 
     private Double price;
 
-    @Enumerated(EnumType.STRING)
-    private CommonStatus commonStatus;
+    private Long levelId;
 
-    // @ManyToOne()
-    // @JoinColumn(name = "level_id")
-    // private Long levelId;
-
-    // @OneToMany(mappedBy = "course")
-    // private List<CourseTopic> courseTopics;
+    private CommonStatus status;
     
 }

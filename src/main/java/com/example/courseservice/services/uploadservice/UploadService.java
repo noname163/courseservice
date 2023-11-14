@@ -11,4 +11,5 @@ public interface UploadService {
     public List<CloudinaryUrl> uploadMediaList(List<FileResponse> files);
     public List<VideoUrls> splitVideo(String publicId, int maxSegmentDuration,
             float videoDuration);
+    public String createUrlById(String publicId, String mediaType, String subfixType);
 }
