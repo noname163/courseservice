@@ -1,6 +1,7 @@
 package com.example.courseservice.services.studentenrollcourseservice.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,16 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
                 .totalPage(studentEnrollCourse.getTotalPages())
                 .totalRow(studentEnrollCourse.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public boolean isStudentEnrolled(String studentEmail, Long CourseId) {
+        Optional<StudentEnrolledCourses> studentEnrolledCourses = studentEnrolledCoursesRepository
+                .findByStudentEmailAndCourseId(studentEmail, CourseId);
+        if (studentEnrolledCourses.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
 }

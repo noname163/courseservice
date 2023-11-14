@@ -1,6 +1,7 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -261,6 +262,11 @@ public class CourseServiceImpl implements CourseService {
                 .findById(id)
                 .orElseThrow(() -> new BadRequestException(
                         "Cannot found course with id " + id));
+    }
+
+    @Override
+    public boolean isCourseBelongTo(String email, long courseId) {
+        return courseRepository.existsByTeacherEmailAndId(email, courseId);
     }
 
 }

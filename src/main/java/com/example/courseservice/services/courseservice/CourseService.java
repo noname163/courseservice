@@ -23,4 +23,5 @@ public interface CourseService {
     public void verifyCourse(VerifyRequest verifyRequest);
     public Course getCourseByIdAndEmail(Long id, String email);
     public Course getCourseById(Long id);
+    public boolean isCourseBelongTo(String email, long courseId);
 }
