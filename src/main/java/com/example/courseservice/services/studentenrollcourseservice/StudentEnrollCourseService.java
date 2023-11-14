@@ -9,4 +9,5 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 public interface StudentEnrollCourseService {
     public PaginationResponse<List<CourseResponse>> getListCourse(Integer page,
             Integer size, String field, SortType sortType);
+    public boolean isStudentEnrolled(String studentEmail, Long CourseId);
 }

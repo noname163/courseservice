@@ -61,4 +61,7 @@ public class VideoTemporary {
 
     private CommonStatus status;
 
+    @ManyToOne()
+    private Course course;
+
 }

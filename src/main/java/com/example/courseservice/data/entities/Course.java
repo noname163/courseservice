@@ -73,6 +73,9 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<CourseTemporary> courseTemporaries;
+
+    @OneToMany(mappedBy = "course")
+    private List<VideoTemporary> videoTemporaries;
     
     @OneToMany(mappedBy = "course")
     private List<Video> videos;

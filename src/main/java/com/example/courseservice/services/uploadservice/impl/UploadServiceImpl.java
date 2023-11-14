@@ -47,16 +47,16 @@ public class UploadServiceImpl implements UploadService {
                 throw new BadRequestException("Unsupported file type. Supported types are: "
                         + String.join(", ", environmentVariable.initializeAllowedContentTypes().values()));
             }
-    
+
             MediaType mediaType = stringUtil.convertStringToMediaType(contentType);
             // Define upload options
             Map<String, String> options = new HashMap<>();
             options.put("resource_type", "auto");
-    
+
             log.info("Start uploading file: {}", file.getFileName());
             // Perform the upload
             var uploadResult = cloudinary.uploader().upload(file.getFileStorage(), options);
-    
+
             // Extract information from the upload result
             String publicId = uploadResult.get("public_id").toString();
             String url = createUrlById(publicId, mediaType.getMediaType(), mediaType.getSubfix());
@@ -64,9 +64,9 @@ public class UploadServiceImpl implements UploadService {
             if (uploadResult.get("duration") != null) {
                 videoDuration = Float.parseFloat(uploadResult.get("duration").toString());
             }
-    
+
             log.info("Upload successful. URL: {}", url);
-            
+
             // Create and return a CloudinaryUrl object
             return CloudinaryUrl.builder()
                     .url(url)
@@ -77,7 +77,6 @@ public class UploadServiceImpl implements UploadService {
             throw new MediaUploadException("Failed to upload media", e);
         }
     }
-    
 
     @Override
     public List<CloudinaryUrl> uploadMediaList(List<FileResponse> files) {
@@ -127,11 +126,10 @@ public class UploadServiceImpl implements UploadService {
         return videoSegments;
     }
 
-
     @Override
     public String createUrlById(String id, String mediaType, String subfixType) {
         return cloudinary.url()
-                    .resourceType(mediaType)
-                    .generate(id + subfixType);
+                .resourceType(mediaType)
+                .generate(id + "." + subfixType);
     }
 }

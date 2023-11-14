@@ -30,12 +30,15 @@ import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.videoservice.VideoService;
+import com.example.courseservice.services.videotmpservice.VideoTmpService;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
 public class VideoServiceImpl implements VideoService {
     @Autowired
     private VideoRepository videoRepository;
+    @Autowired
+    private VideoTmpService videoTmpService;
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
@@ -140,18 +143,18 @@ public class VideoServiceImpl implements VideoService {
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
-        if(courses.isEmpty()){
+        if (courses.isEmpty()) {
             throw new BadRequestException("Cannot found any courses with email " + email);
         }
         if (CommonStatus.ALL.equals(commonStatus)) {
-            Page<Video> videos = videoRepository.findByCourseIn(courses,pageable);
+            Page<Video> videos = videoRepository.findByCourseIn(courses, pageable);
             return PaginationResponse.<List<VideoAdminResponse>>builder()
                     .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                     .totalPage(videos.getTotalPages())
                     .totalRow(videos.getTotalElements())
                     .build();
         }
-        Page<Video> videos = videoRepository.findByStatusAndCourseIn(commonStatus, courses,pageable);
+        Page<Video> videos = videoRepository.findByStatusAndCourseIn(commonStatus, courses, pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
                 .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                 .totalPage(videos.getTotalPages())
@@ -162,19 +165,25 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public void verifyVideo(VerifyRequest verifyRequest) {
         Video video = getVideoById(verifyRequest.getId());
-        if(video.getStatus() == CommonStatus.AVAILABLE && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)){
-            throw new BadRequestException("There is no difference to change");
+        if (!videoTmpService.isUpdate(verifyRequest.getId())) {
+            if (video.getStatus() == CommonStatus.AVAILABLE
+                    && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
+                throw new BadRequestException("There is no difference to change");
+            }
+            if (video.getStatus() == CommonStatus.REJECT
+                    && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)) {
+                throw new BadRequestException("There is no difference to change");
+            }
+            if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
+                video.setStatus(CommonStatus.AVAILABLE);
+            } else {
+                video.setStatus(CommonStatus.REJECT);
+            }
+            videoRepository.save(video);
         }
-        if(video.getStatus() == CommonStatus.REJECT && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)){
-            throw new BadRequestException("There is no difference to change");
+        if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
+            videoTmpService.insertVideoTmpToReal(verifyRequest.getId());
         }
-        if(VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())){
-            video.setStatus(CommonStatus.AVAILABLE);
-        }
-        else{
-            video.setStatus(CommonStatus.REJECT);
-        }
-        videoRepository.save(video);
     }
 
 }
