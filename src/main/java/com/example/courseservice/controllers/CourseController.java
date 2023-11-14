@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,12 +22,14 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
+import com.example.courseservice.data.dto.request.CourseUpdateRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.courseservice.CourseService;
+import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,10 +43,26 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private CourseTmpService courseTmpService;
+
+    @Operation(summary = "Update courses")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Update course successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @PutMapping("/teacher/update")
+    public ResponseEntity<Void> updateCourse(@Valid @RequestPart CourseUpdateRequest courseRequest,
+            @RequestPart() MultipartFile thumbnail) {
+        courseTmpService.insertTmpCourse(courseRequest, thumbnail);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
     @Operation(summary = "Create courses")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Create course successfully."),
+            @ApiResponse(responseCode = "200", description = "Create course successfully."),
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
@@ -54,6 +73,7 @@ public class CourseController {
         courseService.createCourse(courseRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
     @Operation(summary = "Verify courses")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Verify course successfully."),

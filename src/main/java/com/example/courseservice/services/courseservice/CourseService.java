@@ -13,6 +13,7 @@ import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.entities.Course;
 
 public interface CourseService {
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail);
@@ -21,4 +22,5 @@ public interface CourseService {
     public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy,CommonStatus commonStatus,List<String> value, Integer page, Integer size, String field, SortType sortType);
     public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size, String field, SortType sortType);
     public void verifyCourse(VerifyRequest verifyRequest);
+    public Course getCourseByIdAndEmail(Long id, String email);
 }
