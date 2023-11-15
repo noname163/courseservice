@@ -196,7 +196,16 @@ public class VideoServiceImpl implements VideoService {
     public VideoDetailResponse getVideoDetailByIdExcept(Long videoId, CommonStatus commonStatus) {
         Video video = videoRepository.findByIdAndStatusNot(videoId, commonStatus)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id: " + videoId));
-        return videoMapper.mapEntityToDto(video);
+
+        List<Video> videos = videoRepository.findByCourseAndStatusNot(video.getCourse(), commonStatus);
+
+        List<VideoItemResponse> videoItemResponses = new ArrayList<>();
+        if (videos != null && !videos.isEmpty()) {
+            videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
+        }
+        VideoDetailResponse videoDetailResponse = videoMapper.mapEntityToDto(video);
+        videoDetailResponse.setVideoItemResponses(videoItemResponses);
+        return videoDetailResponse;
     }
 
 }
