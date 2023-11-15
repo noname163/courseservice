@@ -8,6 +8,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.dto.request.VerifyRequest;
+import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -40,5 +41,6 @@ public interface VideoService {
             Integer size, String field, SortType sortType);
 
     public void verifyVideo(VerifyRequest verifyRequest);
+    public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId);
 
 }

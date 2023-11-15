@@ -8,7 +8,9 @@ import lombok.Data;
 public class CourseVideoResponse {
     private long id;
     private String name;
+    private String thumbnail;
     private float duration;
     private long totalLike;
     private int totalComment;
+    private int ordinalNumber;
 }

@@ -2,6 +2,10 @@ package com.example.courseservice.services.videoservice.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +18,7 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VerifyRequest;
+import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -53,9 +58,14 @@ public class VideoServiceImpl implements VideoService {
         Course course = courseRepository
                 .findByIdAndCommonStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoRequest.getCourseId()));
+        Integer maxOrdinalNumber = videoRepository.findMaxOrdinalNumberByCourse(course);
+
+        // Set the ordinalNumber for the new video
+        int ordinalNumber = maxOrdinalNumber != null ? maxOrdinalNumber + 1 : 1;
         Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
         videoConvert.setStatus(CommonStatus.WAITING);
         videoConvert.setCourse(course);
+        videoConvert.setOrdinalNumber(maxOrdinalNumber);
         Video videoInsert = videoRepository.save(videoConvert);
         FileResponse videoFile = fileService.fileStorage(video);
         FileResponse thumbnialFile = fileService.fileStorage(thumbnial);
@@ -206,6 +216,30 @@ public class VideoServiceImpl implements VideoService {
         VideoDetailResponse videoDetailResponse = videoMapper.mapEntityToDto(video);
         videoDetailResponse.setVideoItemResponses(videoItemResponses);
         return videoDetailResponse;
+    }
+
+    @Override
+    public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId) {
+
+        Set<Long> videoIds = videoOrders.stream()
+                .map(VideoOrder::getVideoId)
+                .collect(Collectors.toSet());
+
+        List<Video> videosToUpdate = videoRepository.findByCourseIdAndIdIn(courseId, videoIds);
+
+        Map<Long, Video> videoMap = videosToUpdate.stream()
+                .collect(Collectors.toMap(Video::getId, Function.identity()));
+
+        List<Video> updatedVideos = videoOrders.stream()
+                .filter(videoOrder -> videoMap.containsKey(videoOrder.getVideoId()))
+                .map(videoOrder -> {
+                    Video video = videoMap.get(videoOrder.getVideoId());
+                    video.setOrdinalNumber(videoOrder.getVideoOrder());
+                    return video;
+                })
+                .collect(Collectors.toList());
+
+        videoRepository.saveAll(updatedVideos);
     }
 
 }
