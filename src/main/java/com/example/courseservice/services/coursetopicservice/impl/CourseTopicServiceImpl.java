@@ -14,6 +14,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.dto.request.CourseTopicRequest;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTopic;
+import com.example.courseservice.data.object.Topic;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTopicRepository;
 import com.example.courseservice.exceptions.BadRequestException;
@@ -32,12 +33,14 @@ public class CourseTopicServiceImpl implements CourseTopicService {
         Course course = courseRepository.findById(courseTopicRequest.getCourseId())
                 .orElseThrow(
                         () -> new BadRequestException(
-                                "Can not find course witd id" + courseTopicRequest.getCourseId()));
+                                "Can not find course witd id"
+                                        + courseTopicRequest.getCourseId()));
 
         courseTopicRepository.save(CourseTopic
                 .builder()
                 .course(course)
-                .topicName(courseTopicRequest.getTopicName())
+                .id(courseTopicRequest.getTopic().getId())
+                .topicName(courseTopicRequest.getTopic().getName())
                 .build());
     }
 
@@ -56,10 +59,12 @@ public class CourseTopicServiceImpl implements CourseTopicService {
                     .filter(course -> course.getId().equals(courseTopicRequest.getCourseId()))
                     .findFirst();
             if (!matchingCourse.isPresent()) {
-                throw new BadRequestException("Can not found course with id " + courseTopicRequest.getCourseId());
+                throw new BadRequestException(
+                        "Can not found course with id " + courseTopicRequest.getCourseId());
             }
             CourseTopic courseTopic = CourseTopic.builder()
-                    .topicName(courseTopicRequest.getTopicName())
+                    .id(courseTopicRequest.getCourseId())
+                    .topicName(courseTopicRequest.getTopic().getName())
                     .course(matchingCourse.get())
                     .build();
             courseTopics.add(courseTopic);
@@ -69,11 +74,15 @@ public class CourseTopicServiceImpl implements CourseTopicService {
     }
 
     @Override
-    public List<CourseTopic> courseTopicsByString(List<String> courseTopicsName) {
+    public List<CourseTopic> courseTopicsByString(List<Topic> courseTopicsName) {
         return courseTopicsName
                 .stream()
                 .distinct()
-                .map(name -> CourseTopic.builder().topicName(name).build())
+                .map(topic -> CourseTopic
+                        .builder()
+                        .id(topic.getId())
+                        .topicName(topic.getName())
+                        .build())
                 .collect(Collectors.toList());
     }
 
