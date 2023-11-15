@@ -50,8 +50,12 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial) {
+        Course course = courseRepository
+                .findByIdAndCommonStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
+                .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoRequest.getCourseId()));
         Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
         videoConvert.setStatus(CommonStatus.WAITING);
+        videoConvert.setCourse(course);
         Video videoInsert = videoRepository.save(videoConvert);
         FileResponse videoFile = fileService.fileStorage(video);
         FileResponse thumbnialFile = fileService.fileStorage(thumbnial);
@@ -192,7 +196,16 @@ public class VideoServiceImpl implements VideoService {
     public VideoDetailResponse getVideoDetailByIdExcept(Long videoId, CommonStatus commonStatus) {
         Video video = videoRepository.findByIdAndStatusNot(videoId, commonStatus)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id: " + videoId));
-        return videoMapper.mapEntityToDto(video);
+
+        List<Video> videos = videoRepository.findByCourseAndStatusNot(video.getCourse(), commonStatus);
+
+        List<VideoItemResponse> videoItemResponses = new ArrayList<>();
+        if (videos != null && !videos.isEmpty()) {
+            videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
+        }
+        VideoDetailResponse videoDetailResponse = videoMapper.mapEntityToDto(video);
+        videoDetailResponse.setVideoItemResponses(videoItemResponses);
+        return videoDetailResponse;
     }
 
 }
