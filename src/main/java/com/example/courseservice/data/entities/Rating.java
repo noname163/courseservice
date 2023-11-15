@@ -7,9 +7,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +19,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Rating")
+@Table(name = "Rating",uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "course_id"}))
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,17 +30,21 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "rating_sequence")
     private Long id;
 
-    private Float rate;
+    private Integer rate;
 
     private LocalDateTime createDate;
 
     private LocalDateTime updateTime;
 
-    private String studentEmail;
+    private String studentName;
+
+    @Column(name = "student_id")
+    private Long studentId;
 
     @Column(columnDefinition = "TEXT")
     private String comment;
 
     @ManyToOne()
+    @JoinColumn(name = "course_id")
     private Course course;
 }

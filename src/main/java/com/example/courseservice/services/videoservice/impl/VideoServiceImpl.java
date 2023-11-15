@@ -65,7 +65,7 @@ public class VideoServiceImpl implements VideoService {
         Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
         videoConvert.setStatus(CommonStatus.WAITING);
         videoConvert.setCourse(course);
-        videoConvert.setOrdinalNumber(maxOrdinalNumber);
+        videoConvert.setOrdinalNumber(ordinalNumber);
         Video videoInsert = videoRepository.save(videoConvert);
         FileResponse videoFile = fileService.fileStorage(video);
         FileResponse thumbnialFile = fileService.fileStorage(thumbnial);

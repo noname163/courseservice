@@ -55,7 +55,7 @@ public class CourseController {
     @PreAuthorize("hasAuthority('TEACHER')")
     @PutMapping("/teacher/update")
     public ResponseEntity<Void> updateCourse(@Valid @RequestPart CourseUpdateRequest courseRequest,
-            @RequestPart() MultipartFile thumbnail) {
+            @RequestPart(required = false) MultipartFile thumbnail) {
         courseTmpService.insertTmpCourse(courseRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

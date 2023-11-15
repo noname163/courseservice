@@ -60,26 +60,30 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Course course = courseService.getCourseByIdAndEmail(courseUpdateRequest.getCourseId(),
                 currentUser.getEmail());
-        FileResponse fileResponse = fileService.fileStorage(thumbnail);
-        CloudinaryUrl thumbnial = uploadService.uploadMedia(fileResponse);
+        CloudinaryUrl thumbnial = null;
+        if (thumbnail != null) {
+            FileResponse fileResponse = fileService.fileStorage(thumbnail);
+            thumbnial = uploadService.uploadMedia(fileResponse);
+        }
         Optional<CourseTemporary> existCourseTemporaryOtp = courseTemporaryRepository
                 .findByCourseId(courseUpdateRequest.getCourseId());
         if (existCourseTemporaryOtp.isEmpty()) {
             CourseTemporary courseTemporary = courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
-            courseTemporary.setThumbnial(thumbnial.getUrl());
+            courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
             courseTemporaryRepository.save(courseTemporary);
+        } else {
+            CourseTemporary courseTemporary = existCourseTemporaryOtp.get();
+            courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
+            courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
+            courseTemporaryRepository.save(courseTemporary);
+            videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
         }
-        CourseTemporary courseTemporary = existCourseTemporaryOtp.get();
-        courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
-        courseTemporary.setThumbnial(thumbnial.getUrl());
-        courseTemporaryRepository.save(courseTemporary);
-        videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
     }
 
     @Override
     public PaginationResponse<List<CourseResponse>> getUpdateCourse(Integer page, Integer size, String field,
             SortType sortType) {
-                
+
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<CourseTemporary> courseTemporary = courseTemporaryRepository.findAll(pageable);
 
