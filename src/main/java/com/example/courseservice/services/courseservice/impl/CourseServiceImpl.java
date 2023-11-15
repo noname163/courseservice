@@ -275,7 +275,21 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepository
                 .findByIdAndCommonStatusNot(id, commonStatus)
                 .orElseThrow(() -> new BadRequestException("Not exist course with id " + id));
-        return courseMapper.mapCourseDetailEntityToDto(course);
+
+        CourseDetailResponse courseDetailResponse = courseMapper.mapCourseDetailEntityToDto(course);
+
+        if (!course.getVideos().isEmpty()) {
+            List<Video> videos = course.getVideos()
+                    .stream()
+                    .filter(video -> video.getStatus().equals(CommonStatus.AVAILABLE))
+                    .collect(Collectors.toList());
+
+            List<CourseVideoResponse> courseVideoResponses = videoCourseMapper.mapEntitiesToDtos(videos);
+            courseDetailResponse.setVideoResponse(courseVideoResponses);
+        }
+
+        courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
+        return courseDetailResponse;
 
     }
 
