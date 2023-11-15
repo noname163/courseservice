@@ -41,6 +41,9 @@ public class StudentEnrolledCourses {
     @Column(name = "student_email")
     private String studentEmail;
 
+    @Column(name = "student_id")
+    private Long studentId;
+
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;

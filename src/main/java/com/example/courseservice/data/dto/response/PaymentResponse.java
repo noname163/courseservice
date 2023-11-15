@@ -11,4 +11,5 @@ public class PaymentResponse {
     private String code;
     private String message;
     private String data;
+    private String courseId;
 }

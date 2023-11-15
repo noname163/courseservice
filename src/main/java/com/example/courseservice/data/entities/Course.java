@@ -40,9 +40,13 @@ public class Course {
 
     private String teacherEmail;
 
+    private Long teacherId;
+
     private String teacherName;
 
     private String thumbnial;
+
+    private Long subjectId;
 
     private String subject;
 

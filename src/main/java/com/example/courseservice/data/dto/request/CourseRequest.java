@@ -2,6 +2,9 @@ package com.example.courseservice.data.dto.request;
 
 import java.util.List;
 
+import com.example.courseservice.data.object.Subject;
+import com.example.courseservice.data.object.Topic;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,7 +14,7 @@ public class CourseRequest {
     private String description;
     private String name;
     private Double price;
-    private String subject;
+    private Subject subject;
     private long levelId;
-    private List<String> topic;
+    private List<Topic> topic;
 }

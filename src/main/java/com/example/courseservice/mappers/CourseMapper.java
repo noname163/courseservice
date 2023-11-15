@@ -22,8 +22,10 @@ public class CourseMapper {
         UserInformation currentUser = securityContextService.getCurrentUser();
         return Course
                 .builder()
-                .subject(courseRequest.getSubject())
+                .subject(courseRequest.getSubject().getName())
+                .subjectId(courseRequest.getSubject().getId())
                 .price(courseRequest.getPrice())
+                .teacherId(currentUser.getId())
                 .name(courseRequest.getName())
                 .teacherName(currentUser.getFullname())
                 .teacherEmail(currentUser.getEmail())

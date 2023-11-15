@@ -13,6 +13,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.dto.response.FileResponse;
+import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 
 @Component
@@ -34,6 +35,14 @@ public class EventPublisher {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("URI", request.getRequestURI());
         data.put("videoResponse", videoResponse);
+        applicationEventPublisher.publishEvent(new Event(this, data));
+    }
+    public void publishEvent(PaymentResponse paymentResponse) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest();
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("URI", request.getRequestURI());
+        data.put("paymentResponse", paymentResponse);
         applicationEventPublisher.publishEvent(new Event(this, data));
     }
 }

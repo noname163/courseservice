@@ -37,6 +37,8 @@ public class CourseTopic {
     @Column(name = "topic_name")
     private String topicName;
 
+    private Long topicId;
+
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;

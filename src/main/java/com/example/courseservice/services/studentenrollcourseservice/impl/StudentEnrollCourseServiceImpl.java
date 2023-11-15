@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
@@ -68,14 +69,14 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
     }
 
     @Override
-    public void insertStudentEnroll(Long courseId) {
-        UserInformation currentUser = securityContextService.getCurrentUser();
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new BadRequestException("Not exist course with id " + courseId));
+    public void insertStudentEnroll(StudentEnrollRequest studentEnrollRequest) {
+        Course course = courseRepository.findById(studentEnrollRequest.getCourseId())
+                .orElseThrow(() -> new BadRequestException("Not exist course with id " + studentEnrollRequest.getCourseId()));
 
         studentEnrolledCoursesRepository.save(StudentEnrolledCourses
                 .builder()
-                .studentEmail(currentUser.getEmail())
+                .studentEmail(studentEnrollRequest.getEmail())
+                .studentId(studentEnrollRequest.getStudentId())
                 .course(course)
                 .build());
     }

@@ -42,6 +42,8 @@ public class Transaction {
 
     private String vnpTxnRef;
 
+    private String userEmail;
+
     private Long userId;
 
     @ManyToOne

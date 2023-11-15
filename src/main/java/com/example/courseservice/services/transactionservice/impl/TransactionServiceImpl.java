@@ -20,12 +20,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.example.courseservice.configs.VNPayConfig;
 import com.example.courseservice.data.constants.TransactionStatus;
 import com.example.courseservice.data.constants.Validation;
 import com.example.courseservice.data.constants.VnPayConstants;
 import com.example.courseservice.data.dto.request.PaymentRequest;
+import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.TransactionResponse;
 import com.example.courseservice.data.entities.Course;
@@ -39,8 +41,10 @@ import com.example.courseservice.services.authenticationservice.SecurityContextS
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.transactionservice.TransactionService;
 import com.example.courseservice.utils.ConvertStringToLocalDateTime;
+import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.GetIpAddress;
 
+@Service
 public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
@@ -57,13 +61,17 @@ public class TransactionServiceImpl implements TransactionService {
     private ConvertStringToLocalDateTime convertStringToLocalDateTime;
     @Autowired
     private GetIpAddress getIpAddress;
-
+    @Autowired
+    private EnvironmentVariable environmentVariable;
 
     @Transactional
     @Override
     public PaymentResponse createdPayment(PaymentRequest paymentRequest, HttpServletRequest request)
             throws UnsupportedEncodingException {
         UserInformation user = securityContextService.getCurrentUser();
+        if (studentEnrollCourseService.isStudentEnrolled(user.getEmail(), paymentRequest.getCourseId())) {
+            throw new BadRequestException("User have buy this course");
+        }
         Course course = courseRepository.findById(paymentRequest.getCourseId())
                 .orElseThrow(() -> new BadRequestException("Not exist course with id " + paymentRequest.getCourseId()));
         String orderType = course.getName();
@@ -93,7 +101,7 @@ public class TransactionServiceImpl implements TransactionService {
         } else {
             vnp_Params.put("vnp_Locale", "vn");
         }
-        String vpn_ReturnUrl = "https://pmc-api.azurewebsites.net/transaction_page";
+        String vpn_ReturnUrl = environmentVariable.getVnPayReturnURL();
         vnp_Params.put("vnp_ReturnUrl", vpn_ReturnUrl);
         String vnp_IpAddr = getIpAddress.getClientIpAddress(request);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
@@ -107,14 +115,14 @@ public class TransactionServiceImpl implements TransactionService {
         String vnp_ExpireDate = currentTime.plusMinutes(15l).format(localDateFormat);
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-        List fieldNames = new ArrayList(vnp_Params.keySet());
+        List<String> fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
+        Iterator<String> itr = fieldNames.iterator();
         while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) vnp_Params.get(fieldName);
+            String fieldName = itr.next();
+            String fieldValue = vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
                 // Build hash data
                 hashData.append(fieldName);
@@ -141,6 +149,8 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = Transaction
                 .builder()
                 .createDate(createdDate)
+                .userEmail(user.getEmail())
+                .course(course)
                 .userId(user.getId())
                 .vnpTxnRef(vnp_TxnRef)
                 .status(TransactionStatus.PENDING)
@@ -185,8 +195,13 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setStatus(transactionStatus);
         transactionRepository.save(transaction);
 
-        if(transactionStatus.equals(TransactionStatus.SUCCESS)){
-            studentEnrollCourseService.insertStudentEnroll(transaction.getCourse().getId());
+        if (transactionStatus.equals(TransactionStatus.SUCCESS)) {
+            studentEnrollCourseService.insertStudentEnroll(StudentEnrollRequest
+                    .builder()
+                    .courseId(transaction.getCourse().getId())
+                    .email(transaction.getUserEmail())
+                    .studentId(transaction.getUserId())
+                    .build());
         }
 
         return transactionMapper.mapEntityToDto(transaction);

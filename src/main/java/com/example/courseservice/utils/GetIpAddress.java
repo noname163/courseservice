@@ -2,6 +2,9 @@ package com.example.courseservice.utils;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class GetIpAddress {
     public String getClientIpAddress(HttpServletRequest request) {
         // The actual IP address can be obtained from the 'X-Forwarded-For' header if present

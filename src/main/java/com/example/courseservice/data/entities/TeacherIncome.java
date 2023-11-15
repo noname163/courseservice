@@ -34,5 +34,7 @@ public class TeacherIncome {
 
     private Long userId;
 
+    private String BankCode;
+
     private TeacherIncomeStatus status;
 }
