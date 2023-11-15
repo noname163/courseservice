@@ -50,8 +50,12 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial) {
+        Course course = courseRepository
+                .findByIdAndCommonStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
+                .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoRequest.getCourseId()));
         Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
         videoConvert.setStatus(CommonStatus.WAITING);
+        videoConvert.setCourse(course);
         Video videoInsert = videoRepository.save(videoConvert);
         FileResponse videoFile = fileService.fileStorage(video);
         FileResponse thumbnialFile = fileService.fileStorage(thumbnial);
