@@ -221,6 +221,6 @@ public class CourseController {
             @RequestParam(required = true) Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getCourseDetailExcept(id, CommonStatus.AVAILABLE));
+                .body(courseService.getCourseDetailExcept(id, CommonStatus.DELETED));
     }
 }
