@@ -43,7 +43,7 @@ public class EventHandler implements ApplicationListener<Event> {
         Map<String, Object> data = event.getData();
         VideoResponse videoResponse = (VideoResponse) data.get("videoResponse");
         String url = (String) data.get("URI");
-        if (videoResponse != null) {
+        if (videoResponse != null && videoResponse.getThumbnail()!=null && videoResponse.getVideo()!=null) {
             CloudinaryUrl video = uploadService.uploadMedia(videoResponse.getVideo());
             CloudinaryUrl thumbnial = uploadService.uploadMedia(videoResponse.getThumbnail());
             VideoUpdate videoUpdate = VideoUpdate

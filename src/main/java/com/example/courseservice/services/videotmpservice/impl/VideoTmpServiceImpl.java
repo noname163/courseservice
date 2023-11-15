@@ -59,13 +59,18 @@ public class VideoTmpServiceImpl implements VideoTmpService {
             throw new InValidAuthorizationException("Cannot edit this video");
         }
 
-        VideoTemporary videoConvert = videoTemporaryMapper.mapDtoToEntity(videoUpdateRequest);
-
-        videoConvert.setStatus(CommonStatus.WAITING);
+        VideoTemporary videoConvert = videoTemporaryMapper.mapDtoToEntity(videoUpdateRequest, videoOld);
+        if(video == null){
+            videoConvert.setUrlVideo(videoOld.getUrlVideo());
+        }
+        if(thumbnail == null){
+            videoConvert.setUrlThumbnail(videoOld.getUrlThumbnail());
+        }
+        videoConvert.setStatus(CommonStatus.UPDATING);
         videoConvert.setCourse(videoOld.getCourse());
         VideoTemporary videoInsert = videoTemporaryRepository.save(videoConvert);
-        FileResponse videoFile = fileService.fileStorage(video);
-        FileResponse thumbnialFile = fileService.fileStorage(thumbnail);
+        FileResponse videoFile = video != null ? fileService.fileStorage(video) : null;
+        FileResponse thumbnialFile = thumbnail != null ? fileService.fileStorage(thumbnail):null;
 
         return VideoResponse
                 .builder()
@@ -91,7 +96,6 @@ public class VideoTmpServiceImpl implements VideoTmpService {
                         "Cannot found Video temporary with id " + videoUpdate.getVideoId()));
         video.setUrlVideo(videoUpdate.getVideoUrl());
         video.setUrlThumbnail(videoUpdate.getThumbnailUrl());
-        video.setStatus(CommonStatus.UPDATING);
         videoTemporaryRepository.save(video);
     }
 

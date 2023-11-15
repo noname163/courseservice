@@ -1,6 +1,7 @@
 package com.example.courseservice.mappers;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -13,14 +14,13 @@ import com.example.courseservice.data.entities.VideoTemporary;
 
 @Component
 public class VideoTemporaryMapper {
-    public VideoTemporary mapDtoToEntity(VideoUpdateRequest videoRequest) {
+    public VideoTemporary mapDtoToEntity(VideoUpdateRequest videoRequest, Video video) {
         return VideoTemporary
                 .builder()
-                .videoStatus(videoRequest.getVideoStatus())
-                .ordinalNumber(videoRequest.getOrder())
-                .name(videoRequest.getName())
-                .videoStatus(videoRequest.getVideoStatus())
-                .description(videoRequest.getDescription())
+                .videoStatus(Optional.ofNullable(videoRequest.getVideoStatus()).orElse(video.getVideoStatus()))
+                .ordinalNumber(Optional.ofNullable(videoRequest.getOrder()).orElse(video.getOrdinalNumber()))
+                .name(Optional.ofNullable(videoRequest.getName()).orElse(video.getName()))
+                .description(Optional.ofNullable(videoRequest.getDescription()).orElse(video.getDescription()))
                 .build();
     }
 

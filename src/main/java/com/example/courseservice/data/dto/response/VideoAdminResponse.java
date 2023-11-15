@@ -14,6 +14,7 @@ public class VideoAdminResponse {
     private Long id;
     private String name;
     private String teacherName;
+    private String description;
     private String subject;
     private String thumbnail;
     private String courseName;
