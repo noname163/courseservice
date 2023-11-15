@@ -40,9 +40,13 @@ public class Course {
 
     private String teacherEmail;
 
+    private Long teacherId;
+
     private String teacherName;
 
     private String thumbnial;
+
+    private Long subjectId;
 
     private String subject;
 
@@ -70,6 +74,9 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<CourseTopic> courseTopics;
+
+    @OneToMany(mappedBy = "course")
+    private List<Transaction> transactions;
 
     @OneToMany(mappedBy = "course")
     private List<CourseTemporary> courseTemporaries;

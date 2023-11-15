@@ -51,6 +51,9 @@ public class EnvironmentVariable {
     @Value("${video.max.segment}")
     private Integer videoMaxSegment;
 
+    @Value("${vnpay.return-url}")
+    private String vnPayReturnURL;
+
     public Map<String,String> initializeAllowedContentTypes() {
         Map<String, String> result = new HashMap<>();
         String[] types = allowedContentTypes.split(",");

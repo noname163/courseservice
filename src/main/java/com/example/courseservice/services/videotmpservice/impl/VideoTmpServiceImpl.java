@@ -120,12 +120,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
 
     @Override
     public boolean isUpdate(Long videoId) {
-        Optional<VideoTemporary> videoTemporary = videoTemporaryRepository
-                .findByVideoId(videoId);
-        if (videoTemporary.isEmpty()) {
-            return false;
-        }
-        return true;
+        return videoTemporaryRepository.existsByVideoId(videoId);
     }
 
 }

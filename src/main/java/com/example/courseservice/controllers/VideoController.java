@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,7 +76,7 @@ public class VideoController {
             })
     })
     @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
-    @PostMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<Void> updateVideo(
             @RequestPart VideoUpdateRequest videoRequest,
             @RequestPart() MultipartFile video,
@@ -98,6 +99,22 @@ public class VideoController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(videoService.getAvailableVideoDetailById(id, CommonStatus.AVAILABLE));
+    }
+
+    @Operation(summary = "Get video detail by video id for teacher and admin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get video detail successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoDetailResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/teacher/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
+    public ResponseEntity<VideoDetailResponse> getVideoForTeacherAdminById(@PathVariable Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(videoService.getVideoDetailByIdExcept(id, CommonStatus.DELETED));
     }
 
     @Operation(summary = "Verify video")

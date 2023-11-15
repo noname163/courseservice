@@ -38,6 +38,8 @@ public class Comment {
 
     private String studentEmail;
 
+    private String studentId;
+
     @Column(columnDefinition = "TEXT")
     private String commented;
 

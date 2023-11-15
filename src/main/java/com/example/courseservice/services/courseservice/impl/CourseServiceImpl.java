@@ -270,4 +270,13 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.existsByTeacherEmailAndId(email, courseId);
     }
 
+    @Override
+    public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus) {
+        Course course = courseRepository
+                .findByIdAndCommonStatusNot(id, commonStatus)
+                .orElseThrow(() -> new BadRequestException("Not exist course with id " + id));
+        return courseMapper.mapCourseDetailEntityToDto(course);
+
+    }
+
 }

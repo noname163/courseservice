@@ -10,13 +10,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.StudentEnrolledCourses;
 import com.example.courseservice.data.object.UserInformation;
+import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.StudentEnrolledCoursesRepository;
+import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
@@ -26,6 +29,8 @@ import com.example.courseservice.utils.PageableUtil;
 public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseService {
     @Autowired
     private StudentEnrolledCoursesRepository studentEnrolledCoursesRepository;
+    @Autowired
+    private CourseRepository courseRepository;
     @Autowired
     private CourseMapper courseMapper;
     @Autowired
@@ -61,6 +66,19 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void insertStudentEnroll(StudentEnrollRequest studentEnrollRequest) {
+        Course course = courseRepository.findById(studentEnrollRequest.getCourseId())
+                .orElseThrow(() -> new BadRequestException("Not exist course with id " + studentEnrollRequest.getCourseId()));
+
+        studentEnrolledCoursesRepository.save(StudentEnrolledCourses
+                .builder()
+                .studentEmail(studentEnrollRequest.getEmail())
+                .studentId(studentEnrollRequest.getStudentId())
+                .course(course)
+                .build());
     }
 
 }

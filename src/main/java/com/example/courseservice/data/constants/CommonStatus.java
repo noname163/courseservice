@@ -7,5 +7,6 @@ public enum CommonStatus {
     UNAVAILABLE,
     UPDATING,
     BANNED,
+    DELETED,
     ALL
 }

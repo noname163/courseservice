@@ -164,7 +164,8 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public void verifyVideo(VerifyRequest verifyRequest) {
-        Video video = getVideoById(verifyRequest.getId());
+        Video video = videoRepository.findById(verifyRequest.getId())
+                .orElseThrow(() -> new BadRequestException("Not exist video with id " + verifyRequest.getId()));
         if (!videoTmpService.isUpdate(verifyRequest.getId())) {
             if (video.getStatus() == CommonStatus.AVAILABLE
                     && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
@@ -185,6 +186,13 @@ public class VideoServiceImpl implements VideoService {
                 videoTmpService.insertVideoTmpToReal(verifyRequest.getId());
             }
         }
+    }
+
+    @Override
+    public VideoDetailResponse getVideoDetailByIdExcept(Long videoId, CommonStatus commonStatus) {
+        Video video = videoRepository.findByIdAndStatusNot(videoId, commonStatus)
+                .orElseThrow(() -> new BadRequestException("Not exist video with id: " + videoId));
+        return videoMapper.mapEntityToDto(video);
     }
 
 }

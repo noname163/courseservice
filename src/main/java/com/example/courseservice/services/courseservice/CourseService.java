@@ -1,6 +1,7 @@
 package com.example.courseservice.services.courseservice;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,7 @@ import com.example.courseservice.data.entities.Course;
 public interface CourseService {
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail);
     public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus);
+    public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus);
     public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String email, Integer page, Integer size, String field, SortType sortType);
     public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy,CommonStatus commonStatus,List<String> value, Integer page, Integer size, String field, SortType sortType);
     public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size, String field, SortType sortType);

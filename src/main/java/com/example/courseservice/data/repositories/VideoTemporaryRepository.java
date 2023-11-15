@@ -8,4 +8,5 @@ import com.example.courseservice.data.entities.VideoTemporary;
 
 public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, Long> {
     public Optional<VideoTemporary> findByVideoId(Long videoId);
+    public Boolean existsByVideoId(Long videoId);
 }

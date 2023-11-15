@@ -206,4 +206,21 @@ public class CourseController {
                 .status(HttpStatus.OK)
                 .body(courseService.getCourseDetail(id, CommonStatus.AVAILABLE));
     }
+
+    @Operation(summary = "Get courses detail for admin and teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course detail successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDetailResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/detail/teacher")
+    public ResponseEntity<CourseDetailResponse> getCoursesDetailExcept(
+            @RequestParam(required = true) Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.getCourseDetailExcept(id, CommonStatus.AVAILABLE));
+    }
 }
