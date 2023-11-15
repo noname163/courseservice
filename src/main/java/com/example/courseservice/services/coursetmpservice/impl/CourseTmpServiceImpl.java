@@ -29,6 +29,7 @@ import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.uploadservice.UploadService;
+import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 import com.netflix.discovery.converters.Auto;
 
@@ -40,6 +41,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     private CourseRepository courseRepository;
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private VideoService videoService;
     @Autowired
     private FileService fileService;
     @Autowired
@@ -70,6 +73,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
         courseTemporary.setThumbnial(thumbnial.getUrl());
         courseTemporaryRepository.save(courseTemporary);
+        videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
     }
 
     @Override
