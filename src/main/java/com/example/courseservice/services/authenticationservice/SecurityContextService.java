@@ -8,4 +8,5 @@ public interface SecurityContextService {
     public void validateCurrentUser(UserInformation user);
 
     public UserInformation getCurrentUser();
+
 }

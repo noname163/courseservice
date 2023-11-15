@@ -58,7 +58,7 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class))
             })
     })
-    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
+    @PreAuthorize("hasAuthority('TEACHER')")
     @PostMapping("")
     public ResponseEntity<Void> uploadVideo(
             @RequestPart VideoRequest videoRequest,
@@ -75,12 +75,12 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class))
             })
     })
-    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
+    @PreAuthorize("hasAuthority('TEACHER')")
     @PutMapping("/update")
     public ResponseEntity<Void> updateVideo(
             @RequestPart VideoUpdateRequest videoRequest,
-            @RequestPart() MultipartFile video,
-            @RequestPart() MultipartFile thumbnail) throws IOException {
+            @RequestPart(required = false) MultipartFile video,
+            @RequestPart(required = false) MultipartFile thumbnail) throws IOException {
         eventPublisher.publishEvent(videoTmpService.saveTempVideo(videoRequest, video, thumbnail));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }

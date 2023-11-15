@@ -1,8 +1,6 @@
 package com.example.courseservice.services.fileservice.impl;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

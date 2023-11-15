@@ -27,6 +27,7 @@ public class VideoMapper {
     public VideoDetailResponse mapEntityToDto(Video video) {
         return VideoDetailResponse
                 .builder()
+                .videoStatus(video.getVideoStatus())
                 .url(video.getUrlVideo())
                 .thumbnail(video.getUrlThumbnail())
                 .like(video.getReaction(ReactStatus.LIKE))
@@ -39,6 +40,7 @@ public class VideoMapper {
         return VideoItemResponse
                 .builder()
                 .id(video.getId())
+                .videoStatus(video.getVideoStatus())
                 .duration(video.getDuration())
                 .name(video.getName())
                 .build();
@@ -48,6 +50,7 @@ public class VideoMapper {
         return VideoAdminResponse
                 .builder()
                 .id(video.getId())
+                .description(video.getDescription())
                 .thumbnail(video.getUrlThumbnail())
                 .courseName(video.getCourse().getName())
                 .name(video.getName())
