@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VerifyStatus;
-import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
@@ -33,6 +32,7 @@ import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.VideoMapper;
+import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.services.videotmpservice.VideoTmpService;
@@ -52,6 +52,8 @@ public class VideoServiceImpl implements VideoService {
     private PageableUtil pageableUtil;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private SecurityContextService securityContextService;
 
     @Override
     public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial) {
@@ -152,9 +154,10 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(String email, CommonStatus commonStatus,
+    public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(CommonStatus commonStatus,
             Integer page,
             Integer size, String field, SortType sortType) {
+        String email = securityContextService.getCurrentUser().getEmail();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
         if (courses.isEmpty()) {

@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.courseservice.data.dto.response.TransactionResponse;
 import com.example.courseservice.services.transactionservice.TransactionService;
+import com.example.courseservice.utils.EnvironmentVariable;
 
 @Controller
 public class RedirectController {
 
     @Autowired
     private TransactionService transactionService;
+    @Autowired
+    private EnvironmentVariable environmentVariable;
+
 
     @GetMapping("/check-payment")
     @ResponseBody
@@ -26,6 +30,6 @@ public class RedirectController {
         HttpSession session) throws Exception {
             TransactionResponse transactionResponse = transactionService.checkPaymentStatus(vnpTxnRef, responseCode, transactionNo, transDate);
         session.setAttribute("transaction_status", transactionResponse.getTransactionStatus().toString());
-        return "tmp";
+        return "redirect:"+environmentVariable.getVnPayRedirectUrl();
     }
 }

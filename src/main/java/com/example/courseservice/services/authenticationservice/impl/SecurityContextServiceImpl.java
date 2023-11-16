@@ -49,4 +49,14 @@ public class SecurityContextServiceImpl implements SecurityContextService {
             throw new BadRequestException("Invalid User");
         }
     }
+
+    @Override
+    public UserInformation isLogin() {
+        Authentication authentication = securityContext.getAuthentication();
+        if(authentication==null){
+            return null;
+        }
+        Object principal = authentication.getPrincipal();
+        return ((CustomUserDetails) principal).getUser();
+    }
 }
