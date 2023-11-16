@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VerifyStatus;
-import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
@@ -28,12 +27,15 @@ import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.VideoMapper;
+import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.fileservice.FileService;
+import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.services.videotmpservice.VideoTmpService;
 import com.example.courseservice.utils.PageableUtil;
@@ -52,6 +54,10 @@ public class VideoServiceImpl implements VideoService {
     private PageableUtil pageableUtil;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private SecurityContextService securityContextService;
+    @Autowired
+    private ReactVideoService reactVideoService;
 
     @Override
     public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial) {
@@ -152,13 +158,14 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(String email, CommonStatus commonStatus,
+    public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(CommonStatus commonStatus,
             Integer page,
             Integer size, String field, SortType sortType) {
+        String email = securityContextService.getCurrentUser().getEmail();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
         if (courses.isEmpty()) {
-            throw new BadRequestException("Cannot found any courses with email " + email);
+            return null;
         }
         if (CommonStatus.ALL.equals(commonStatus)) {
             Page<Video> videos = videoRepository.findByCourseIn(courses, pageable);
@@ -214,6 +221,7 @@ public class VideoServiceImpl implements VideoService {
             videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
         }
         VideoDetailResponse videoDetailResponse = videoMapper.mapEntityToDto(video);
+        videoDetailResponse.setReactStatus(reactVideoService.getReactStatusByStudentIdAndVideoId(videoId));
         videoDetailResponse.setVideoItemResponses(videoItemResponses);
         return videoDetailResponse;
     }

@@ -76,7 +76,9 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
             courseTemporaryRepository.save(courseTemporary);
-            videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
+            if(courseUpdateRequest.getVideoOrders()!=null && !courseUpdateRequest.getVideoOrders().isEmpty()){
+                videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
+            }
         }
     }
 

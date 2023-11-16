@@ -21,7 +21,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "React_Video",uniqueConstraints = @UniqueConstraint(columnNames = {"video_id", "student_email"}))
+@Table(name = "React_Video",uniqueConstraints = @UniqueConstraint(columnNames = {"video_id", "student_id"}))
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,8 +32,10 @@ public class ReactVideo {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "react_video_sequence")
     private long id;
 
-    @Column(name = "student_email")
-    private long studentEmail;
+    private String studentName;
+
+    @Column(name = "student_id")
+    private Long studentId;
 
     private LocalDateTime createDate;
 
