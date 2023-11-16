@@ -9,4 +9,6 @@ public interface SecurityContextService {
 
     public UserInformation getCurrentUser();
 
+    public UserInformation isLogin();
+
 }

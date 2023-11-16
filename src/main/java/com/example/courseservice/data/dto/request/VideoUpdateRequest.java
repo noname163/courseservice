@@ -15,5 +15,4 @@ public class VideoUpdateRequest {
     private String name;
     private String description;
     private VideoStatus videoStatus;
-    private Integer order;
 }

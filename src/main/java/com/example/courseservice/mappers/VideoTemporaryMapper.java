@@ -18,7 +18,6 @@ public class VideoTemporaryMapper {
         return VideoTemporary
                 .builder()
                 .videoStatus(Optional.ofNullable(videoRequest.getVideoStatus()).orElse(video.getVideoStatus()))
-                .ordinalNumber(Optional.ofNullable(videoRequest.getOrder()).orElse(video.getOrdinalNumber()))
                 .name(Optional.ofNullable(videoRequest.getName()).orElse(video.getName()))
                 .description(Optional.ofNullable(videoRequest.getDescription()).orElse(video.getDescription()))
                 .build();

@@ -25,15 +25,18 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.mappers.VideoCourseMapper;
+import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.levelservice.LevelService;
+import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.utils.PageableUtil;
 
@@ -56,9 +59,13 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private LevelService levelService;
     @Autowired
+    private StudentEnrollCourseService studentEnrollCourseService;
+    @Autowired
+    private SecurityContextService securityContextService;
+    @Autowired
     private VideoCourseMapper videoCourseMapper;
 
-    private final Double maxRate = 5d;
+    private final Double MAXRATE = 5d;
 
     @Override
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {
@@ -93,6 +100,12 @@ public class CourseServiceImpl implements CourseService {
             SortType sortType) {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        
+        UserInformation currentUser = securityContextService.isLogin();
+        
+        if(currentUser!=null&& currentUser.getRole().equals("STUDENT")){
+            return getCourseWhenUserLogin(currentUser.getEmail(), page, size, field, sortType);
+        }
 
         if (commonStatus.equals(CommonStatus.ALL)) {
             Page<Course> listSubject = courseRepository.findAll(pageable);
@@ -102,6 +115,7 @@ public class CourseServiceImpl implements CourseService {
                     .totalRow(listSubject.getTotalElements())
                     .build();
         }
+
 
         Page<Course> listSubject = courseRepository.findByCommonStatus(pageable, commonStatus);
 
@@ -167,7 +181,7 @@ public class CourseServiceImpl implements CourseService {
 
     private PaginationResponse<List<CourseResponse>> filterCourseByRate(List<String> value, CommonStatus commonStatus,
             Pageable pageable) {
-        if (value.size() > 1) {
+        if (value == null || value.isEmpty() || value.size() > 1) {
             throw new BadRequestException("Invalid data require for filter by rate");
         }
         Double minRate = Double.parseDouble(value.stream().findFirst().get());
@@ -175,7 +189,7 @@ public class CourseServiceImpl implements CourseService {
             throw new BadRequestException("Rate cannot smaller than 0");
         }
         Page<Course> courses = courseRepository.findByCommonStatusAndAverageRateBetween(commonStatus, minRate,
-                maxRate, pageable);
+                MAXRATE, pageable);
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
                 .totalPage(courses.getTotalPages())
@@ -190,7 +204,7 @@ public class CourseServiceImpl implements CourseService {
         }
         List<Long> levelIds = value
                 .stream()
-                .map(id -> Long.parseLong(id))
+                .map(Long::parseLong)
                 .collect(Collectors.toList());
         List<Level> levels = levelService.getListLevel(levelIds);
         Page<Course> courses = courseRepository.findByCommonStatusAndLevelIn(pageable, commonStatus, levels);
@@ -291,6 +305,22 @@ public class CourseServiceImpl implements CourseService {
         courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
         return courseDetailResponse;
 
+    }
+
+    private PaginationResponse<List<CourseResponse>> getCourseWhenUserLogin(String email, Integer page,
+            Integer size, String field, SortType sortType) {
+        List<Long> coursesId = studentEnrollCourseService.getListCourseId(email);
+
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+
+        Page<Course> courses = courseRepository.findByCommonStatusAndIdNotIn(CommonStatus.AVAILABLE, coursesId,
+                pageable);
+
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
+                .totalPage(courses.getTotalPages())
+                .totalRow(courses.getTotalElements())
+                .build();
     }
 
 }

@@ -61,6 +61,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     public Optional<Course> findByIdAndCommonStatus(Long id, CommonStatus commonStatus);
 
+    public Page<Course> findByCommonStatusAndIdNotIn(CommonStatus commonStatus, List<Long> courseIds, Pageable pageable);
+
     public Optional<Course> findByIdAndCommonStatusNot(Long id, CommonStatus commonStatus);
 
 }

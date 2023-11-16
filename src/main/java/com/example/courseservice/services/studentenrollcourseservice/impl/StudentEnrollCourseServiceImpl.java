@@ -13,7 +13,6 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
-import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.StudentEnrolledCourses;
 import com.example.courseservice.data.object.UserInformation;
@@ -71,7 +70,8 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
     @Override
     public void insertStudentEnroll(StudentEnrollRequest studentEnrollRequest) {
         Course course = courseRepository.findById(studentEnrollRequest.getCourseId())
-                .orElseThrow(() -> new BadRequestException("Not exist course with id " + studentEnrollRequest.getCourseId()));
+                .orElseThrow(() -> new BadRequestException(
+                        "Not exist course with id " + studentEnrollRequest.getCourseId()));
 
         studentEnrolledCoursesRepository.save(StudentEnrolledCourses
                 .builder()
@@ -79,6 +79,16 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
                 .studentId(studentEnrollRequest.getStudentId())
                 .course(course)
                 .build());
+    }
+
+    @Override
+    public List<Long> getListCourseId(String studentEmail) {
+        
+        List<StudentEnrolledCourses> courseEnrolled = studentEnrolledCoursesRepository.findByStudentEmail(studentEmail);
+
+        return courseEnrolled.stream()
+                .map(enrolledCourse -> enrolledCourse.getCourse().getId())
+                .collect(Collectors.toList());
     }
 
 }

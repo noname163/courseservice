@@ -171,7 +171,7 @@ public class VideoController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(videoService.getVideoForTeacher(email, commonStatus, page, size, field,
+                .body(videoService.getVideoForTeacher(commonStatus, page, size, field,
                         sortType));
     }
 
