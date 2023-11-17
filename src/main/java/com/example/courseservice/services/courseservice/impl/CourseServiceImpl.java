@@ -1,7 +1,6 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,11 +80,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String email, Integer page, Integer size,
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(Integer page, Integer size,
             String field, SortType sortType) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<Course> listSubject = courseRepository.findCourseByTeacherEmail(email, pageable);
+        Page<Course> listSubject = courseRepository.findCourseByTeacherEmail(currentUser.getEmail(), pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapEntitiesToDtos(listSubject.getContent()))
@@ -101,10 +101,9 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         
-        UserInformation currentUser = securityContextService.isLogin();
         
-        if(currentUser!=null&& currentUser.getRole().equals("STUDENT")){
-            return getCourseWhenUserLogin(currentUser.getEmail(), page, size, field, sortType);
+        if(Boolean.TRUE.equals(securityContextService.getLoginStatus())){
+            return getCourseWhenUserLogin(securityContextService.getEmail(), page, size, field, sortType);
         }
 
         if (commonStatus.equals(CommonStatus.ALL)) {

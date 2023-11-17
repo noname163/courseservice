@@ -24,7 +24,8 @@ public interface VideoService {
 
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
-    public Video getVideoById(Long videoId);
+    public Video getVideoByIdAndCommonStatus(Long videoId, CommonStatus commonStatus);
+    public Video getVideoByIdAndCommonStatusNot(Long videoId, CommonStatus commonStatus);
 
     public PaginationResponse<List<VideoAdminResponse>> getVideoForAdmin(CommonStatus commonStatus, Integer page,
             Integer size, String field, SortType sortType);

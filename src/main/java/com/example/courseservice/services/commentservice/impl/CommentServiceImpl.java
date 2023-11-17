@@ -52,7 +52,7 @@ public class CommentServiceImpl implements CommentService {
     public void createComment(CommentRequest commentRequest) {
         UserInformation currentUser = securityContextService.getCurrentUser();
         String email = currentUser.getEmail();
-        Video video = videoService.getVideoById(commentRequest.getVideoId());
+        Video video = videoService.getVideoByIdAndCommonStatus(commentRequest.getVideoId(), CommonStatus.AVAILABLE);
         long courseId = video.getCourse().getId();
         if (courseService.isCourseBelongTo(email, courseId)
                 || studentEnrollCourseService.isStudentEnrolled(email, courseId)) {
