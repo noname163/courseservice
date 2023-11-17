@@ -89,7 +89,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private void processAuthenticationOfCourse(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) {
         final Optional<String> requestTokenHeaderOpt = getJwtFromRequest(request);
-        if (requestTokenHeaderOpt.isPresent()) {
+        if (requestTokenHeaderOpt.isPresent() && !requestTokenHeaderOpt.isEmpty()) {
             try {
                 String accessToken = requestTokenHeaderOpt.get();
                 Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(request));
