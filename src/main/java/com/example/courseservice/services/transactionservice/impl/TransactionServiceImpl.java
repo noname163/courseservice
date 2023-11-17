@@ -36,9 +36,11 @@ import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.TransactionRepository;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.mappers.TeacherIncomeMapper;
 import com.example.courseservice.mappers.TransactionMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
+import com.example.courseservice.services.teacherincomeservice.TeacherIncomeService;
 import com.example.courseservice.services.transactionservice.TransactionService;
 import com.example.courseservice.utils.ConvertStringToLocalDateTime;
 import com.example.courseservice.utils.EnvironmentVariable;
@@ -54,7 +56,11 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
+    private TeacherIncomeService teacherIncomeService;
+    @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private TeacherIncomeMapper teacherIncomeMapper;
     @Autowired
     private TransactionMapper transactionMapper;
     @Autowired
@@ -151,6 +157,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .createDate(createdDate)
                 .userEmail(user.getEmail())
                 .course(course)
+                .amount(amount)
                 .userId(user.getId())
                 .vnpTxnRef(vnp_TxnRef)
                 .status(TransactionStatus.PENDING)
@@ -202,6 +209,7 @@ public class TransactionServiceImpl implements TransactionService {
                     .email(transaction.getUserEmail())
                     .studentId(transaction.getUserId())
                     .build());
+            teacherIncomeService.createTeacherIncome(teacherIncomeMapper.mapTransactionToTeacherIncomeRequest(transaction));
         }
 
         return transactionMapper.mapEntityToDto(transaction);

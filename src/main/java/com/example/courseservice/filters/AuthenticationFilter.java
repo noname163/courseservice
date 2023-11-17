@@ -42,6 +42,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
+            if(request.getRequestURI().startsWith("/api/courses")){
+                processAuthenticationOfCourse(request, response, filterChain);
+            }
             filterChain.doFilter(request, response);
         } else {
             processAuthentication(request, response, filterChain);
@@ -81,6 +84,29 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             }
         } else {
             throw new ForbiddenException("JWT Access Token does not start with 'Bearer '.");
+        }
+    }
+    private void processAuthenticationOfCourse(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) {
+        final Optional<String> requestTokenHeaderOpt = getJwtFromRequest(request);
+        if (requestTokenHeaderOpt.isPresent()) {
+            try {
+                String accessToken = requestTokenHeaderOpt.get();
+                Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(request));
+                Claims claims = jwtClaims.getBody();
+                UserInformation userInformation = UserInformation
+                        .builder()
+                        .email(claims.get("email").toString())
+                        .role(claims.get("role").toString())
+                        .fullname(claims.get("fullName").toString())
+                        .build();
+                securityContextService.setSecurityContext(userInformation);
+                filterChain.doFilter(request, response);
+            } catch (Exception ex) {
+                throw new BadRequestException(ex.getMessage(), ex);
+            }
+        } else {
+            securityContextService.setSecurityContext(null);
         }
     }
 

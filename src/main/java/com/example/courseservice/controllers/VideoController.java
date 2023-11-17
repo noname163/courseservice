@@ -25,7 +25,6 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
-import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
@@ -152,7 +151,7 @@ public class VideoController {
                         sortType));
     }
 
-    @Operation(summary = "Get list video by teacher email")
+    @Operation(summary = "Get list video for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get video successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = VideoAdminResponse.class))
@@ -162,8 +161,7 @@ public class VideoController {
     })
     @GetMapping("/teacher")
     @PreAuthorize("hasAuthority('TEACHER')")
-    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoByTeacherEmail(
-            @RequestParam(required = true) String email,
+    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoForCurrentTeacher(
             @RequestParam(required = true, defaultValue = "ALL") CommonStatus commonStatus,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
@@ -172,6 +170,27 @@ public class VideoController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(videoService.getVideoForTeacher(commonStatus, page, size, field,
+                        sortType));
+    }
+
+    @Operation(summary = "Get list video by teacher email for user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get video successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoAdminResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/user")
+    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoByTeacherEmail(
+            @RequestParam(required = true) String email,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(videoService.getVideoForUser(email, page, size, field,
                         sortType));
     }
 
