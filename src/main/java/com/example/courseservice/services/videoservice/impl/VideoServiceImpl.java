@@ -27,7 +27,6 @@ import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
-import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
@@ -248,6 +247,22 @@ public class VideoServiceImpl implements VideoService {
                 .collect(Collectors.toList());
 
         videoRepository.saveAll(updatedVideos);
+    }
+
+    @Override
+    public PaginationResponse<List<VideoAdminResponse>> getVideoForUser(String email,
+            Integer page, Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
+        if (courses.isEmpty()) {
+            return null;
+        }
+        Page<Video> videos = videoRepository.findByStatusAndCourseIn(CommonStatus.AVAILABLE, courses, pageable);
+        return PaginationResponse.<List<VideoAdminResponse>>builder()
+                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                .totalPage(videos.getTotalPages())
+                .totalRow(videos.getTotalElements())
+                .build();
     }
 
 }

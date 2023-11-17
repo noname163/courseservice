@@ -87,6 +87,9 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private List<Video> videos;
 
+    @OneToMany(mappedBy = "course")
+    private List<TeacherIncome> teacherIncomes;
+
     @Transient 
     public float getAverageRating() {
         if (ratings == null || ratings.isEmpty()) {

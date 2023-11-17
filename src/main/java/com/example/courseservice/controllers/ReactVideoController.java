@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.courseservice.data.dto.request.ReactRequest;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.exceptions.BadRequestException;
-import com.example.courseservice.exceptions.ForbiddenException;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,14 +28,14 @@ public class ReactVideoController {
     @Autowired
     private ReactVideoService reactVideoService;
 
-    @Operation(summary = "Create payment")
+    @Operation(summary = "Create react")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Create react successfull.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid data.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class))})
     })
-    @PreAuthorize("hasAuthority('TEACHER')")
+    @PreAuthorize("hasAuthority('STUDENT')")
     @PostMapping()
     public ResponseEntity<Void> reactVideo(@RequestBody @Valid ReactRequest reactRequest){
         reactVideoService.createReact(reactRequest);
