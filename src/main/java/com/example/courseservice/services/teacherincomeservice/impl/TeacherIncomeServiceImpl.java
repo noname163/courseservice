@@ -48,6 +48,9 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         String email = securityContextService.getCurrentUser().getEmail();
         List<CourseReportInterface> courseReportInterfaces = teacherIncomeRepository
                 .getRevenueByTeacherEmailForLast10Months(email);
+        if (courseReportInterfaces == null || courseReportInterfaces.isEmpty()) {
+            return null;
+        }
         return teacherIncomeMapper.mapEntitiesToResponseDtos(courseReportInterfaces);
     }
 
@@ -56,6 +59,9 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         String email = securityContextService.getCurrentUser().getEmail();
         List<CourseReportInterface> courseReportInterfaces = teacherIncomeRepository
                 .getRevenueByTeacherEmailAndCourseIdForLast10Months(email, courseId);
+        if (courseReportInterfaces == null || courseReportInterfaces.isEmpty()) {
+            return null;
+        }
         return teacherIncomeMapper.mapEntitiesToResponseDtos(courseReportInterfaces);
     }
 
