@@ -5,6 +5,10 @@ import com.example.courseservice.data.object.UserInformation;
 public interface SecurityContextService {
     public void setSecurityContext(UserInformation userInformation);
 
+    public boolean getIsAuthenticatedAndIsStudent();
+
+    public void setSecurityContextNull(UserInformation userInformation);
+
     public void validateCurrentUser(UserInformation user);
 
     public UserInformation getCurrentUser();

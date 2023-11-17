@@ -1,7 +1,6 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,9 +101,10 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         
-        UserInformation currentUser = securityContextService.isLogin();
         
-        if(currentUser!=null&& currentUser.getRole().equals("STUDENT")){
+        if(securityContextService.getIsAuthenticatedAndIsStudent()){
+            UserInformation currentUser = securityContextService.isLogin();
+
             return getCourseWhenUserLogin(currentUser.getEmail(), page, size, field, sortType);
         }
 

@@ -42,9 +42,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
-            if(request.getRequestURI().startsWith("/api/courses")){
-                processAuthenticationOfCourse(request, response, filterChain);
-            }
             filterChain.doFilter(request, response);
         } else {
             processAuthentication(request, response, filterChain);
@@ -106,7 +103,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 throw new BadRequestException(ex.getMessage(), ex);
             }
         } else {
-            securityContextService.setSecurityContext(null);
+            securityContextService.setSecurityContextNull(null);
         }
     }
 

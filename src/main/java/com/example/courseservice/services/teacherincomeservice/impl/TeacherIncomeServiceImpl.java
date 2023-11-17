@@ -1,6 +1,7 @@
 package com.example.courseservice.services.teacherincomeservice.impl;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,7 +50,7 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         List<CourseReportInterface> courseReportInterfaces = teacherIncomeRepository
                 .getRevenueByTeacherEmailForLast10Months(email);
         if (courseReportInterfaces == null || courseReportInterfaces.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         return teacherIncomeMapper.mapEntitiesToResponseDtos(courseReportInterfaces);
     }
@@ -60,7 +61,7 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         List<CourseReportInterface> courseReportInterfaces = teacherIncomeRepository
                 .getRevenueByTeacherEmailAndCourseIdForLast10Months(email, courseId);
         if (courseReportInterfaces == null || courseReportInterfaces.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
         return teacherIncomeMapper.mapEntitiesToResponseDtos(courseReportInterfaces);
     }
