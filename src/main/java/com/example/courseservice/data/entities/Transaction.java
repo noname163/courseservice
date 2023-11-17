@@ -37,6 +37,8 @@ public class Transaction {
 
     private LocalDateTime expriedDate;
 
+    private Long amount;
+
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 

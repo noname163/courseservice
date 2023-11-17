@@ -32,6 +32,9 @@ public interface VideoService {
     public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(CommonStatus commonStatus,
             Integer page,
             Integer size, String field, SortType sortType);
+    public PaginationResponse<List<VideoAdminResponse>> getVideoForUser(String email,
+            Integer page,
+            Integer size, String field, SortType sortType);
 
     public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus);
 
