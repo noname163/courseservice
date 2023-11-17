@@ -19,7 +19,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "WHERE c.teacherEmail = :teacherEmail " +
             "AND t.year = YEAR(CURRENT_DATE) " +
             "AND t.month BETWEEN MONTH(CURRENT_DATE) - 9 AND MONTH(CURRENT_DATE) " +
-            "GROUP BY t.course.id, t.month, t.year")
+            "GROUP BY c.name, t.course.id, t.month, t.year")
     List<CourseReportInterface> getRevenueByTeacherEmailForLast10Months(@Param("teacherEmail") String teacherEmail);
 
     @Query("SELECT t.course.id AS courseId, c.name AS courseName, CONCAT(t.month, '-', t.year) AS monthOfYear, SUM(t.money) AS revenue " +
@@ -29,7 +29,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "AND c.id = :courseId " +
             "AND t.year = YEAR(CURRENT_DATE) " +
             "AND t.month BETWEEN MONTH(CURRENT_DATE) - 9 AND MONTH(CURRENT_DATE) " +
-            "GROUP BY t.course.id, t.month, t.year")
+            "GROUP BY c.name, t.course.id, t.month, t.year")
     List<CourseReportInterface> getRevenueByTeacherEmailAndCourseIdForLast10Months(
             @Param("teacherEmail") String teacherEmail,
             @Param("courseId") Long courseId

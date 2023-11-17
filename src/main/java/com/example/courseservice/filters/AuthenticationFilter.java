@@ -42,10 +42,14 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
-            if(request.getRequestURI().startsWith("/api/courses")){
+            String url = request.getRequestURI();
+            System.out.println(url);
+            if(request.getRequestURI().contentEquals("/api/courses/user")){
                 processAuthenticationOfCourse(request, response, filterChain);
             }
-            filterChain.doFilter(request, response);
+            else{
+                filterChain.doFilter(request, response);
+            }
         } else {
             processAuthentication(request, response, filterChain);
         }
@@ -87,26 +91,25 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
     }
     private void processAuthenticationOfCourse(HttpServletRequest request, HttpServletResponse response,
-            FilterChain filterChain) {
+            FilterChain filterChain) throws IOException, ServletException {
         final Optional<String> requestTokenHeaderOpt = getJwtFromRequest(request);
-        if (requestTokenHeaderOpt.isPresent()) {
+        if (requestTokenHeaderOpt.isPresent() && !requestTokenHeaderOpt.isEmpty()) {
             try {
                 String accessToken = requestTokenHeaderOpt.get();
                 Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(request));
                 Claims claims = jwtClaims.getBody();
-                UserInformation userInformation = UserInformation
-                        .builder()
-                        .email(claims.get("email").toString())
-                        .role(claims.get("role").toString())
-                        .fullname(claims.get("fullName").toString())
-                        .build();
-                securityContextService.setSecurityContext(userInformation);
+                if(claims.get("role").toString().equals("STUDENT")){
+                    securityContextService.setLoginStatus(true);
+                    securityContextService.setStudentEmail(claims.get("email").toString());
+                }
+                securityContextService.setLoginStatus(false);
                 filterChain.doFilter(request, response);
             } catch (Exception ex) {
                 throw new BadRequestException(ex.getMessage(), ex);
             }
         } else {
-            securityContextService.setSecurityContext(null);
+            securityContextService.setLoginStatus(false);
+            filterChain.doFilter(request, response);
         }
     }
 

@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.dto.request.ReactRequest;
 import com.example.courseservice.data.entities.ReactVideo;
@@ -32,7 +33,7 @@ public class ReactVideoServiceImpl implements ReactVideoService {
     public void createReact(ReactRequest reactRequest) {
 
         UserInformation currentUser = securityContextService.getCurrentUser();
-        Video video = videoService.getVideoById(reactRequest.getVideoId());
+        Video video = videoService.getVideoByIdAndCommonStatus(reactRequest.getVideoId(),CommonStatus.AVAILABLE);
 
         if (studentEnrollCourseService.isStudentEnrolled(currentUser.getEmail(), video.getCourse().getId())) {
             Optional<ReactVideo> reactVideoOtp = reactVideoRepository
