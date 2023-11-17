@@ -53,7 +53,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     public VideoResponse saveTempVideo(VideoUpdateRequest videoUpdateRequest, MultipartFile video,
             MultipartFile thumbnail) {
         UserInformation currentUser = securityContextService.getCurrentUser();
-        Video videoOld = videoService.getVideoById(videoUpdateRequest.getVideoId());
+        Video videoOld = videoService.getVideoByIdAndCommonStatusNot(videoUpdateRequest.getVideoId(), CommonStatus.DELETED);
 
         if (!videoOld.getCourse().getTeacherEmail().equals(currentUser.getEmail())) {
             throw new InValidAuthorizationException("Cannot edit this video");
@@ -101,7 +101,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
 
     @Override
     public void insertVideoTmpToReal(Long videoId) {
-        Video video = videoService.getVideoById(videoId);
+        Video video = videoService.getVideoByIdAndCommonStatusNot(videoId,CommonStatus.DELETED);
         VideoTemporary videoTemporary = videoTemporaryRepository
                 .findByVideoId(videoId)
                 .orElseThrow(() -> new BadRequestException("Cannot found update information of video id " + videoId));

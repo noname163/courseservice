@@ -3,6 +3,7 @@ package com.example.courseservice.services.videoservice.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -68,7 +69,7 @@ public class VideoServiceImpl implements VideoService {
         // Set the ordinalNumber for the new video
         int ordinalNumber = maxOrdinalNumber != null ? maxOrdinalNumber + 1 : 1;
         Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
-        videoConvert.setStatus(CommonStatus.WAITING);
+        videoConvert.setStatus(CommonStatus.UNAVAILABLE);
         videoConvert.setCourse(course);
         videoConvert.setOrdinalNumber(ordinalNumber);
         Video videoInsert = videoRepository.save(videoConvert);
@@ -92,23 +93,23 @@ public class VideoServiceImpl implements VideoService {
                 || videoUpdate.getVideoUrl() == null) {
             throw new BadRequestException("Data not valid");
         }
-        Video video = getVideoById(videoUpdate.getVideoId());
+        Video video = getVideoByIdAndCommonStatus(videoUpdate.getVideoId(), CommonStatus.UNAVAILABLE);
         video.setUrlVideo(videoUpdate.getVideoUrl());
         video.setUrlThumbnail(videoUpdate.getThumbnailUrl());
-        video.setStatus(CommonStatus.UNAVAILABLE);
+        video.setStatus(CommonStatus.WAITING);
         videoRepository.save(video);
     }
 
     @Override
-    public Video getVideoById(Long videoId) {
+    public Video getVideoByIdAndCommonStatus(Long videoId, CommonStatus commonStatus) {
         return videoRepository
-                .findByIdAndStatus(videoId, CommonStatus.AVAILABLE)
+                .findByIdAndStatus(videoId, commonStatus)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoId));
     }
 
     @Override
     public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus) {
-        Video video = getVideoById(videoId);
+        Video video = getVideoByIdAndCommonStatus(videoId, CommonStatus.AVAILABLE);
         List<Video> videos = videoRepository.findByCourseAndStatus(video.getCourse(), commonStatus);
 
         List<VideoItemResponse> videoItemResponses = new ArrayList<>();
@@ -263,6 +264,16 @@ public class VideoServiceImpl implements VideoService {
                 .totalPage(videos.getTotalPages())
                 .totalRow(videos.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public Video getVideoByIdAndCommonStatusNot(Long videoId, CommonStatus commonStatus) {
+        Optional<Video> video = videoRepository.findByIdAndStatusNot(videoId, commonStatus);
+        if (video.isEmpty()) {
+            throw new BadRequestException(
+                    "Cannot found video with id " + videoId + " in function getVideoByIdAndCommonStatusNot");
+        }
+        return video.get();
     }
 
 }

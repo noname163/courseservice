@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.dto.response.VideoUrls;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoUrl;
@@ -26,7 +27,7 @@ public class VideoUrlServiceImpl implements VideoUrlService {
         if (videoUrlsRequest ==null || videoUrlsRequest.isEmpty()) {
             throw new BadRequestException("Video url object null");
         }
-        Video video = videoService.getVideoById(videoId);
+        Video video = videoService.getVideoByIdAndCommonStatusNot(videoId, CommonStatus.DELETED);
         List<VideoUrl> videoUrls = new ArrayList<>();
         for (VideoUrls videoUrlsResponse : videoUrlsRequest) {
             videoUrls.add(VideoUrl

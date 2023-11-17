@@ -15,4 +15,9 @@ public interface SecurityContextService {
 
     public UserInformation isLogin();
 
+    public Boolean getLoginStatus();
+    public String getEmail();
+    public void setLoginStatus(Boolean status);
+    public void setStudentEmail(String email);
+
 }
