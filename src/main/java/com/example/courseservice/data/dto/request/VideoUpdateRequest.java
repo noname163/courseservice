@@ -10,8 +10,9 @@ import lombok.Data;
 @Builder
 @Data
 public class VideoUpdateRequest {
-    @NotNull(message = "Vdeo id is require")
     private Long videoId;
+    @NotNull(message = "Course id is require")
+    private Long courseId;
     private String name;
     private String description;
     private VideoStatus videoStatus;

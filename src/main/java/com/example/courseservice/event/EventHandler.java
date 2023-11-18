@@ -35,7 +35,7 @@ public class EventHandler implements ApplicationListener<Event> {
     private VideoUrlService videoUrlService;
     @Autowired
     private VideoTmpService videoTmpService;
-    private final String UPDATEURI= "/video/update";
+    private final String UPDATEURI = "/video/upload";
 
     @Override
     @Async
@@ -43,7 +43,7 @@ public class EventHandler implements ApplicationListener<Event> {
         Map<String, Object> data = event.getData();
         VideoResponse videoResponse = (VideoResponse) data.get("videoResponse");
         String url = (String) data.get("URI");
-        if (videoResponse != null && videoResponse.getThumbnail()!=null && videoResponse.getVideo()!=null) {
+        if (videoResponse != null && videoResponse.getThumbnail() != null && videoResponse.getVideo() != null) {
             CloudinaryUrl video = uploadService.uploadMedia(videoResponse.getVideo());
             CloudinaryUrl thumbnial = uploadService.uploadMedia(videoResponse.getThumbnail());
             VideoUpdate videoUpdate = VideoUpdate
@@ -53,11 +53,10 @@ public class EventHandler implements ApplicationListener<Event> {
                     .duration(video.getDuration())
                     .thumbnailUrl(thumbnial.getUrl())
                     .build();
-            if(url.contains(UPDATEURI)){
-                videoTmpService.insertVideoUrl(videoUpdate);
-            }
+
             videoService.insertVideoUrl(videoUpdate);
-            List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(), environmentVariables.getVideoMaxSegment(), video.getDuration());
+            List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(),
+                    environmentVariables.getVideoMaxSegment(), video.getDuration());
             videoUrlService.insertVideoUrl(videoUrls, videoResponse.getVideoId());
         }
     }

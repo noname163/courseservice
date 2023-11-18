@@ -20,6 +20,8 @@ import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.request.VideoUpdateRequest;
+import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
@@ -28,10 +30,13 @@ import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.entities.VideoTemporary;
+import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.fileservice.FileService;
@@ -96,6 +101,7 @@ public class VideoServiceImpl implements VideoService {
         Video video = getVideoByIdAndCommonStatus(videoUpdate.getVideoId(), CommonStatus.UNAVAILABLE);
         video.setUrlVideo(videoUpdate.getVideoUrl());
         video.setUrlThumbnail(videoUpdate.getThumbnailUrl());
+        video.setDuration(videoUpdate.getDuration());
         video.setStatus(CommonStatus.WAITING);
         videoRepository.save(video);
     }
@@ -274,6 +280,33 @@ public class VideoServiceImpl implements VideoService {
                     "Cannot found video with id " + videoId + " in function getVideoByIdAndCommonStatusNot");
         }
         return video.get();
+    }
+
+    @Override
+    public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,
+            MultipartFile thumbnail) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
+
+        Course course = courseRepository
+                .findByIdAndCommonStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
+                .orElseThrow(() -> new BadRequestException("Not exist course with id "
+                        + videoRequest.getCourseId() + " in function uploadVideoByCourse"));
+        if (!course.getTeacherEmail().equals(currentUser.getEmail())) {
+            throw new InValidAuthorizationException("Cannot edit this video");
+        }
+        Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
+        videoConvert.setStatus(CommonStatus.WAITING);
+        videoConvert.setCourse(course);
+        Video videoInsert = videoRepository.save(videoConvert);
+        FileResponse videoFile = fileService.fileStorage(video);
+        FileResponse thumbnialFile = fileService.fileStorage(thumbnail);
+
+        return VideoResponse
+                .builder()
+                .videoId(videoInsert.getId())
+                .video(videoFile)
+                .thumbnail(thumbnialFile)
+                .build();
     }
 
 }

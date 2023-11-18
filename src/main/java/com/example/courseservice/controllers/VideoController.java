@@ -75,12 +75,12 @@ public class VideoController {
             })
     })
     @PreAuthorize("hasAuthority('TEACHER')")
-    @PutMapping("/update")
+    @PutMapping("/updload")
     public ResponseEntity<Void> updateVideo(
-            @RequestPart VideoUpdateRequest videoRequest,
-            @RequestPart(required = false) MultipartFile video,
-            @RequestPart(required = false) MultipartFile thumbnail) throws IOException {
-        eventPublisher.publishEvent(videoTmpService.saveTempVideo(videoRequest, video, thumbnail));
+            @RequestPart VideoRequest videoRequest,
+            @RequestPart(required = true) MultipartFile video,
+            @RequestPart(required = true) MultipartFile thumbnail) throws IOException {
+        eventPublisher.publishEvent(videoService.uploadVideoByCourse(videoRequest, video, thumbnail));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 

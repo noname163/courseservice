@@ -10,6 +10,7 @@ import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.entities.Course;
+import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 
@@ -61,7 +62,29 @@ public class CourseMapper {
                 .build();
     }
 
+    public CourseResponse mapInterfaceToReal(CourseResponseInterface courseResponseInterface) {
+        return CourseResponse
+                .builder()
+                .id(courseResponseInterface.getId())
+                .rating(courseResponseInterface.getAverageRating())
+                .courseName(courseResponseInterface.getCourseName())
+                .createdDate(courseResponseInterface.getCreatedDate())
+                .updateDate(courseResponseInterface.getUpdateDate())
+                .level(courseResponseInterface.getLevel())
+                .numberOfRate(courseResponseInterface.getNumberOfRate())
+                .price(courseResponseInterface.getPrice())
+                .status(courseResponseInterface.getStatus())
+                .subject(courseResponseInterface.getSubject())
+                .teacherName(courseResponseInterface.getTeacherName())
+                .thumbnial(courseResponseInterface.getThumbnial())
+                .totalVideo(courseResponseInterface.getTotalVideo())
+                .build();
+    }
+
     public List<CourseResponse> mapEntitiesToDtos(List<Course> courses) {
         return courses.stream().map(this::mapEntityToDto).collect(Collectors.toList());
+    }
+    public List<CourseResponse> mapInterfacesToDtos(List<CourseResponseInterface> courses) {
+        return courses.stream().map(this::mapInterfaceToReal).collect(Collectors.toList());
     }
 }
