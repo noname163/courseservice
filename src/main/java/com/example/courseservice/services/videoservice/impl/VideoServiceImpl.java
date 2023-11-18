@@ -23,24 +23,28 @@ import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
+import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
+import com.example.courseservice.data.entities.Comment;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoItemResponseInterface;
 import com.example.courseservice.data.object.VideoUpdate;
+import com.example.courseservice.data.repositories.CommentRepository;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
+import com.example.courseservice.services.commentservice.CommentService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
@@ -66,6 +70,8 @@ public class VideoServiceImpl implements VideoService {
     private SecurityContextService securityContextService;
     @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
+    @Autowired
+    private CommentService commentService;
     @Autowired
     private ReactVideoService reactVideoService;
 
@@ -370,6 +376,28 @@ public class VideoServiceImpl implements VideoService {
             result.add(videoItemResponse);
         }
         return result;
+    }
+
+    @Override
+    public void deleteVideo(Long videoId) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        Video video = videoRepository
+                .findById(videoId)
+                .orElseThrow(() -> new BadRequestException(
+                        "Not exist video with id " + videoId + " in function delete video"));
+        if(Boolean.FALSE.equals(courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getId()))){
+            throw new InValidAuthorizationException("Cannot delete this video");
+        }
+        commentService.deleteComments(video);
+        videoRepository.delete(video);
+    }
+
+    @Override
+    public List<CourseVideoResponse> getVideoByCourseIdAndCommonStatus(Long courseId, CommonStatus commonStatus) {
+        if(commonStatus.equals(CommonStatus.ALL)){
+            return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatusNot(courseId, CommonStatus.DELETED));
+        }
+        return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatus(courseId, CommonStatus.DELETED));
     }
 
 }

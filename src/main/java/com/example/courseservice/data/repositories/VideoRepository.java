@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.CourseVideoResponseInterface;
 import com.example.courseservice.data.object.VideoItemResponseInterface;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
@@ -26,6 +27,10 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     List<Video> findByCourseAndStatus(Course course, CommonStatus status);
 
+    List<Video> findByCourseIdAndStatus(Long courseId, CommonStatus status);
+
+    List<Video> findByCourseIdAndStatusNot(Long courseId, CommonStatus status);
+
     List<Video> findByCourseAndStatusNot(Course course, CommonStatus status);
 
     List<Video> findByCourseIdAndIdIn(Long courseId, Set<Long> ids);
@@ -36,4 +41,35 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     @Query("SELECT MAX(v.ordinalNumber) FROM Video v WHERE v.course = :course")
     Integer findMaxOrdinalNumberByCourse(@Param("course") Course course);
+
+    @Query("SELECT " +
+            "v.id AS id, " +
+            "v.name AS name, " +
+            "v.urlThumbnail AS thumbnail, " +
+            "v.duration AS duration, " +
+            "COUNT(rv.id) AS totalLike, " +
+            "COUNT(c.id) AS totalComment, " +
+            "v.ordinalNumber AS ordinalNumber " +
+            "FROM Video v " +
+            "LEFT JOIN v.reactVideos rv " +
+            "LEFT JOIN v.comments c " +
+            "WHERE v.course.id = :courseId " +
+            "AND v.status = :status "+
+            "GROUP BY v.id, v.name, v.urlThumbnail, v.duration, v.ordinalNumber")
+    List<CourseVideoResponseInterface> getCourseVideosByCourseIdAndCommonStatus(@Param("courseId") Long courseId, @Param("status") CommonStatus commonStatus);
+    @Query("SELECT " +
+            "v.id AS id, " +
+            "v.name AS name, " +
+            "v.urlThumbnail AS thumbnail, " +
+            "v.duration AS duration, " +
+            "COUNT(rv.id) AS totalLike, " +
+            "COUNT(c.id) AS totalComment, " +
+            "v.ordinalNumber AS ordinalNumber " +
+            "FROM Video v " +
+            "LEFT JOIN v.reactVideos rv " +
+            "LEFT JOIN v.comments c " +
+            "WHERE v.course.id = :courseId " +
+            "AND v.status != :status "+
+            "GROUP BY v.id, v.name, v.urlThumbnail, v.duration, v.ordinalNumber")
+    List<CourseVideoResponseInterface> getCourseVideosByCourseIdAndCommonStatusNot(@Param("courseId") Long courseId, @Param("status") CommonStatus commonStatus);
 }

@@ -102,4 +102,9 @@ public class CommentServiceImpl implements CommentService {
 
     }
 
+    @Override
+    public void deleteComments(Video video) {
+        commentRepository.deleteByVideo(video);
+    }
+
 }

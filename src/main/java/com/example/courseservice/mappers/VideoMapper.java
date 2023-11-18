@@ -7,14 +7,35 @@ import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.CourseVideoResponseInterface;
 import com.example.courseservice.data.object.VideoItemResponseInterface;
 
 @Component
 public class VideoMapper {
+    public VideoItemResponse mapToVideoItemResponse(VideoItemResponseInterface videoItemResponseInterface) {
+        if (videoItemResponseInterface == null) {
+            return null;
+        }
+
+        return VideoItemResponse.builder()
+                .id(videoItemResponseInterface.getId())
+                .name(videoItemResponseInterface.getName())
+                .duration(videoItemResponseInterface.getDuration())
+                .videoStatus(videoItemResponseInterface.getVideoStatus())
+                .isAccess(videoItemResponseInterface.getIsAccess())
+                .build();
+    }
+
+    public List<VideoItemResponse> mapToVideoItemResponse(
+            List<VideoItemResponseInterface> videoItemResponseInterfaces) {
+        return videoItemResponseInterfaces.stream().map(this::mapToVideoItemResponse).collect(Collectors.toList());
+    }
+
     public Video mapDtoToEntity(VideoRequest videoRequest) {
         return Video
                 .builder()
@@ -95,5 +116,28 @@ public class VideoMapper {
     public List<VideoItemResponse> mapVideoItemInterfaceToReal(
             List<VideoItemResponseInterface> videoItemResponseInterfaces) {
         return videoItemResponseInterfaces.stream().map(this::mapVideoItemInterfaceToReal).collect(Collectors.toList());
+    }
+
+    public CourseVideoResponse mapToCourseVideoResponse(CourseVideoResponseInterface courseVideoResponseInterface) {
+        if (courseVideoResponseInterface == null) {
+            return null;
+        }
+
+        return CourseVideoResponse.builder()
+                .id(courseVideoResponseInterface.getId())
+                .name(courseVideoResponseInterface.getName())
+                .thumbnail(courseVideoResponseInterface.getThumbnail())
+                .duration(courseVideoResponseInterface.getDuration())
+                .totalLike(courseVideoResponseInterface.getTotalLike())
+                .totalComment(courseVideoResponseInterface.getTotalComment())
+                .ordinalNumber(courseVideoResponseInterface.getOrdinalNumber())
+                .build();
+    }
+
+    public List<CourseVideoResponse> mapToCourseVideoResponseList(
+            List<CourseVideoResponseInterface> courseVideoResponseInterfaces) {
+        return courseVideoResponseInterfaces.stream()
+                .map(this::mapToCourseVideoResponse)
+                .collect(Collectors.toList());
     }
 }
