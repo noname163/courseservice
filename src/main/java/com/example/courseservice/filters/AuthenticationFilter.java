@@ -42,8 +42,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
-            String url = request.getRequestURI();
-            System.out.println(url);
             if(request.getRequestURI().contentEquals("/api/courses/user")){
                 processAuthenticationOfCourse(request, response, filterChain);
             }

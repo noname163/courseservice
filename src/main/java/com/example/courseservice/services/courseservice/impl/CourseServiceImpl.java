@@ -24,6 +24,7 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.exceptions.BadRequestException;
@@ -107,21 +108,21 @@ public class CourseServiceImpl implements CourseService {
         }
 
         if (commonStatus.equals(CommonStatus.ALL)) {
-            Page<Course> listSubject = courseRepository.findAll(pageable);
+            Page<CourseResponseInterface> listCourse = courseRepository.findByAllCommonStatus(pageable);
             return PaginationResponse.<List<CourseResponse>>builder()
-                    .data(courseMapper.mapEntitiesToDtos(listSubject.getContent()))
-                    .totalPage(listSubject.getTotalPages())
-                    .totalRow(listSubject.getTotalElements())
+                    .data(courseMapper.mapInterfacesToDtos(listCourse.getContent()))
+                    .totalPage(listCourse.getTotalPages())
+                    .totalRow(listCourse.getTotalElements())
                     .build();
         }
 
 
-        Page<Course> listSubject = courseRepository.findByCommonStatus(pageable, commonStatus);
+        Page<CourseResponseInterface> listCourse = courseRepository.getByCommonStatusJPQL(commonStatus,pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapEntitiesToDtos(listSubject.getContent()))
-                .totalPage(listSubject.getTotalPages())
-                .totalRow(listSubject.getTotalElements())
+                .data(courseMapper.mapInterfacesToDtos(listCourse.getContent()))
+                .totalPage(listCourse.getTotalPages())
+                .totalRow(listCourse.getTotalElements())
                 .build();
     }
 
@@ -312,11 +313,11 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<Course> courses = courseRepository.findByCommonStatusAndIdNotIn(CommonStatus.AVAILABLE, coursesId,
+        Page<CourseResponseInterface> courses = courseRepository.getAvailableCoursesByCommonStatusAndNotInList(CommonStatus.AVAILABLE, coursesId,
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
+                .data(courseMapper.mapInterfacesToDtos(courses.getContent()))
                 .totalPage(courses.getTotalPages())
                 .totalRow(courses.getTotalElements())
                 .build();
