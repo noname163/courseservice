@@ -92,7 +92,7 @@ public class VideoController {
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
-    @GetMapping("/{id}")
+    @GetMapping("/user/{id}")
     @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
     public ResponseEntity<VideoDetailResponse> getVideoById(@PathVariable Long id) {
         return ResponseEntity

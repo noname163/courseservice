@@ -14,4 +14,5 @@ public class VideoItemResponse {
     private String name;
     private float duration;
     private VideoStatus videoStatus;
+    private Boolean isAccess;
 }

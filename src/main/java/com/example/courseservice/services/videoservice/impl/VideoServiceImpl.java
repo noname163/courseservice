@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VerifyStatus;
+import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
@@ -32,6 +33,7 @@ import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
 import com.example.courseservice.data.object.UserInformation;
+import com.example.courseservice.data.object.VideoItemResponseInterface;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
@@ -41,6 +43,7 @@ import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
+import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.services.videotmpservice.VideoTmpService;
 import com.example.courseservice.utils.PageableUtil;
@@ -61,6 +64,8 @@ public class VideoServiceImpl implements VideoService {
     private FileService fileService;
     @Autowired
     private SecurityContextService securityContextService;
+    @Autowired
+    private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
     private ReactVideoService reactVideoService;
 
@@ -116,14 +121,21 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus) {
         Video video = getVideoByIdAndCommonStatus(videoId, CommonStatus.AVAILABLE);
-        List<Video> videos = videoRepository.findByCourseAndStatus(video.getCourse(), commonStatus);
-
-        List<VideoItemResponse> videoItemResponses = new ArrayList<>();
-        if (videos != null && !videos.isEmpty()) {
-            videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
+        Course course = video.getCourse();
+        // Check if the video is private and user is not authenticated or not enrolled
+        if (!isVideoAccessible(video)) {
+            throw new InValidAuthorizationException("Buy course to view this video");
         }
+
+        List<Video> videos = videoRepository.findByCourseAndStatus(course, commonStatus);
+        List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
+
+        // Set access status for each video item response
+        videoItemResponses = setVideoAccessStatus(videoItemResponses, course.getId());
+
         VideoDetailResponse videoResponse = videoMapper.mapEntityToDto(video);
         videoResponse.setVideoItemResponses(videoItemResponses);
+
         return videoResponse;
     }
 
@@ -134,9 +146,22 @@ public class VideoServiceImpl implements VideoService {
         Course course = courseRepository
                 .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
                 .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
+
         Page<Video> videos = videoRepository.findByCourseAndStatus(course, CommonStatus.AVAILABLE, pageable);
+        List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
+        if (securityContextService.isLogin() != null) {
+            setVideoAccessStatus(videoItemResponses, courseId);
+        } else {
+            for (VideoItemResponse videoItemResponse : videoItemResponses) {
+                if (videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE)) {
+                    videoItemResponse.setIsAccess(false);
+                } else {
+                    videoItemResponse.setIsAccess(true);
+                }
+            }
+        }
         return PaginationResponse.<List<VideoItemResponse>>builder()
-                .data(videoMapper.mapVideosToVideoItemResponses(videos.getContent()))
+                .data(videoItemResponses)
                 .totalPage(videos.getTotalPages())
                 .totalRow(videos.getTotalElements())
                 .build();
@@ -307,6 +332,44 @@ public class VideoServiceImpl implements VideoService {
                 .video(videoFile)
                 .thumbnail(thumbnialFile)
                 .build();
+    }
+
+    private boolean isVideoAccessible(Video video) {
+        boolean isAuthenticatedStudent = securityContextService.getIsAuthenticatedAndIsStudent();
+        boolean isVideoPrivate = video.getVideoStatus().equals(VideoStatus.PRIVATE);
+        if ((!isAuthenticatedStudent && isVideoPrivate) ||
+                (isAuthenticatedStudent && isVideoPrivate && !isStudentEnrolled(video.getCourse().getId()))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isStudentEnrolled(Long courseId) {
+        String studentEmail = securityContextService.getCurrentUser().getEmail();
+        return studentEnrollCourseService.isStudentEnrolled(studentEmail, courseId);
+    }
+
+    private List<VideoItemResponse> setVideoAccessStatus(List<VideoItemResponse> videoItemResponses, Long courseId) {
+        boolean isUserLoggedIn = false;
+        if (securityContextService.isLogin() != null && securityContextService.isLogin().getRole().equals("STUDENT")) {
+            isUserLoggedIn = true;
+        }
+        List<VideoItemResponse> result = new ArrayList<>();
+        for (VideoItemResponse videoItemResponse : videoItemResponses) {
+            boolean isVideoPrivate = videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE);
+
+            if (!isUserLoggedIn && isVideoPrivate) {
+                videoItemResponse.setIsAccess(false);
+            }
+
+            if (isUserLoggedIn) {
+                boolean isEnrolled = isStudentEnrolled(courseId);
+                videoItemResponse.setIsAccess(isEnrolled || !isVideoPrivate);
+            }
+            result.add(videoItemResponse);
+        }
+        return result;
     }
 
 }

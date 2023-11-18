@@ -21,7 +21,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "student_enrolled_courses", uniqueConstraints = @UniqueConstraint(columnNames = {"student_email", "course_id"}))
+@Table(name = "student_enrolled_courses", uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "course_id"}))
 @Data
 @Builder
 @NoArgsConstructor
@@ -38,7 +38,6 @@ public class StudentEnrolledCourses {
 
     private StudentEnrolledStatus status;
     
-    @Column(name = "student_email")
     private String studentEmail;
 
     @Column(name = "student_id")

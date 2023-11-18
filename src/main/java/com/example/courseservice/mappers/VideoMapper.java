@@ -11,6 +11,7 @@ import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.VideoItemResponseInterface;
 
 @Component
 public class VideoMapper {
@@ -78,5 +79,21 @@ public class VideoMapper {
                 .stream()
                 .map(this::mapVideoToVideoItemResponse)
                 .collect(Collectors.toList());
+    }
+
+    public VideoItemResponse mapVideoItemInterfaceToReal(VideoItemResponseInterface videoItemResponseInterface) {
+        return VideoItemResponse
+                .builder()
+                .duration(videoItemResponseInterface.getDuration())
+                .id(videoItemResponseInterface.getId())
+                .isAccess(videoItemResponseInterface.getIsAccess())
+                .videoStatus(videoItemResponseInterface.getVideoStatus())
+                .name(videoItemResponseInterface.getName())
+                .build();
+    }
+
+    public List<VideoItemResponse> mapVideoItemInterfaceToReal(
+            List<VideoItemResponseInterface> videoItemResponseInterfaces) {
+        return videoItemResponseInterfaces.stream().map(this::mapVideoItemInterfaceToReal).collect(Collectors.toList());
     }
 }

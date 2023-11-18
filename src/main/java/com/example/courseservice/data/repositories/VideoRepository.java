@@ -13,17 +13,27 @@ import org.springframework.data.repository.query.Param;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.VideoItemResponseInterface;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
     Page<Video> findByCourseAndStatus(Course course, CommonStatus status, Pageable pageable);
+
     Page<Video> findByStatus(CommonStatus status, Pageable pageable);
-    Page<Video> findByStatusAndCourseIn(CommonStatus status, List<Course> courses,Pageable pageable);
-    Page<Video> findByCourseIn(List<Course> courses,Pageable pageable);
+
+    Page<Video> findByStatusAndCourseIn(CommonStatus status, List<Course> courses, Pageable pageable);
+
+    Page<Video> findByCourseIn(List<Course> courses, Pageable pageable);
+
     List<Video> findByCourseAndStatus(Course course, CommonStatus status);
+
     List<Video> findByCourseAndStatusNot(Course course, CommonStatus status);
+
     List<Video> findByCourseIdAndIdIn(Long courseId, Set<Long> ids);
+
     Optional<Video> findByIdAndStatus(Long id, CommonStatus status);
+
     Optional<Video> findByIdAndStatusNot(Long id, CommonStatus status);
+
     @Query("SELECT MAX(v.ordinalNumber) FROM Video v WHERE v.course = :course")
     Integer findMaxOrdinalNumberByCourse(@Param("course") Course course);
 }
