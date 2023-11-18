@@ -104,7 +104,7 @@ public class CourseServiceImpl implements CourseService {
         
         
         if(Boolean.TRUE.equals(securityContextService.getLoginStatus())){
-            return getCourseWhenUserLogin(securityContextService.getEmail(), page, size, field, sortType);
+            return getCourseWhenUserLogin(securityContextService.getCurrentUser().getEmail(), page, size, field, sortType);
         }
 
         if (commonStatus.equals(CommonStatus.ALL)) {

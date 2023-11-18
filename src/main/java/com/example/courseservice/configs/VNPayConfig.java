@@ -16,12 +16,17 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.constants.VnPayConstants;
+import com.example.courseservice.utils.EnvironmentVariable;
 
 @Component
 public class VNPayConfig {
+
+    @Autowired
+    private static EnvironmentVariable environmentVariable;
 
     public static String md5(String message) {
         String digest = null;
@@ -77,7 +82,7 @@ public class VNPayConfig {
                 sb.append("&");
             }
         }
-        return hmacSHA512(VnPayConstants.VNP_HASHSECRET, sb.toString());
+        return hmacSHA512(environmentVariable.getVnPayHashSecret(), sb.toString());
     }
 
     public static String hmacSHA512(final String key, final String data) {

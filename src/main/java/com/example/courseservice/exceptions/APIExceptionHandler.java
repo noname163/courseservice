@@ -38,6 +38,12 @@ public class APIExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InValidAuthorizationException.class)
+    public ResponseEntity<ExceptionResponse> handleInValidAuthorization(InValidAuthorizationException ex) {
+        ExceptionResponse error = ExceptionResponse.builder().message(ex.getMessage()).build();
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(SuccessHandler.class)
     public ResponseEntity<ExceptionResponse> handleSuccessResponse(SuccessHandler ex) {
         ExceptionResponse errors = ExceptionResponse.builder().message(ex.getMessage()).build();
@@ -73,6 +79,7 @@ public class APIExceptionHandler {
         ExceptionResponse error = ExceptionResponse.builder().message(ex.getMessage()).build();
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
 
     @ExceptionHandler({
             HttpRequestMethodNotSupportedException.class,

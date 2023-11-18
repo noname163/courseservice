@@ -85,7 +85,7 @@ public class TransactionServiceImpl implements TransactionService {
         String bankCode = paymentRequest.getBankCode();
 
         String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
-        String vnp_TmnCode = VnPayConstants.VNP_TMNCODE;
+        String vnp_TmnCode = environmentVariable.getVnpayTmnCode();
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", VnPayConstants.VNP_VERSION);
@@ -145,7 +145,7 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         String queryUrl = query.toString();
-        String vnp_SecureHash = VNPayConfig.hmacSHA512(VnPayConstants.VNP_HASHSECRET, hashData.toString());
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(environmentVariable.getVnPayHashSecret(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayConstants.VNP_PAYURL + "?" + queryUrl;
         // set transaction

@@ -42,10 +42,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
-            if(request.getRequestURI().contentEquals("/api/courses/user")){
+            if (request.getRequestURI().contentEquals("/api/courses/user")
+                    || request.getRequestURI().contentEquals("/api/video/user")) {
                 processAuthenticationOfCourse(request, response, filterChain);
-            }
-            else{
+            } else {
                 filterChain.doFilter(request, response);
             }
         } else {
@@ -88,6 +88,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throw new ForbiddenException("JWT Access Token does not start with 'Bearer '.");
         }
     }
+
     private void processAuthenticationOfCourse(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws IOException, ServletException {
         final Optional<String> requestTokenHeaderOpt = getJwtFromRequest(request);
@@ -96,11 +97,18 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 String accessToken = requestTokenHeaderOpt.get();
                 Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(request));
                 Claims claims = jwtClaims.getBody();
-                if(claims.get("role").toString().equals("STUDENT")){
+                if (claims.get("role").toString().equals("STUDENT")) {
                     securityContextService.setLoginStatus(true);
-                    securityContextService.setStudentEmail(claims.get("email").toString());
+                    UserInformation userInformation = UserInformation
+                        .builder()
+                        .email(claims.get("email").toString())
+                        .role(claims.get("role").toString())
+                        .fullname(claims.get("fullName").toString())
+                        .build();
+                securityContextService.setSecurityContext(userInformation);
+                } else {
+                    securityContextService.setLoginStatus(false);
                 }
-                securityContextService.setLoginStatus(false);
                 filterChain.doFilter(request, response);
             } catch (Exception ex) {
                 throw new BadRequestException(ex.getMessage(), ex);
