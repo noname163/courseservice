@@ -14,8 +14,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
+import com.example.courseservice.data.object.CourseResponseInterface;
 
 @Repository
 @EnableJpaRepositories
@@ -26,12 +28,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     public Page<Course> findCourseByTeacherEmail(String email, Pageable pageable);
 
     public Optional<Course> findCourseByTeacherEmailAndId(String email, Long id);
-    
+
     public List<Course> findCourseByTeacherEmail(String email);
 
     public Boolean existsByTeacherEmailAndId(String email, Long courseId);
-
-    public Page<Course> findByCommonStatus(Pageable pageable, CommonStatus commonStatus);
 
     public Page<Course> findByCommonStatusAndSubjectIn(Pageable pageable, CommonStatus commonStatus,
             List<String> subjectName);
@@ -61,8 +61,68 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     public Optional<Course> findByIdAndCommonStatus(Long id, CommonStatus commonStatus);
 
-    public Page<Course> findByCommonStatusAndIdNotIn(CommonStatus commonStatus, List<Long> courseIds, Pageable pageable);
+    public Page<Course> findByCommonStatusAndIdNotIn(CommonStatus commonStatus, List<Long> courseIds,
+            Pageable pageable);
 
     public Optional<Course> findByIdAndCommonStatusNot(Long id, CommonStatus commonStatus);
+
+    @Query("SELECT c.id AS id, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.name AS courseName, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "WHERE c.commonStatus = :status " +
+            "GROUP BY c.id, c.level.name")
+    Page<CourseResponseInterface> getByCommonStatusJPQL(@Param("status") CommonStatus status, Pageable pageable);
+
+    @Query("SELECT c.id AS id, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.name AS courseName, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "GROUP BY c.id, c.level.name")
+    Page<CourseResponseInterface> findByAllCommonStatus(Pageable pageable);
+
+    @Query("SELECT c.id AS id, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.name AS courseName, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "WHERE c.commonStatus = :status " +
+            "AND c.id NOT IN :excludedIds " +
+            "GROUP BY c.id")
+    Page<CourseResponseInterface> getAvailableCoursesByCommonStatusAndNotInList(@Param("status") CommonStatus status,
+            @Param("excludedIds") List<Long> excludedIds,
+            Pageable pageable);
 
 }
