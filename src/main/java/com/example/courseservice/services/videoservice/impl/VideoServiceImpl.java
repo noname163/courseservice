@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VerifyStatus;
+import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
@@ -41,6 +42,7 @@ import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
+import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.services.videotmpservice.VideoTmpService;
 import com.example.courseservice.utils.PageableUtil;
@@ -61,6 +63,8 @@ public class VideoServiceImpl implements VideoService {
     private FileService fileService;
     @Autowired
     private SecurityContextService securityContextService;
+    @Autowired
+    private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
     private ReactVideoService reactVideoService;
 
@@ -117,7 +121,16 @@ public class VideoServiceImpl implements VideoService {
     public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus) {
         Video video = getVideoByIdAndCommonStatus(videoId, CommonStatus.AVAILABLE);
         List<Video> videos = videoRepository.findByCourseAndStatus(video.getCourse(), commonStatus);
+        if (!securityContextService.getIsAuthenticatedAndIsStudent()
+                && video.getVideoStatus().equals(VideoStatus.PRIVATE)) {
+            throw new InValidAuthorizationException("Buy course to view this video");
+        }
+        if (securityContextService.getIsAuthenticatedAndIsStudent()
+                && video.getVideoStatus().equals(VideoStatus.PRIVATE) && !studentEnrollCourseService
+                        .isStudentEnrolled(securityContextService.getCurrentUser().getEmail(), video.getCourse().getId())) {
+            throw new InValidAuthorizationException("Buy course to view this video");
 
+        }
         List<VideoItemResponse> videoItemResponses = new ArrayList<>();
         if (videos != null && !videos.isEmpty()) {
             videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);

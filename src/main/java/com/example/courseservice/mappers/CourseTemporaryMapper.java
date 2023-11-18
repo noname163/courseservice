@@ -42,7 +42,7 @@ public class CourseTemporaryMapper {
     public CourseResponse mapCourseTmpToCourseResponse(CourseTemporary course){
         return CourseResponse
                 .builder()
-                .id(course.getId())
+                .id(course.getCourse().getId())
                 .price(course.getPrice())
                 .createdDate(course.getCourse().getCreateDate())
                 .updateDate(course.getUpdateTime())

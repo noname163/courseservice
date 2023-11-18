@@ -56,6 +56,12 @@ public class EnvironmentVariable {
     
     @Value("${vnpay.redirect-url}")
     private String vnPayRedirectUrl;
+    
+    @Value("${vnpay.hash-secret}")
+    private String vnPayHashSecret;
+
+    @Value("${vnpay.tmn-code}")
+    private String vnpayTmnCode;
 
     public Map<String,String> initializeAllowedContentTypes() {
         Map<String, String> result = new HashMap<>();

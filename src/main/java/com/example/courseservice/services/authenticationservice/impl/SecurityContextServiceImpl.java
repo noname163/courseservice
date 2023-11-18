@@ -19,7 +19,6 @@ public class SecurityContextServiceImpl implements SecurityContextService {
     private SecurityContext securityContext;
 
     private Boolean loginStatus;
-    private String email;
 
     @Override
     public void setSecurityContext(UserInformation userInformation) {
@@ -90,15 +89,5 @@ public class SecurityContextServiceImpl implements SecurityContextService {
     @Override
     public void setLoginStatus(Boolean status) {
         this.loginStatus = status;
-    }
-
-    @Override
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public void setStudentEmail(String email) {
-        this.email = email;
     }
 }
