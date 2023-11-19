@@ -4,16 +4,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
+import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTemporary;
+import com.example.courseservice.data.object.UserInformation;
+import com.example.courseservice.services.authenticationservice.SecurityContextService;
 
 @Component
 public class CourseTemporaryMapper {
+
+    @Autowired
+    private SecurityContextService securityContextService;
+
     public Course mapCoursetmpToCourse(Course course, CourseTemporary courseTemporary) {
         course.setName(courseTemporary.getName());
         course.setDescription(courseTemporary.getDescription());
@@ -23,6 +32,21 @@ public class CourseTemporaryMapper {
         course.setThumbnial(courseTemporary.getThumbnial());
         course.setCommonStatus(courseTemporary.getStatus());
         return course;
+    }
+
+    public CourseTemporary mapDtoToEntity(CourseRequest courseRequest) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        return CourseTemporary
+                .builder()
+                .subject(courseRequest.getSubject().getName())
+                .subjectId(courseRequest.getSubject().getId())
+                .price(courseRequest.getPrice())
+                .teacherId(currentUser.getId())
+                .name(courseRequest.getName())
+                .teacherName(currentUser.getFullname())
+                .teacherEmail(currentUser.getEmail())
+                .description(courseRequest.getDescription())
+                .build();
     }
 
     public CourseTemporary mapDtoToEntity(CourseUpdateRequest courseUpdateRequest, Course course) {
@@ -39,7 +63,7 @@ public class CourseTemporaryMapper {
                 .course(course).build();
     }
 
-    public CourseResponse mapCourseTmpToCourseResponse(CourseTemporary course){
+    public CourseResponse mapCourseTmpToCourseResponse(CourseTemporary course) {
         return CourseResponse
                 .builder()
                 .id(course.getCourse().getId())
@@ -59,7 +83,8 @@ public class CourseTemporaryMapper {
         return courses.stream().map(this::mapCourseTmpToCourseResponse).collect(Collectors.toList());
     }
 
-    public CourseTemporary mapCourseTemporary(CourseTemporary courseTemporary, CourseUpdateRequest courseUpdateRequest,
+    public CourseTemporary mapCourseTemporary(CourseTemporary courseTemporary,
+            CourseUpdateRequest courseUpdateRequest,
             Course course) {
         courseTemporary.setCourse(course);
         courseTemporary.setDescription(Optional.ofNullable(courseUpdateRequest.getDescription())
@@ -72,5 +97,36 @@ public class CourseTemporaryMapper {
         courseTemporary.setName(Optional.ofNullable(courseUpdateRequest.getName()).orElse(course.getName()));
         courseTemporary.setStatus(CommonStatus.UPDATING);
         return courseTemporary;
+    }
+
+    public CourseDetailResponse mapCourseDetailResponse(CourseTemporary courseTemporary) {
+        return CourseDetailResponse
+                .builder()
+                .name(courseTemporary.getName())
+                .createdDate(courseTemporary.getCreateDate())
+                .updateDate(courseTemporary.getUpdateTime())
+                .price(courseTemporary.getPrice())
+                .subject(courseTemporary.getSubject())
+                .teacherName(courseTemporary.getTeacherName())
+                .thumbnail(courseTemporary.getThumbnial())
+                .description(courseTemporary.getDescription())
+                .build();
+    }
+
+    public Course mapToCourse(CourseTemporary courseTemporary) {
+        return Course
+                .builder()
+                .name(courseTemporary.getName())
+                .createDate(courseTemporary.getCreateDate())
+                .updateTime(courseTemporary.getUpdateTime())
+                .price(courseTemporary.getPrice())
+                .thumbnial(courseTemporary.getThumbnial())
+                .description(courseTemporary.getDescription())
+                .subject(courseTemporary.getSubject())
+                .subjectId(courseTemporary.getSubjectId())
+                .teacherEmail(courseTemporary.getTeacherEmail())
+                .teacherId(courseTemporary.getTeacherId())
+                .teacherName(courseTemporary.getTeacherName())
+                .build();
     }
 }

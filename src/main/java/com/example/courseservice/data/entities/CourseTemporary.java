@@ -40,7 +40,15 @@ public class CourseTemporary {
 
     private String name;
 
+    private String teacherEmail;
+
+    private Long teacherId;
+
+    private String teacherName;
+
     private String thumbnial;
+
+    private Long subjectId;
 
     private String subject;
 
@@ -49,10 +57,18 @@ public class CourseTemporary {
 
     private LocalDateTime updateTime;
 
+    private LocalDateTime createDate;
+
     private Double price;
 
     private Long levelId;
 
     private CommonStatus status;
+
+    @OneToMany(mappedBy = "courseTemporary")
+    List<VideoTemporary> videoTemporaries;
+
+    @OneToMany(mappedBy = "courseTemporary")
+    List<CourseTopic> courseTopics;
     
 }

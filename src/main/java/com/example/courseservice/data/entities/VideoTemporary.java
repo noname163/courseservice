@@ -54,6 +54,8 @@ public class VideoTemporary {
 
     private LocalDateTime updateTime;
 
+    private LocalDateTime createDate;
+
     @Enumerated(EnumType.STRING)
     private VideoStatus videoStatus;
 
@@ -63,5 +65,8 @@ public class VideoTemporary {
 
     @ManyToOne()
     private Course course;
+
+    @ManyToOne()
+    private CourseTemporary courseTemporary;
 
 }

@@ -1,12 +1,13 @@
 package com.example.courseservice.data.constants;
 
 public enum CommonStatus {
-    WAITING,
-    REJECT,
+    ALL,
     AVAILABLE,
-    UNAVAILABLE,
-    UPDATING,
     BANNED,
     DELETED,
-    ALL
+    DRAFT,
+    WAITING,
+    REJECT,
+    UNAVAILABLE,
+    UPDATING
 }

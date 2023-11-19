@@ -227,29 +227,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void verifyCourse(VerifyRequest verifyRequest) {
-        Course course = courseRepository
-                .findById(verifyRequest.getId())
-                .orElseThrow(() -> new BadRequestException("Cannot find course with id " + verifyRequest.getId()));
-        if (!courseTmpService.isUpdate(verifyRequest.getId())) {
-            if (course.getCommonStatus() == CommonStatus.AVAILABLE
-                    && verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
-                throw new BadRequestException("There is no difference to change");
-            }
-            if (course.getCommonStatus() == CommonStatus.REJECT
-                    && verifyRequest.getVerifyStatus().equals(VerifyStatus.REJECT)) {
-                throw new BadRequestException("There is no difference to change");
-            }
-            if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
-                course.setCommonStatus(CommonStatus.AVAILABLE);
-            } else {
-                course.setCommonStatus(CommonStatus.REJECT);
-            }
-            courseRepository.save(course);
-        } else {
-            if (VerifyStatus.ACCEPTED.equals(verifyRequest.getVerifyStatus())) {
-                courseTmpService.inserCourseTmpToReal(verifyRequest.getId());
-            }
-
+        if(verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)){
+            courseTmpService.insertCourseTmpToReal(verifyRequest.getId());
+        }
+        else{
+            courseTmpService.rejectCourse(verifyRequest.getId());
         }
     }
 
@@ -276,23 +258,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus) {
-        Course course = courseRepository
-                .findByIdAndCommonStatusNot(id, commonStatus)
-                .orElseThrow(() -> new BadRequestException("Not exist course with id " + id));
-
-        CourseDetailResponse courseDetailResponse = courseMapper.mapCourseDetailEntityToDto(course);
-
-        if (!course.getVideos().isEmpty()) {
-            List<Video> videos = course.getVideos()
-                    .stream()
-                    .filter(video -> video.getStatus().equals(CommonStatus.AVAILABLE))
-                    .collect(Collectors.toList());
-
-            List<CourseVideoResponse> courseVideoResponses = videoCourseMapper.mapEntitiesToDtos(videos);
-            courseDetailResponse.setCourseVideoResponses(courseVideoResponses);
-        }
-
-        // courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
+        CourseDetailResponseInterface course = courseRepository
+                .getCourseDetailsByCourseIdAndStatusNot(id, commonStatus);
+        CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
+        List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, CommonStatus.ALL);
+        courseDetailResponse.setCourseVideoResponses(videos);
         return courseDetailResponse;
 
     }
