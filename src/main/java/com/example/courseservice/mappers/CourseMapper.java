@@ -10,6 +10,7 @@ import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.entities.Course;
+import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
@@ -40,6 +41,30 @@ public class CourseMapper {
                 .id(course.getId())
                 .description(course.getDescription())
                 .totalStudent(course.getStudentEnrolledCourses().size())
+                .build();
+    }
+
+    public CourseDetailResponse mapToCourseDetailResponse(CourseDetailResponseInterface courseDetailResponseInterface) {
+        if (courseDetailResponseInterface == null) {
+            return null;
+        }
+
+        return CourseDetailResponse.builder()
+                .id(courseDetailResponseInterface.getId())
+                .totalStudent(courseDetailResponseInterface.getTotalStudent())
+                .description(courseDetailResponseInterface.getDescription())
+                .name(courseDetailResponseInterface.getName())
+                .thumbnail(courseDetailResponseInterface.getthumbnail())
+                .teacherName(courseDetailResponseInterface.getTeacherName())
+                .rating(courseDetailResponseInterface.getAverageRating())
+                .numberOfRate(courseDetailResponseInterface.getNumberOfRate())
+                .totalVideo(courseDetailResponseInterface.getTotalVideo())
+                .subject(courseDetailResponseInterface.getSubject())
+                .level(courseDetailResponseInterface.getLevel())
+                .price(courseDetailResponseInterface.getPrice())
+                .createdDate(courseDetailResponseInterface.getCreatedDate())
+                .updateDate(courseDetailResponseInterface.getUpdateDate())
+                .status(courseDetailResponseInterface.getStatus())
                 .build();
     }
 
