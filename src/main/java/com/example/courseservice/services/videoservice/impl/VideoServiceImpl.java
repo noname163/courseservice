@@ -288,7 +288,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public PaginationResponse<List<VideoAdminResponse>> getVideoForUser(String email,
+    public PaginationResponse<List<VideoItemResponse>> getVideoForUser(String email,
             Integer page, Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
@@ -296,8 +296,10 @@ public class VideoServiceImpl implements VideoService {
             return null;
         }
         Page<Video> videos = videoRepository.findByStatusAndCourseIn(CommonStatus.AVAILABLE, courses, pageable);
-        return PaginationResponse.<List<VideoAdminResponse>>builder()
-                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+        List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
+        videoItemResponses = setIsAccess(videoItemResponses, courses);
+        return PaginationResponse.<List<VideoItemResponse>>builder()
+                .data(videoItemResponses)
                 .totalPage(videos.getTotalPages())
                 .totalRow(videos.getTotalElements())
                 .build();
@@ -378,6 +380,36 @@ public class VideoServiceImpl implements VideoService {
         return result;
     }
 
+    private List<VideoItemResponse> setIsAccess(List<VideoItemResponse> videoItemResponses, List<Course> courses) {
+        UserInformation currentUser = securityContextService.isLogin();
+        List<VideoItemResponse> result = new ArrayList<>();
+    
+        if (currentUser != null) {
+            List<Long> videoAccess = studentEnrollCourseService.getListVideoIdStudentAccess(currentUser.getEmail(), courses);
+    
+            for (VideoItemResponse videoItemResponse : videoItemResponses) {
+                if (videoAccess.isEmpty()) {
+                    // If videoAccess is empty, set isAccess based on video status
+                    videoItemResponse.setIsAccess(!videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE));
+                } else {
+                    // If videoAccess is not empty, set isAccess to true when video ID is in videoAccess
+                    videoItemResponse.setIsAccess(videoAccess.contains(videoItemResponse.getId()));
+                }
+    
+                result.add(videoItemResponse);
+            }
+        }
+        else{
+            for (VideoItemResponse videoItemResponse : videoItemResponses) {
+                videoItemResponse.setIsAccess(videoItemResponse.getVideoStatus().equals(VideoStatus.PUBLIC));
+                result.add(videoItemResponse);
+            }
+        }
+    
+        return result;
+    }
+    
+
     @Override
     public void deleteVideo(Long videoId) {
         UserInformation currentUser = securityContextService.getCurrentUser();
@@ -397,7 +429,7 @@ public class VideoServiceImpl implements VideoService {
         if(commonStatus.equals(CommonStatus.ALL)){
             return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatusNot(courseId, CommonStatus.DELETED));
         }
-        return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatus(courseId, CommonStatus.DELETED));
+        return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatus(courseId, CommonStatus.AVAILABLE));
     }
 
 }

@@ -183,7 +183,7 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping("/user")
-    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoByTeacherEmail(
+    public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoByTeacherEmail(
             @RequestParam(required = true) String email,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,

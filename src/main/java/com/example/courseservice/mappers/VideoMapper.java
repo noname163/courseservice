@@ -64,6 +64,7 @@ public class VideoMapper {
                 .id(video.getId())
                 .videoStatus(video.getVideoStatus())
                 .duration(video.getDuration())
+                .thumnial(video.getUrlThumbnail())
                 .name(video.getName())
                 .build();
     }

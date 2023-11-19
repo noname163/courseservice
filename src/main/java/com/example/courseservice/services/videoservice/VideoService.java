@@ -38,7 +38,7 @@ public interface VideoService {
             Integer page,
             Integer size, String field, SortType sortType);
 
-    public PaginationResponse<List<VideoAdminResponse>> getVideoForUser(String email,
+    public PaginationResponse<List<VideoItemResponse>> getVideoForUser(String email,
             Integer page,
             Integer size, String field, SortType sortType);
 
