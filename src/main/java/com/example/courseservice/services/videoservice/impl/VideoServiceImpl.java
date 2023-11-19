@@ -23,24 +23,28 @@ import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
+import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
+import com.example.courseservice.data.entities.Comment;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoItemResponseInterface;
 import com.example.courseservice.data.object.VideoUpdate;
+import com.example.courseservice.data.repositories.CommentRepository;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
+import com.example.courseservice.services.commentservice.CommentService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
@@ -66,6 +70,8 @@ public class VideoServiceImpl implements VideoService {
     private SecurityContextService securityContextService;
     @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
+    @Autowired
+    private CommentService commentService;
     @Autowired
     private ReactVideoService reactVideoService;
 
@@ -282,7 +288,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public PaginationResponse<List<VideoAdminResponse>> getVideoForUser(String email,
+    public PaginationResponse<List<VideoItemResponse>> getVideoForUser(String email,
             Integer page, Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
@@ -290,8 +296,10 @@ public class VideoServiceImpl implements VideoService {
             return null;
         }
         Page<Video> videos = videoRepository.findByStatusAndCourseIn(CommonStatus.AVAILABLE, courses, pageable);
-        return PaginationResponse.<List<VideoAdminResponse>>builder()
-                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+        List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
+        videoItemResponses = setIsAccess(videoItemResponses, courses);
+        return PaginationResponse.<List<VideoItemResponse>>builder()
+                .data(videoItemResponses)
                 .totalPage(videos.getTotalPages())
                 .totalRow(videos.getTotalElements())
                 .build();
@@ -370,6 +378,58 @@ public class VideoServiceImpl implements VideoService {
             result.add(videoItemResponse);
         }
         return result;
+    }
+
+    private List<VideoItemResponse> setIsAccess(List<VideoItemResponse> videoItemResponses, List<Course> courses) {
+        UserInformation currentUser = securityContextService.isLogin();
+        List<VideoItemResponse> result = new ArrayList<>();
+    
+        if (currentUser != null) {
+            List<Long> videoAccess = studentEnrollCourseService.getListVideoIdStudentAccess(currentUser.getEmail(), courses);
+    
+            for (VideoItemResponse videoItemResponse : videoItemResponses) {
+                if (videoAccess.isEmpty()) {
+                    // If videoAccess is empty, set isAccess based on video status
+                    videoItemResponse.setIsAccess(!videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE));
+                } else {
+                    // If videoAccess is not empty, set isAccess to true when video ID is in videoAccess
+                    videoItemResponse.setIsAccess(videoAccess.contains(videoItemResponse.getId()));
+                }
+    
+                result.add(videoItemResponse);
+            }
+        }
+        else{
+            for (VideoItemResponse videoItemResponse : videoItemResponses) {
+                videoItemResponse.setIsAccess(videoItemResponse.getVideoStatus().equals(VideoStatus.PUBLIC));
+                result.add(videoItemResponse);
+            }
+        }
+    
+        return result;
+    }
+    
+
+    @Override
+    public void deleteVideo(Long videoId) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        Video video = videoRepository
+                .findById(videoId)
+                .orElseThrow(() -> new BadRequestException(
+                        "Not exist video with id " + videoId + " in function delete video"));
+        if(Boolean.FALSE.equals(courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getId()))){
+            throw new InValidAuthorizationException("Cannot delete this video");
+        }
+        commentService.deleteComments(video);
+        videoRepository.delete(video);
+    }
+
+    @Override
+    public List<CourseVideoResponse> getVideoByCourseIdAndCommonStatus(Long courseId, CommonStatus commonStatus) {
+        if(commonStatus.equals(CommonStatus.ALL)){
+            return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatusNot(courseId, CommonStatus.DELETED));
+        }
+        return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatus(courseId, CommonStatus.AVAILABLE));
     }
 
 }

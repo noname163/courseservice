@@ -24,6 +24,7 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
@@ -38,6 +39,7 @@ import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.levelservice.LevelService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.uploadservice.UploadService;
+import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
@@ -63,6 +65,8 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private SecurityContextService securityContextService;
     @Autowired
+    private VideoService videoService;
+    @Autowired
     private VideoCourseMapper videoCourseMapper;
 
     private final Double MAXRATE = 5d;
@@ -86,10 +90,9 @@ public class CourseServiceImpl implements CourseService {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<Course> listSubject = courseRepository.findCourseByTeacherEmail(currentUser.getEmail(), pageable);
-
+        Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmail(currentUser.getEmail(), pageable);
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapEntitiesToDtos(listSubject.getContent()))
+                .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
                 .totalPage(listSubject.getTotalPages())
                 .totalRow(listSubject.getTotalElements())
                 .build();
@@ -101,10 +104,10 @@ public class CourseServiceImpl implements CourseService {
             SortType sortType) {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        
-        
-        if(Boolean.TRUE.equals(securityContextService.getLoginStatus())){
-            return getCourseWhenUserLogin(securityContextService.getCurrentUser().getEmail(), page, size, field, sortType);
+
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
+            return getCourseWhenUserLogin(securityContextService.getCurrentUser().getEmail(), page, size, field,
+                    sortType);
         }
 
         if (commonStatus.equals(CommonStatus.ALL)) {
@@ -116,8 +119,7 @@ public class CourseServiceImpl implements CourseService {
                     .build();
         }
 
-
-        Page<CourseResponseInterface> listCourse = courseRepository.getByCommonStatusJPQL(commonStatus,pageable);
+        Page<CourseResponseInterface> listCourse = courseRepository.getByCommonStatusJPQL(commonStatus, pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapInterfacesToDtos(listCourse.getContent()))
@@ -128,23 +130,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus) {
-        Course course = courseRepository
-                .findByIdAndCommonStatus(id, commonStatus)
-                .orElseThrow(() -> new BadRequestException("Cannot find course with id " + id));
-
-        CourseDetailResponse courseDetailResponse = courseMapper.mapCourseDetailEntityToDto(course);
-
-        if (!course.getVideos().isEmpty()) {
-            List<Video> videos = course.getVideos()
-                    .stream()
-                    .filter(video -> video.getStatus().equals(CommonStatus.AVAILABLE))
-                    .collect(Collectors.toList());
-
-            List<CourseVideoResponse> courseVideoResponses = videoCourseMapper.mapEntitiesToDtos(videos);
-            courseDetailResponse.setVideoResponse(courseVideoResponses);
-        }
-
-        courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
+        CourseDetailResponseInterface course = courseRepository
+                .getCourseDetailsByCourseId(id, commonStatus);
+        CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
+        List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, commonStatus);
+        courseDetailResponse.setCourseVideoResponses(videos);
         return courseDetailResponse;
     }
 
@@ -299,10 +289,10 @@ public class CourseServiceImpl implements CourseService {
                     .collect(Collectors.toList());
 
             List<CourseVideoResponse> courseVideoResponses = videoCourseMapper.mapEntitiesToDtos(videos);
-            courseDetailResponse.setVideoResponse(courseVideoResponses);
+            courseDetailResponse.setCourseVideoResponses(courseVideoResponses);
         }
 
-        courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
+        // courseDetailResponse.setCourseResponse(courseMapper.mapEntityToDto(course));
         return courseDetailResponse;
 
     }
@@ -313,7 +303,8 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<CourseResponseInterface> courses = courseRepository.getAvailableCoursesByCommonStatusAndNotInList(CommonStatus.AVAILABLE, coursesId,
+        Page<CourseResponseInterface> courses = courseRepository.getAvailableCoursesByCommonStatusAndNotInList(
+                CommonStatus.AVAILABLE, coursesId,
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()

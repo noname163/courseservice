@@ -19,6 +19,7 @@ import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.VideoItemResponseInterface;
 import com.example.courseservice.data.object.VideoUpdate;
 
 public interface VideoService {
@@ -27,6 +28,7 @@ public interface VideoService {
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
     public Video getVideoByIdAndCommonStatus(Long videoId, CommonStatus commonStatus);
+
     public Video getVideoByIdAndCommonStatusNot(Long videoId, CommonStatus commonStatus);
 
     public PaginationResponse<List<VideoAdminResponse>> getVideoForAdmin(CommonStatus commonStatus, Integer page,
@@ -35,7 +37,8 @@ public interface VideoService {
     public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(CommonStatus commonStatus,
             Integer page,
             Integer size, String field, SortType sortType);
-    public PaginationResponse<List<VideoAdminResponse>> getVideoForUser(String email,
+
+    public PaginationResponse<List<VideoItemResponse>> getVideoForUser(String email,
             Integer page,
             Integer size, String field, SortType sortType);
 
@@ -47,8 +50,13 @@ public interface VideoService {
             Integer size, String field, SortType sortType);
 
     public void verifyVideo(VerifyRequest verifyRequest);
+
     public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId);
 
     public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,
             MultipartFile thumbnail);
+
+    public void deleteVideo(Long videoId);
+
+    public List<CourseVideoResponse> getVideoByCourseIdAndCommonStatus(Long courseId, CommonStatus commonStatus);
 }

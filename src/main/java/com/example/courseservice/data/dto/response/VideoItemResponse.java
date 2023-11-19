@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class VideoItemResponse {
     private long id;
+    private String thumnial;
     private String name;
     private float duration;
     private VideoStatus videoStatus;

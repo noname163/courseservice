@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -182,7 +183,7 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping("/user")
-    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoByTeacherEmail(
+    public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoByTeacherEmail(
             @RequestParam(required = true) String email,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
@@ -235,5 +236,21 @@ public class VideoController {
                 .status(HttpStatus.OK)
                 .body(videoTmpService.getUpdateVideo(page, size, field,
                         sortType));
+    }
+
+    @Operation(summary = "Delete video for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Delete video successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @DeleteMapping()
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public ResponseEntity<Void> deleteVideo(
+            @RequestParam(required = true) Long videoId) {
+                videoService.deleteVideo(videoId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 }

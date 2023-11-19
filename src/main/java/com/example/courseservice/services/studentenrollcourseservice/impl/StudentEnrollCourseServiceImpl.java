@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
@@ -90,5 +91,16 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
                 .map(enrolledCourse -> enrolledCourse.getCourse().getId())
                 .collect(Collectors.toList());
     }
+
+@Override
+public List<Long> getListCourseStudentNotEnrolled(String studentEmail, List<Course> courses) {
+        return studentEnrolledCoursesRepository.filterCourseStudentNotEnrolled(studentEmail, courses);
+}
+
+@Override
+public List<Long> getListVideoIdStudentAccess(String email, List<Course> courses) {
+        return studentEnrolledCoursesRepository.getVideoIdsByStudentEmailAndCourses(email, courses, CommonStatus.AVAILABLE);
+}
+
 
 }

@@ -17,6 +17,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
+import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 
 @Repository
@@ -121,8 +122,54 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "WHERE c.commonStatus = :status " +
             "AND c.id NOT IN :excludedIds " +
             "GROUP BY c.id, c.level.name")
-    Page<CourseResponseInterface> getAvailableCoursesByCommonStatusAndNotInList(@Param("status") CommonStatus status,
+    Page<CourseResponseInterface> getAvailableCoursesByCommonStatusAndNotInList(
+            @Param("status") CommonStatus status,
             @Param("excludedIds") List<Long> excludedIds,
             Pageable pageable);
+
+    @Query("SELECT c.id AS id, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.name AS courseName, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "WHERE c.teacherEmail = :email " +
+            "GROUP BY c.id, c.level.name")
+    Page<CourseResponseInterface> getCourseByEmail(@Param("email") String email, Pageable pageable);
+
+    @Query("SELECT " +
+            "c.id AS id, " +
+            "COUNT(DISTINCT sec.studentEmail) AS totalStudent, " +
+            "c.description AS description, " +
+            "c.thumbnial AS thumbnail, " +
+            "c.teacherName AS teacherName, "+
+            "c.name AS name, "+
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "LEFT JOIN c.videos v " +
+            "LEFT JOIN c.studentEnrolledCourses sec ON sec.course.id = c.id " +
+            "WHERE c.id = :id " +
+            "AND c.commonStatus = :status " +
+            "GROUP BY c.id, c.level.name")
+    CourseDetailResponseInterface getCourseDetailsByCourseId(@Param("id") Long id,
+            @Param("status") CommonStatus commonStatus);
 
 }

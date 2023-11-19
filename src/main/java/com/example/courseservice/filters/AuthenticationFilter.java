@@ -43,7 +43,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
             if (request.getRequestURI().contentEquals("/api/courses/user")
-                    || request.getRequestURI().contentEquals("/api/video/user")) {
+                    || request.getRequestURI().contentEquals("/api/videos/user")
+                    || (request.getRequestURI().contentEquals("/api/videos") && request.getMethod().equals("GET"))) {
                 processAuthenticationOfCourse(request, response, filterChain);
             } else {
                 filterChain.doFilter(request, response);
@@ -100,12 +101,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 if (claims.get("role").toString().equals("STUDENT")) {
                     securityContextService.setLoginStatus(true);
                     UserInformation userInformation = UserInformation
-                        .builder()
-                        .email(claims.get("email").toString())
-                        .role(claims.get("role").toString())
-                        .fullname(claims.get("fullName").toString())
-                        .build();
-                securityContextService.setSecurityContext(userInformation);
+                            .builder()
+                            .email(claims.get("email").toString())
+                            .role(claims.get("role").toString())
+                            .fullname(claims.get("fullName").toString())
+                            .build();
+                    securityContextService.setSecurityContext(userInformation);
                 } else {
                     securityContextService.setLoginStatus(false);
                 }
@@ -115,6 +116,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             }
         } else {
             securityContextService.setLoginStatus(false);
+            securityContextService.setSecurityContextNull(null);
             filterChain.doFilter(request, response);
         }
     }
