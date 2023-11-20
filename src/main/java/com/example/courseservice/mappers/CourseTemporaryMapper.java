@@ -66,16 +66,15 @@ public class CourseTemporaryMapper {
     public CourseResponse mapCourseTmpToCourseResponse(CourseTemporary course) {
         return CourseResponse
                 .builder()
-                .id(course.getCourse().getId())
+                .id(course.getId())
                 .price(course.getPrice())
-                .createdDate(course.getCourse().getCreateDate())
+                .createdDate(course.getCreateDate())
                 .updateDate(course.getUpdateTime())
                 .status(course.getStatus())
                 .courseName(course.getName())
-                .teacherName(course.getCourse().getTeacherName())
+                .teacherName(course.getTeacherName())
                 .thumbnial(course.getThumbnial())
                 .subject(course.getSubject())
-                .totalVideo(course.getCourse().getVideos().size())
                 .build();
     }
 
