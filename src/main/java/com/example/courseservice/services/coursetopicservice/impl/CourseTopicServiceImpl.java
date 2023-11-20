@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.dto.request.CourseTopicRequest;
 import com.example.courseservice.data.entities.Course;
+import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.CourseTopic;
 import com.example.courseservice.data.object.Topic;
 import com.example.courseservice.data.repositories.CourseRepository;
@@ -84,6 +85,32 @@ public class CourseTopicServiceImpl implements CourseTopicService {
                         .topicName(topic.getName())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateCourseTopicByCourseTemporary(CourseTemporary courseTemporary, Course course) {
+        CourseTopic courseTopic = courseTopicRepository.findByCourseTemporary(courseTemporary).orElseThrow(
+                () -> new BadRequestException("Not found course topic for course tepmorary with id "
+                        + courseTemporary.getId()));
+        courseTopic.setCourse(course);
+        courseTopic.setCourseTemporary(null);
+        courseTopicRepository.save(courseTopic);
+    }
+
+    @Override
+    public void createCourseTopics(List<Topic> topics, CourseTemporary courseTemporary) {
+        List<CourseTopic> courseTopicRequests = courseTopicsByString(topics);
+        List<CourseTopic> result = new ArrayList<>();
+        if (courseTopicRequests != null && !courseTopicRequests.isEmpty()) {
+            for (CourseTopic courseTopic : courseTopicRequests) {
+                courseTopic.setCourseTemporary(courseTemporary);
+                result.add(courseTopic);
+            }
+            result = courseTopicRepository.saveAll(result);
+            if(result.size()!=courseTopicRequests.size()){
+                throw new BadRequestException("Cannot save all topic rollback");
+            }
+        }
     }
 
 }

@@ -44,6 +44,6 @@ public class CourseTopic {
     private Course course;
 
     @ManyToOne
-    @JoinColumn(name = "course_temporary_id")
+    @JoinColumn(name = "course_temporary_id",unique = true)
     private CourseTemporary courseTemporary;
 }

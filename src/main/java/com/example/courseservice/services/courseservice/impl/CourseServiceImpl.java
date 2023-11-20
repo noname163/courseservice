@@ -66,8 +66,6 @@ public class CourseServiceImpl implements CourseService {
     private SecurityContextService securityContextService;
     @Autowired
     private VideoService videoService;
-    @Autowired
-    private VideoCourseMapper videoCourseMapper;
 
     private final Double MAXRATE = 5d;
 
@@ -282,6 +280,14 @@ public class CourseServiceImpl implements CourseService {
                 .totalPage(courses.getTotalPages())
                 .totalRow(courses.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public void deleteCourse(Long courseId) {
+        String email = securityContextService.getCurrentUser().getEmail();
+        Course course = courseRepository.findCourseByTeacherEmailAndId(email, courseId).orElseThrow(()-> new BadRequestException("Cannot found course with id " + courseId+ " in function deleteCourse"));
+        course.setCommonStatus(CommonStatus.DELETED);
+        courseRepository.save(course);
     }
 
 }

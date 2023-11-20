@@ -26,4 +26,5 @@ public interface CourseService {
     public Course getCourseByIdAndEmail(Long id, String email);
     public Course getCourseById(Long id);
     public boolean isCourseBelongTo(String email, long courseId);
+    public void deleteCourse(Long courseId);
 }

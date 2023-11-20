@@ -3,6 +3,8 @@ package com.example.courseservice.services.coursetmpservice.impl;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTemporary;
+import com.example.courseservice.data.entities.CourseTopic;
 import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
@@ -70,6 +73,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     private PageableUtil pageableUtil;
 
     @Override
+    @Transactional
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {
         FileResponse fileResponse = fileService.fileStorage(thumbnail);
         CloudinaryUrl thumbinial = uploadService.uploadMedia(fileResponse);
@@ -77,8 +81,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         course.setThumbnial(thumbinial.getUrl());
         course.setLevelId(courseRequest.getLevelId());
         course.setStatus(CommonStatus.DRAFT);
-        course.setCourseTopics(courseTopicService.courseTopicsByString(courseRequest.getTopic()));
-        courseTemporaryRepository.save(course);
+        course = courseTemporaryRepository.save(course);
+        courseTopicService.createCourseTopics(courseRequest.getTopic(), course);
     }
 
     @Override
@@ -134,6 +138,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
+    @Transactional
     public void insertUpdateCourseTmpToReal(Long courseId) {
         Course course = courseService.getCourseById(courseId);
         CourseTemporary courseTemporary = courseTemporaryRepository
@@ -165,9 +170,9 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         course.setCommonStatus(CommonStatus.AVAILABLE);
         course.setLevel(level);
         course = courseRepository.save(course);
-
-        courseTopicRepository.updateCourseIdByCourseTemporaryId(courseTeporaryId, course.getId());
+        courseTopicService.updateCourseTopicByCourseTemporary(courseTemporary, course);
         videoTmpService.insertVideoTmpToReal(courseTeporaryId);
+        courseTemporaryRepository.delete(courseTemporary);
     }
 
     @Override
