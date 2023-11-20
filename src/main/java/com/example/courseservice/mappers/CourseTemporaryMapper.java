@@ -14,6 +14,7 @@ import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTemporary;
+import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 
@@ -66,16 +67,15 @@ public class CourseTemporaryMapper {
     public CourseResponse mapCourseTmpToCourseResponse(CourseTemporary course) {
         return CourseResponse
                 .builder()
-                .id(course.getCourse().getId())
+                .id(course.getId())
                 .price(course.getPrice())
-                .createdDate(course.getCourse().getCreateDate())
+                .createdDate(course.getCreateDate())
                 .updateDate(course.getUpdateTime())
                 .status(course.getStatus())
                 .courseName(course.getName())
-                .teacherName(course.getCourse().getTeacherName())
+                .teacherName(course.getTeacherName())
                 .thumbnial(course.getThumbnial())
                 .subject(course.getSubject())
-                .totalVideo(course.getCourse().getVideos().size())
                 .build();
     }
 
@@ -128,5 +128,26 @@ public class CourseTemporaryMapper {
                 .teacherId(courseTemporary.getTeacherId())
                 .teacherName(courseTemporary.getTeacherName())
                 .build();
+    }
+
+    public CourseResponse mapInterfaceToReal(CourseResponseInterface courseResponseInterface) {
+        return CourseResponse
+                .builder()
+                .id(courseResponseInterface.getId())
+                .courseName(courseResponseInterface.getCourseName())
+                .createdDate(courseResponseInterface.getCreatedDate())
+                .updateDate(courseResponseInterface.getUpdateDate())
+                .level(courseResponseInterface.getLevel())
+                .price(courseResponseInterface.getPrice())
+                .status(courseResponseInterface.getStatus())
+                .subject(courseResponseInterface.getSubject())
+                .teacherName(courseResponseInterface.getTeacherName())
+                .thumbnial(courseResponseInterface.getThumbnial())
+                .totalVideo(courseResponseInterface.getTotalVideo())
+                .build();
+    }
+
+    public List<CourseResponse> mapInterfacesToDtos(List<CourseResponseInterface> courses) {
+        return courses.stream().map(this::mapInterfaceToReal).collect(Collectors.toList());
     }
 }

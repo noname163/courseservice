@@ -127,7 +127,7 @@ public class CourseController {
                 .body(courseService.getListCourse(commonStatus, page, size, field, sortType));
     }
 
-    @Operation(summary = "Get courses update for admin")
+    @Operation(summary = "Get courses verify for admin")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
@@ -136,15 +136,34 @@ public class CourseController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/admin/update-list")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesUpdateForAdmin(
+    @GetMapping("/admin/verify-list")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesTemporaryForAdmin(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.getUpdateCourse(page, size, field, sortType));
+                .body(courseTmpService.getCourseTmpAndStatusNot(CommonStatus.DRAFT,page, size, field, sortType));
+    }
+    @Operation(summary = "Get courses waiting for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/teacher/waiting-list")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesTemporaryForTeacher(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseTmpService.getCourseTmpByEmailAndStatusNot(CommonStatus.DELETED,page, size, field, sortType));
     }
 
     @Operation(summary = "Get courses for teacher")
