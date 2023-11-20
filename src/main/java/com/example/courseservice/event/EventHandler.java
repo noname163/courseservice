@@ -54,10 +54,10 @@ public class EventHandler implements ApplicationListener<Event> {
                     .thumbnailUrl(thumbnial.getUrl())
                     .build();
 
-            videoService.insertVideoUrl(videoUpdate);
-            List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(),
-                    environmentVariables.getVideoMaxSegment(), video.getDuration());
-            videoUrlService.insertVideoUrl(videoUrls, videoResponse.getVideoId());
+            videoTmpService.insertVideoUrl(videoUpdate);
+            // List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(),
+            //         environmentVariables.getVideoMaxSegment(), video.getDuration());
+            // videoUrlService.insertVideoUrl(videoUrls, videoResponse.getVideoId());
         }
     }
 }

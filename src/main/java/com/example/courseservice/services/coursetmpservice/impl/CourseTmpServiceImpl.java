@@ -11,27 +11,32 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
+import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
-import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTemporary;
+import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
+import com.example.courseservice.data.repositories.CourseTopicRepository;
+import com.example.courseservice.data.repositories.LevelRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseTemporaryMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetmpservice.CourseTmpService;
+import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.services.videoservice.VideoService;
+import com.example.courseservice.services.videotmpservice.VideoTmpService;
 import com.example.courseservice.utils.PageableUtil;
-import com.netflix.discovery.converters.Auto;
 
 @Service
 public class CourseTmpServiceImpl implements CourseTmpService {
@@ -40,9 +45,15 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
+    private CourseTopicRepository courseTopicRepository;
+    @Autowired
     private CourseService courseService;
     @Autowired
+    private CourseTopicService courseTopicService;
+    @Autowired
     private VideoService videoService;
+    @Autowired
+    private VideoTmpService videoTmpService;
     @Autowired
     private FileService fileService;
     @Autowired
@@ -50,9 +61,23 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     @Autowired
     private SecurityContextService securityContextService;
     @Autowired
+    private LevelRepository levelRepository;
+    @Autowired
     private CourseTemporaryMapper courseTemporaryMapper;
     @Autowired
     private PageableUtil pageableUtil;
+
+    @Override
+    public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {
+        FileResponse fileResponse = fileService.fileStorage(thumbnail);
+        CloudinaryUrl thumbinial = uploadService.uploadMedia(fileResponse);
+        CourseTemporary course = courseTemporaryMapper.mapDtoToEntity(courseRequest);
+        course.setThumbnial(thumbinial.getUrl());
+        course.setLevelId(courseRequest.getLevelId());
+        course.setStatus(CommonStatus.DRAFT);
+        course.setCourseTopics(courseTopicService.courseTopicsByString(courseRequest.getTopic()));
+        courseTemporaryRepository.save(course);
+    }
 
     @Override
     public void insertTmpCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thumbnail) {
@@ -76,7 +101,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
             courseTemporaryRepository.save(courseTemporary);
-            if(courseUpdateRequest.getVideoOrders()!=null && !courseUpdateRequest.getVideoOrders().isEmpty()){
+            if (courseUpdateRequest.getVideoOrders() != null && !courseUpdateRequest.getVideoOrders().isEmpty()) {
                 videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
             }
         }
@@ -106,7 +131,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
-    public void inserCourseTmpToReal(Long courseId) {
+    public void insertUpdateCourseTmpToReal(Long courseId) {
         Course course = courseService.getCourseById(courseId);
         CourseTemporary courseTemporary = courseTemporaryRepository
                 .findByCourseId(courseId)
@@ -114,6 +139,41 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         course = courseTemporaryMapper.mapCoursetmpToCourse(course, courseTemporary);
         courseRepository.save(course);
         courseTemporaryRepository.delete(courseTemporary);
+    }
+
+    @Override
+    public CourseDetailResponse getCourseDetail(Long id) {
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException(
+                        "Not found course temporary with id " + id + " in getCourseDetail temporary function"));
+        return courseTemporaryMapper.mapCourseDetailResponse(courseTemporary);
+    }
+
+    @Override
+    public void insertCourseTmpToReal(Long courseTeporaryId) {
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(courseTeporaryId)
+                .orElseThrow(() -> new BadRequestException("Cannot found course temporary with id " + courseTeporaryId
+                        + " in function insertCourseTmpToReal"));
+        Level level = levelRepository.findById(courseTemporary.getLevelId())
+                .orElseThrow(() -> new BadRequestException("Cannot found level with id " + courseTemporary.getLevelId()
+                        + " in function insertCourseTmpToReal"));
+
+        Course course = courseTemporaryMapper.mapToCourse(courseTemporary);
+        course.setCommonStatus(CommonStatus.AVAILABLE);
+        course.setLevel(level);
+        course = courseRepository.save(course);
+
+        courseTopicRepository.updateCourseIdByCourseTemporaryId(courseTeporaryId, course.getId());
+        videoTmpService.insertVideoTmpToReal(courseTeporaryId);
+    }
+
+    @Override
+    public void rejectCourse(Long courseTmpId) {
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(courseTmpId)
+                .orElseThrow(() -> new BadRequestException("Cannot found course temporary with id " + courseTmpId
+                        + " in function rejectCourse"));
+        courseTemporary.setStatus(CommonStatus.REJECT);
+        courseTemporaryRepository.save(courseTemporary);
     }
 
 }

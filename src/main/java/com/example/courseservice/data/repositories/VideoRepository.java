@@ -74,7 +74,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             "LEFT JOIN v.reactVideos rv " +
             "LEFT JOIN v.comments c " +
             "WHERE v.course.id = :courseId " +
-            "AND v.status != :status " +
+            "AND v.status <> :status " +
             "GROUP BY v.id, v.name, v.urlThumbnail, v.duration, v.ordinalNumber")
     List<CourseVideoResponseInterface> getCourseVideosByCourseIdAndCommonStatusNot(@Param("courseId") Long courseId,
             @Param("status") CommonStatus commonStatus);

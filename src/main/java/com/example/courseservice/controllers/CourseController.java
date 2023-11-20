@@ -70,7 +70,7 @@ public class CourseController {
     @PostMapping("/teacher/create")
     public ResponseEntity<Void> createCourse(@Valid @RequestPart CourseRequest courseRequest,
             @RequestPart() MultipartFile thumbnail) {
-        courseService.createCourse(courseRequest, thumbnail);
+        courseTmpService.createCourse(courseRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

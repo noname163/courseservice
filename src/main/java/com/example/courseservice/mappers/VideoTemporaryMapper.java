@@ -6,9 +6,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.ReactStatus;
+import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
+import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
 
@@ -35,6 +38,16 @@ public class VideoTemporaryMapper {
         return video;
     }
 
+    public VideoTemporary mapDtoToEntity(VideoRequest videoRequest) {
+        return VideoTemporary
+                .builder()
+                .videoStatus(videoRequest.getVideoStatus())
+                .ordinalNumber(videoRequest.getOrder())
+                .name(videoRequest.getName())
+                .description(videoRequest.getDescription())
+                .build();
+    }
+
     public VideoAdminResponse mapVideoToVideoAdminResponse(VideoTemporary video) {
         return VideoAdminResponse
                 .builder()
@@ -55,6 +68,47 @@ public class VideoTemporaryMapper {
         return videos
                 .stream()
                 .map(this::mapVideoToVideoAdminResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Video mapVideoTmpToReal(VideoTemporary videoTemporary) {
+        return Video
+                .builder()
+                .name(videoTemporary.getName())
+                .description(videoTemporary.getDescription())
+                .duration(videoTemporary.getDuration())
+                .ordinalNumber(videoTemporary.getOrdinalNumber())
+                .urlThumbnail(videoTemporary.getUrlThumbnail())
+                .urlVideo(videoTemporary.getUrlVideo())
+                .videoStatus(videoTemporary.getVideoStatus())
+                .createDate(videoTemporary.getCreateDate())
+                .updateTime(videoTemporary.getUpdateTime())
+                .status(CommonStatus.AVAILABLE)
+                .build();
+    }
+
+    public List<Video> mapVideosTmpToReal(List<VideoTemporary> videoTemporaries) {
+        return videoTemporaries
+                .stream()
+                .map(this::mapVideoTmpToReal)
+                .collect(Collectors.toList());
+    }
+
+    public VideoItemResponse mapVideoItemResponse(VideoTemporary videoTemporary) {
+        return VideoItemResponse
+                .builder()
+                .name(videoTemporary.getName())
+                .duration(videoTemporary.getDuration())
+                .thumnial(videoTemporary.getUrlThumbnail())
+                .videoUrl(videoTemporary.getUrlVideo())
+                .videoStatus(videoTemporary.getVideoStatus())
+                .build();
+    }
+
+    public List<VideoItemResponse> mapVideoItemResponses(List<VideoTemporary> videoTemporaries) {
+        return videoTemporaries
+                .stream()
+                .map(this::mapVideoItemResponse)
                 .collect(Collectors.toList());
     }
 }
