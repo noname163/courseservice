@@ -193,7 +193,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
                         "LEFT JOIN c.videos v " +
                         "LEFT JOIN c.studentEnrolledCourses sec ON sec.course.id = c.id " +
                         "WHERE c.id = :id " +
-                        "AND c.commonStatus != :status " +
+                        "AND c.commonStatus <> :status " +
                         "GROUP BY c.id, c.level.name")
         CourseDetailResponseInterface getCourseDetailsByCourseIdAndStatusNot(@Param("id") Long id,
                         @Param("status") CommonStatus commonStatus);
