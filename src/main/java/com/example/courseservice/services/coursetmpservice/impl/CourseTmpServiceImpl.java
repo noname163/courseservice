@@ -21,12 +21,14 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.Level;
+import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
 import com.example.courseservice.data.repositories.CourseTopicRepository;
 import com.example.courseservice.data.repositories.LevelRepository;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.mappers.CourseTemporaryMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.courseservice.CourseService;
@@ -108,14 +110,15 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getUpdateCourse(Integer page, Integer size, String field,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(CommonStatus status, Integer page,
+            Integer size, String field,
             SortType sortType) {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<CourseTemporary> courseTemporary = courseTemporaryRepository.findAll(pageable);
+        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByStatusNot(status, pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseTemporaryMapper.mapCoursesTmpToCourseResponses(courseTemporary.getContent()))
+                .data(courseTemporaryMapper.mapInterfacesToDtos(courseTemporary.getContent()))
                 .totalPage(courseTemporary.getTotalPages())
                 .totalRow(courseTemporary.getTotalElements())
                 .build();
@@ -174,6 +177,21 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                         + " in function rejectCourse"));
         courseTemporary.setStatus(CommonStatus.REJECT);
         courseTemporaryRepository.save(courseTemporary);
+    }
+
+    @Override
+    public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(CommonStatus status,
+            Integer page, Integer size, String field, SortType sortType) {
+        String email = securityContextService.getCurrentUser().getEmail();
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByEmailAndStatusNot(email, status,
+                pageable);
+
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseTemporaryMapper.mapInterfacesToDtos(courseTemporary.getContent()))
+                .totalPage(courseTemporary.getTotalPages())
+                .totalRow(courseTemporary.getTotalElements())
+                .build();
     }
 
 }
