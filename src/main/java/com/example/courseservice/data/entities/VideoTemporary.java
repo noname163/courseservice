@@ -61,6 +61,7 @@ public class VideoTemporary {
 
     private Integer ordinalNumber;
 
+    @Enumerated(EnumType.STRING)
     private CommonStatus status;
 
     @ManyToOne()

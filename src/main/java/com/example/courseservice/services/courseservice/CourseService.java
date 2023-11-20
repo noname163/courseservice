@@ -26,4 +26,7 @@ public interface CourseService {
     public Course getCourseByIdAndEmail(Long id, String email);
     public Course getCourseById(Long id);
     public boolean isCourseBelongTo(String email, long courseId);
+    public void deleteCourse(Long courseId);
+    public PaginationResponse<List<CourseResponse>> searchCourse(String searchTerm, Integer page, Integer size, String field, SortType sortType);
+    public PaginationResponse<List<CourseResponse>> getAllCourse(Integer page, Integer size, String field, SortType sortType);
 }
