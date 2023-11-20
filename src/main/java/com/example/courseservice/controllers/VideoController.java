@@ -25,7 +25,6 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoRequest;
-import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
@@ -64,7 +63,7 @@ public class VideoController {
             @RequestPart VideoRequest videoRequest,
             @RequestPart() MultipartFile video,
             @RequestPart() MultipartFile thumbnail) throws IOException {
-        eventPublisher.publishEvent(videoService.saveVideo(videoRequest, video, thumbnail));
+        eventPublisher.publishEvent(videoTmpService.saveVideo(videoRequest, video, thumbnail));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
