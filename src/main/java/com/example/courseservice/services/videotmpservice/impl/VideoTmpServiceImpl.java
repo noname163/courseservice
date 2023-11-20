@@ -111,9 +111,11 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     public void insertVideoTmpToReal(Long courseTeporaryId) {
         List<VideoTemporary> videoTemporaries = videoTemporaryRepository
                 .findByCourseTemporaryIdAndStatus(courseTeporaryId, CommonStatus.DRAFT);
-        List<Video> videos = videoTemporaryMapper.mapVideosTmpToReal(videoTemporaries);
-        videoRepository.saveAll(videos);
-        videoTemporaryRepository.deleteByCourseTemporaryId(courseTeporaryId);
+        if (!videoTemporaries.isEmpty()) {
+            List<Video> videos = videoTemporaryMapper.mapVideosTmpToReal(videoTemporaries);
+            videoRepository.saveAll(videos);
+            videoTemporaryRepository.deleteAll(videoTemporaries);
+        }
     }
 
     @Override

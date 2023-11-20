@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -144,8 +145,10 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpAndStatusNot(CommonStatus.DRAFT,page, size, field, sortType));
+                .body(courseTmpService.getCourseTmpAndStatusNot(CommonStatus.DRAFT, page, size, field,
+                        sortType));
     }
+
     @Operation(summary = "Get courses waiting for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
@@ -163,7 +166,28 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpByEmailAndStatusNot(CommonStatus.DELETED,page, size, field, sortType));
+                .body(courseTmpService.getCourseTmpByEmailAndStatusNot(CommonStatus.DELETED, page, size,
+                        field, sortType));
+    }
+
+    @Operation(summary = "Get all courses for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/teacher/get-all")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getAllCourse(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.getAllCourse(page, size, field, sortType));
     }
 
     @Operation(summary = "Get courses for teacher")
@@ -184,6 +208,42 @@ public class CourseController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourseByEmail(page, size, field, sortType));
+    }
+
+    @Operation(summary = "Search courses for user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/search")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> searchCourse(
+            @RequestParam(required = false) String searcheTerm,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.searchCourse(searcheTerm, page, size, field, sortType));
+    }
+
+    @Operation(summary = "Delete courses for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Delete course successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @DeleteMapping("/teacher")
+    public ResponseEntity<Void> deleteCourseForTeacher(
+            @RequestParam(required = true) Long courseId) {
+        courseService.deleteCourse(courseId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @Operation(summary = "Filter courses for student")

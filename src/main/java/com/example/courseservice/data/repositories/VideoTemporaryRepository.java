@@ -21,8 +21,4 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
 
     @Query("SELECT MAX(v.ordinalNumber) FROM VideoTemporary v WHERE v.courseTemporary = :course")
     public Integer findMaxOrdinalNumberByCourse(@Param("course") CourseTemporary course);
-
-    @Modifying
-    @Query("DELETE FROM VideoTemporary vt WHERE vt.courseTemporary.id = :courseTemporaryId")
-    public void deleteByCourseTemporaryId(@Param("courseTemporaryId") Long courseTemporaryId);
 }
