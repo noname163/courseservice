@@ -20,9 +20,9 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
     public Boolean existsByVideoId(Long videoId);
 
     @Query("SELECT MAX(v.ordinalNumber) FROM VideoTemporary v WHERE v.courseTemporary = :course")
-    Integer findMaxOrdinalNumberByCourse(@Param("course") CourseTemporary course);
+    public Integer findMaxOrdinalNumberByCourse(@Param("course") CourseTemporary course);
 
     @Modifying
     @Query("DELETE FROM VideoTemporary vt WHERE vt.courseTemporary.id = :courseTemporaryId")
-    void deleteByCourseTemporaryId(@Param("courseTemporaryId") Long courseTemporaryId);
+    public void deleteByCourseTemporaryId(@Param("courseTemporaryId") Long courseTemporaryId);
 }
