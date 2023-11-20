@@ -1,5 +1,6 @@
 package com.example.courseservice.services.courseservice.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,14 +23,17 @@ import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
+import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
+import com.example.courseservice.data.repositories.CourseTemporaryRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
+import com.example.courseservice.mappers.CourseTemporaryMapper;
 import com.example.courseservice.mappers.VideoCourseMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.courseservice.CourseService;
@@ -66,6 +70,10 @@ public class CourseServiceImpl implements CourseService {
     private SecurityContextService securityContextService;
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private CourseTemporaryRepository courseTemporaryRepository;
+    @Autowired
+    private CourseTemporaryMapper courseTemporaryMapper;
 
     private final Double MAXRATE = 5d;
 
@@ -225,10 +233,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void verifyCourse(VerifyRequest verifyRequest) {
-        if(verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)){
+        if (verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
             courseTmpService.insertCourseTmpToReal(verifyRequest.getId());
-        }
-        else{
+        } else {
             courseTmpService.rejectCourse(verifyRequest.getId());
         }
     }
@@ -285,9 +292,62 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void deleteCourse(Long courseId) {
         String email = securityContextService.getCurrentUser().getEmail();
-        Course course = courseRepository.findCourseByTeacherEmailAndId(email, courseId).orElseThrow(()-> new BadRequestException("Cannot found course with id " + courseId+ " in function deleteCourse"));
+        Course course = courseRepository.findCourseByTeacherEmailAndId(email, courseId).orElseThrow(
+                () -> new BadRequestException("Cannot found course with id " + courseId + " in function deleteCourse"));
         course.setCommonStatus(CommonStatus.DELETED);
         courseRepository.save(course);
+    }
+
+    @Override
+    public PaginationResponse<List<CourseResponse>> searchCourse(String searchTerm, Integer page, Integer size,
+            String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+
+        Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCourses(searchTerm, pageable);
+
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()))
+                .totalPage(courseResponseInterface.getTotalPages())
+                .totalRow(courseResponseInterface.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public PaginationResponse<List<CourseResponse>> getAllCourse(Integer page, Integer size, String field,
+            SortType sortType) {
+
+        String email = securityContextService.getCurrentUser().getEmail();
+        Pageable pageableStart = pageableUtil.getPageable(page, size, field, sortType);
+
+        // Fetch data from both repositories
+        Page<CourseResponseInterface> courseTmpResponseInterface = courseTemporaryRepository
+                .getByEmailAndStatusNot(email, CommonStatus.DELETED, pageableStart);
+        int remainSize = size - courseTmpResponseInterface.getContent().size();
+        if (remainSize == 0) {
+            return PaginationResponse.<List<CourseResponse>>builder()
+                    .data(courseTemporaryMapper.mapInterfacesToDtos(courseTmpResponseInterface.getContent()))
+                    .totalPage(courseTmpResponseInterface.getTotalPages())
+                    .totalRow(courseTmpResponseInterface.getTotalElements())
+                    .build();
+        }
+        Pageable pageableEnd = pageableUtil.getPageable(page, remainSize, field, sortType);
+        Page<CourseResponseInterface> courseResponseInterface = courseRepository.getCourseByEmail(email,
+                pageableEnd);
+
+        // Map data to DTOs
+        List<CourseResponse> courseResponse = courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent());
+        List<CourseResponse> courseTemporaryResponse = courseTemporaryMapper
+                .mapInterfacesToDtos(courseTmpResponseInterface.getContent());
+
+        // Concatenate the two lists
+        List<CourseResponse> result = new ArrayList<>(courseTemporaryResponse);
+        result.addAll(courseResponse);
+
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(result)
+                .totalPage(courseTmpResponseInterface.getTotalPages() + courseResponseInterface.getTotalPages())
+                .totalRow(courseResponseInterface.getTotalElements() + courseTmpResponseInterface.getTotalElements())
+                .build();
     }
 
 }

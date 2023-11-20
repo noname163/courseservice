@@ -170,6 +170,26 @@ public class CourseController {
                         field, sortType));
     }
 
+    @Operation(summary = "Get all courses for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/teacher/get-all")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getAllCourse(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.getAllCourse(page, size, field, sortType));
+    }
+
     @Operation(summary = "Get courses for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
@@ -188,6 +208,26 @@ public class CourseController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourseByEmail(page, size, field, sortType));
+    }
+
+    @Operation(summary = "Search courses for user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/search")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> searchCourse(
+            @RequestParam(required = false) String searcheTerm,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.searchCourse(searcheTerm, page, size, field, sortType));
     }
 
     @Operation(summary = "Delete courses for teacher")
