@@ -214,12 +214,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
             "LEFT JOIN c.courseTopics ct " +
-            "WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "WHERE (LOWER(c.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "   OR LOWER(c.teacherName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "   OR LOWER(c.teacherEmail) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "   OR EXISTS (SELECT 1 FROM c.courseTopics ct WHERE LOWER(ct.topicName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) "
             +
-            "   OR LOWER(c.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "   OR LOWER(c.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
             "AND c.commonStatus = 'AVAILABLE' "+
             "GROUP BY c.id, c.thumbnial, c.teacherName, c.name, c.subject, c.level.name, c.price, c.createDate, c.updateTime, c.commonStatus")
     Page<CourseResponseInterface> searchCourses(

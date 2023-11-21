@@ -1,6 +1,7 @@
 package com.example.courseservice.data.object;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.example.courseservice.data.constants.NotificationType;
 
@@ -14,9 +15,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationContent {
-    private LocalDate date;
+    private LocalDateTime date;
     private Double price;
     private String content;
     private String course;
+    private String email;
+    private String replyEmail;
+    private Long userId;
     private NotificationType type;
 }
