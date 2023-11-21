@@ -224,7 +224,7 @@ public class VideoController {
     })
     @GetMapping("/admin/draft-list")
     @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER')")
-    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoUpdateForAdmin(
+    public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoUpdateForAdmin(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,

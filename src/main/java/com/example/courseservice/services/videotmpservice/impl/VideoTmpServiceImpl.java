@@ -119,12 +119,12 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     }
 
     @Override
-    public PaginationResponse<List<VideoAdminResponse>> getUpdateVideo(Integer page, Integer size, String field,
+    public PaginationResponse<List<VideoItemResponse>> getUpdateVideo(Integer page, Integer size, String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<VideoTemporary> videotemp = videoTemporaryRepository.findAll(pageable);
-        return PaginationResponse.<List<VideoAdminResponse>>builder()
-                .data(videoTemporaryMapper.mapVideosToVideoAdminResponses(videotemp.getContent()))
+        return PaginationResponse.<List<VideoItemResponse>>builder()
+                .data(videoTemporaryMapper.mapVideoItemResponses(videotemp.getContent()))
                 .totalPage(videotemp.getTotalPages())
                 .totalRow(videotemp.getTotalElements())
                 .build();

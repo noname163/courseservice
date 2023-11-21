@@ -220,14 +220,14 @@ public class CourseController {
     })
     @GetMapping("/search")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> searchCourse(
-            @RequestParam(required = false) String searcheTerm,
+            @RequestParam(required = false) String searchTerm,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.searchCourse(searcheTerm, page, size, field, sortType));
+                .body(courseService.searchCourse(searchTerm, page, size, field, sortType));
     }
 
     @Operation(summary = "Delete courses for teacher")

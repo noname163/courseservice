@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.courseservice.configs.VNPayConfig;
+import com.example.courseservice.data.constants.NotificationType;
 import com.example.courseservice.data.constants.TransactionStatus;
 import com.example.courseservice.data.constants.Validation;
 import com.example.courseservice.data.constants.VnPayConstants;
@@ -31,7 +32,9 @@ import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.TransactionResponse;
 import com.example.courseservice.data.entities.Course;
+import com.example.courseservice.data.entities.Notification;
 import com.example.courseservice.data.entities.Transaction;
+import com.example.courseservice.data.object.NotificationContent;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.TransactionRepository;
@@ -39,12 +42,14 @@ import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.TeacherIncomeMapper;
 import com.example.courseservice.mappers.TransactionMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
+import com.example.courseservice.services.notificationservice.NotificationService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.teacherincomeservice.TeacherIncomeService;
 import com.example.courseservice.services.transactionservice.TransactionService;
 import com.example.courseservice.utils.ConvertStringToLocalDateTime;
 import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.GetIpAddress;
+import com.netflix.discovery.converters.Auto;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -57,6 +62,8 @@ public class TransactionServiceImpl implements TransactionService {
     private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
     private TeacherIncomeService teacherIncomeService;
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
@@ -201,15 +208,27 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setPaymentDate(transLocalDate);
         transaction.setStatus(transactionStatus);
         transactionRepository.save(transaction);
-
+        Course course = transaction.getCourse();
         if (transactionStatus.equals(TransactionStatus.SUCCESS)) {
             studentEnrollCourseService.insertStudentEnroll(StudentEnrollRequest
                     .builder()
-                    .courseId(transaction.getCourse().getId())
+                    .courseId(course.getId())
                     .email(transaction.getUserEmail())
                     .studentId(transaction.getUserId())
                     .build());
-            teacherIncomeService.createTeacherIncome(teacherIncomeMapper.mapTransactionToTeacherIncomeRequest(transaction));
+            teacherIncomeService
+                    .createTeacherIncome(teacherIncomeMapper.mapTransactionToTeacherIncomeRequest(transaction));
+
+            notificationService
+                    .sendNotification(notificationService.createNotificationForCurrentUser(NotificationContent
+                            .builder()
+                            .course(course.getName())
+                            .price(course.getPrice())
+                            .email(transaction.getUserEmail())
+                            .userId(transaction.getUserId())
+                            .type(NotificationType.TRANSACTION)
+                            .date(transLocalDate)
+                            .build()));
         }
 
         return transactionMapper.mapEntityToDto(transaction);

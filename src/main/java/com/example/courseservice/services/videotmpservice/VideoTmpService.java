@@ -21,7 +21,7 @@ public interface VideoTmpService {
 
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
-    public PaginationResponse<List<VideoAdminResponse>> getUpdateVideo(Integer page,
+    public PaginationResponse<List<VideoItemResponse>> getUpdateVideo(Integer page,
             Integer size, String field, SortType sortType);
 
     public boolean isUpdate(Long videoId);
