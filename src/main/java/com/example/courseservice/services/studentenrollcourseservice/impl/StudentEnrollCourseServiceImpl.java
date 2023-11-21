@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.constants.StudentEnrolledStatus;
 import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -78,6 +79,7 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
                 .builder()
                 .studentEmail(studentEnrollRequest.getEmail())
                 .studentId(studentEnrollRequest.getStudentId())
+                .status(StudentEnrolledStatus.ENROLLED)
                 .course(course)
                 .build());
     }

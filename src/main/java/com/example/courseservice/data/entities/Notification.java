@@ -30,8 +30,6 @@ public class Notification {
 
     private String title;
 
-    private String receiverName;
-
     private Boolean isReading;
 
     private String sendTo;
