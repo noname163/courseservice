@@ -12,8 +12,11 @@ import com.example.courseservice.data.object.CourseReportInterface;
 
 public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Long> {
 
-    Optional<TeacherIncome> findByCourseIdAndUserIdAndMonthAndYear(Long courseId, Long UserId, Integer month, Integer year);
-    @Query("SELECT t.course.id AS courseId, c.name AS courseName, CONCAT(t.month, '-', t.year) AS monthOfYear, SUM(t.money) AS revenue " +
+    Optional<TeacherIncome> findByCourseIdAndUserIdAndMonthAndYear(Long courseId, Long UserId, Integer month,
+            Integer year);
+
+    @Query("SELECT t.course.id AS courseId, c.name AS courseName, CONCAT(t.month, '-', t.year) AS monthOfYear, COALESCE(SUM(t.money), 0) AS revenue "
+            +
             "FROM TeacherIncome t " +
             "JOIN Course c ON t.course.id = c.id " +
             "WHERE c.teacherId = :userId " +
@@ -22,7 +25,8 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "GROUP BY c.name, t.course.id, t.month, t.year")
     List<CourseReportInterface> getRevenueByTeacherEmailForLast10Months(@Param("userId") Long userId);
 
-    @Query("SELECT t.course.id AS courseId, c.name AS courseName, CONCAT(t.month, '-', t.year) AS monthOfYear, SUM(t.money) AS revenue " +
+    @Query("SELECT t.course.id AS courseId, c.name AS courseName, CONCAT(t.month, '-', t.year) AS monthOfYear, SUM(t.money) AS revenue "
+            +
             "FROM TeacherIncome t " +
             "JOIN Course c ON t.course.id = c.id " +
             "WHERE c.teacherId = :userId " +
@@ -32,6 +36,5 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "GROUP BY c.name, t.course.id, t.month, t.year")
     List<CourseReportInterface> getRevenueByTeacherEmailAndCourseIdForLast10Months(
             @Param("userId") Long userId,
-            @Param("courseId") Long courseId
-    );
+            @Param("courseId") Long courseId);
 }

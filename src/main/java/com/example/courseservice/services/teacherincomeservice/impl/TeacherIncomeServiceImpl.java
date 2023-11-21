@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.courseservice.data.constants.TeacherIncomeStatus;
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
 import com.example.courseservice.data.entities.TeacherIncome;
@@ -36,12 +37,18 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         Optional<TeacherIncome> teacherIncomeOtp = teacherIncomeRepository
                 .findByCourseIdAndUserIdAndMonthAndYear(teacherIncomeRequest.getCourse().getId(),
                         teacherIncomeRequest.getUserId(), LocalDate.now().getMonthValue(), LocalDate.now().getYear());
-        if (teacherIncomeOtp.isPresent()) {
+        if (!teacherIncomeOtp.isEmpty()) {
             TeacherIncome teacherIncome = teacherIncomeOtp.get();
             teacherIncome.setMoney(teacherIncome.getMoney() + teacherIncomeRequest.getAmount());
             teacherIncomeRepository.save(teacherIncome);
         }
-        teacherIncomeRepository.save(teacherIncomeMapper.mapRequestDtoToEntity(teacherIncomeRequest));
+        else{
+            TeacherIncome teacherIncome = teacherIncomeMapper.mapRequestDtoToEntity(teacherIncomeRequest);
+            teacherIncome.setMonth(LocalDate.now().getMonthValue());
+            teacherIncome.setYear(LocalDate.now().getYear());
+            teacherIncome.setStatus(TeacherIncomeStatus.PENDING);
+            teacherIncomeRepository.save(teacherIncome);
+        }
     }
 
     @Override

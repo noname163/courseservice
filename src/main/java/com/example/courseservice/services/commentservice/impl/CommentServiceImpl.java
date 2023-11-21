@@ -2,7 +2,6 @@ package com.example.courseservice.services.commentservice.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,10 +13,8 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CommentRequest;
 import com.example.courseservice.data.dto.request.UpdateCommentRequest;
 import com.example.courseservice.data.dto.response.CommentResponse;
-import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Comment;
-import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CommentRepository;
@@ -59,6 +56,8 @@ public class CommentServiceImpl implements CommentService {
             Comment comment = Comment.builder()
                     .createDate(LocalDateTime.now())
                     .studentEmail(email)
+                    .studentId(currentUser.getId())
+                    .userName(currentUser.getFullname())
                     .commented(commentRequest.getCommentContent())
                     .commonStatus(CommonStatus.AVAILABLE)
                     .video(video)

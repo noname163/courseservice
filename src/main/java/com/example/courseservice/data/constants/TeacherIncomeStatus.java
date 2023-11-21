@@ -2,5 +2,6 @@ package com.example.courseservice.data.constants;
 
 public enum TeacherIncomeStatus {
     RECEIVED,
-    NOTYET
+    NOTYET,
+    PENDING
 }

@@ -4,5 +4,5 @@ public interface CourseReportInterface {
     Long getCourseId();
     String getCourseName();
     String getMonthOfYear();
-    Double getRevanue();
+    Double getRevenue();
 }
