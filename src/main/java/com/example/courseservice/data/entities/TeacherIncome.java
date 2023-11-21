@@ -2,6 +2,8 @@ package com.example.courseservice.data.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,6 +43,7 @@ public class TeacherIncome {
 
     private String BankCode;
 
+    @Enumerated(EnumType.STRING)
     private TeacherIncomeStatus status;
 
     @ManyToOne()

@@ -37,7 +37,7 @@ public class TeacherIncomeMapper {
                 .courseId(courseReportInterface.getCourseId())
                 .courseName(courseReportInterface.getCourseName())
                 .monthOfYear(courseReportInterface.getMonthOfYear())
-                .revenue(courseReportInterface.getRevanue())
+                .revenue(courseReportInterface.getRevenue())
                 .build();
     }
 
