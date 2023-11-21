@@ -12,7 +12,6 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.RatingRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.RatingResponse;
-import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Rating;
 import com.example.courseservice.data.object.UserInformation;
@@ -22,6 +21,7 @@ import com.example.courseservice.mappers.RatingMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.ratingservice.RatingService;
+import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
@@ -32,6 +32,8 @@ public class RatingServiceImpl implements RatingService {
     private RatingMapper ratingMapper;
     @Autowired
     private CourseService courseService;
+    @Autowired 
+    private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
     private PageableUtil pageableUtil;
     @Autowired
@@ -41,7 +43,7 @@ public class RatingServiceImpl implements RatingService {
     public void createRating(RatingRequest ratingRequest) {
         UserInformation currentUser = securityContextService.getCurrentUser();
 
-        if (!courseService.isCourseBelongTo(currentUser.getEmail(), ratingRequest.getCourseId())) {
+        if (!studentEnrollCourseService.isStudentEnrolled(currentUser.getEmail(), ratingRequest.getCourseId())) {
             throw new BadRequestException("User must owner course to rate");
         }
         if (ratingRepository.findByStudentId(currentUser.getId()).isPresent()) {

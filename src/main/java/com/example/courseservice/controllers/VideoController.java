@@ -84,7 +84,7 @@ public class VideoController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    @Operation(summary = "Get video detail by video id")
+    @Operation(summary = "Get video detail by video id for student")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get video detail successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = VideoDetailResponse.class))
@@ -93,7 +93,6 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping("/user/{id}")
-    @PreAuthorize("hasAnyAuthority('STUDENT', 'TEACHER')")
     public ResponseEntity<VideoDetailResponse> getVideoById(@PathVariable Long id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -138,7 +137,6 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping()
-    @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT', 'TEACHER')")
     public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoByCourseId(
             @RequestParam(required = true) Long courseId,
             @RequestParam(required = false, defaultValue = "0") Integer page,
@@ -216,7 +214,7 @@ public class VideoController {
                         sortType));
     }
 
-    @Operation(summary = "Get list video update for admin")
+    @Operation(summary = "Get list draft video for admin, teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get video successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = VideoAdminResponse.class))
@@ -224,8 +222,8 @@ public class VideoController {
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
-    @GetMapping("/admin/update-list")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin/draft-list")
+    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER')")
     public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoUpdateForAdmin(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
