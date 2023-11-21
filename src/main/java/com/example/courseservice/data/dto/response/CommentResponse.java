@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class CommentResponse {
     private String email;
+    private String useName;
     private LocalDate createDate;
     private String comment;
 }

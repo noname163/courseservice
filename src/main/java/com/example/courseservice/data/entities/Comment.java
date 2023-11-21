@@ -38,7 +38,9 @@ public class Comment {
 
     private String studentEmail;
 
-    private String studentId;
+    private Long studentId;
+
+    private String userName;
 
     @Column(columnDefinition = "TEXT")
     private String commented;

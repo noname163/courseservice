@@ -15,13 +15,13 @@ public class CommentMapper {
         return Comment
                 .builder()
                 .commented(commentRequest.getCommentContent())
-                .studentEmail(commentRequest.getEmail())
                 .build();
     }
 
     public CommentResponse mapEntityToDto(Comment comment){
         return CommentResponse.builder()
         .email(comment.getStudentEmail())
+        .useName(comment.getUserName())
         .createDate(comment.getCreateDate().toLocalDate())
         .comment(comment.getCommented())
         .build();

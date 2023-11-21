@@ -7,6 +7,5 @@ import lombok.Data;
 @Builder
 public class CommentRequest {
     private String commentContent;
-    private String email;
     private long videoId;
 }
