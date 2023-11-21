@@ -46,9 +46,9 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
 
     @Override
     public List<TeacherIncomeResponse> getCurrentTeacherIncome() {
-        String email = securityContextService.getCurrentUser().getEmail();
+        Long userId = securityContextService.getCurrentUser().getId();
         List<CourseReportInterface> courseReportInterfaces = teacherIncomeRepository
-                .getRevenueByTeacherEmailForLast10Months(email);
+                .getRevenueByTeacherEmailForLast10Months(userId);
         if (courseReportInterfaces == null || courseReportInterfaces.isEmpty()) {
             return Collections.emptyList();
         }
@@ -57,9 +57,9 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
 
     @Override
     public List<TeacherIncomeResponse> getCurrentTeacherIncomeByCourseId(Long courseId) {
-        String email = securityContextService.getCurrentUser().getEmail();
+        Long userId = securityContextService.getCurrentUser().getId();
         List<CourseReportInterface> courseReportInterfaces = teacherIncomeRepository
-                .getRevenueByTeacherEmailAndCourseIdForLast10Months(email, courseId);
+                .getRevenueByTeacherEmailAndCourseIdForLast10Months(userId, courseId);
         if (courseReportInterfaces == null || courseReportInterfaces.isEmpty()) {
             return Collections.emptyList();
         }

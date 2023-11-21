@@ -123,7 +123,7 @@ public class VideoServiceImpl implements VideoService {
         Video video = getVideoByIdAndCommonStatus(videoId, CommonStatus.AVAILABLE);
         Course course = video.getCourse();
         // Check if the video is private and user is not authenticated or not enrolled
-        if (!isVideoAccessible(video)) {
+        if (video.getVideoStatus().equals(VideoStatus.PRIVATE) && !isVideoAccessible(video)) {
             throw new InValidAuthorizationException("Buy course to view this video");
         }
 
@@ -364,6 +364,9 @@ public class VideoServiceImpl implements VideoService {
             if (!isUserLoggedIn && isVideoPrivate) {
                 videoItemResponse.setIsAccess(false);
             }
+            if (!isVideoPrivate) {
+                videoItemResponse.setIsAccess(true);
+            }
 
             if (isUserLoggedIn) {
                 boolean isEnrolled = isStudentEnrolled(courseId);
@@ -377,32 +380,32 @@ public class VideoServiceImpl implements VideoService {
     private List<VideoItemResponse> setIsAccess(List<VideoItemResponse> videoItemResponses, List<Course> courses) {
         UserInformation currentUser = securityContextService.isLogin();
         List<VideoItemResponse> result = new ArrayList<>();
-    
+
         if (currentUser != null) {
-            List<Long> videoAccess = studentEnrollCourseService.getListVideoIdStudentAccess(currentUser.getEmail(), courses);
-    
+            List<Long> videoAccess = studentEnrollCourseService.getListVideoIdStudentAccess(currentUser.getEmail(),
+                    courses);
+
             for (VideoItemResponse videoItemResponse : videoItemResponses) {
                 if (videoAccess.isEmpty()) {
                     // If videoAccess is empty, set isAccess based on video status
                     videoItemResponse.setIsAccess(!videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE));
                 } else {
-                    // If videoAccess is not empty, set isAccess to true when video ID is in videoAccess
+                    // If videoAccess is not empty, set isAccess to true when video ID is in
+                    // videoAccess
                     videoItemResponse.setIsAccess(videoAccess.contains(videoItemResponse.getId()));
                 }
-    
+
                 result.add(videoItemResponse);
             }
-        }
-        else{
+        } else {
             for (VideoItemResponse videoItemResponse : videoItemResponses) {
                 videoItemResponse.setIsAccess(videoItemResponse.getVideoStatus().equals(VideoStatus.PUBLIC));
                 result.add(videoItemResponse);
             }
         }
-    
+
         return result;
     }
-    
 
     @Override
     public void deleteVideo(Long videoId) {
@@ -411,7 +414,7 @@ public class VideoServiceImpl implements VideoService {
                 .findById(videoId)
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist video with id " + videoId + " in function delete video"));
-        if(Boolean.FALSE.equals(courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getId()))){
+        if (Boolean.FALSE.equals(courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getId()))) {
             throw new InValidAuthorizationException("Cannot delete this video");
         }
         commentService.deleteComments(video);
@@ -420,10 +423,12 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public List<CourseVideoResponse> getVideoByCourseIdAndCommonStatus(Long courseId, CommonStatus commonStatus) {
-        if(commonStatus.equals(CommonStatus.ALL)){
-            return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatusNot(courseId, CommonStatus.DELETED));
+        if (commonStatus.equals(CommonStatus.ALL)) {
+            return videoMapper.mapToCourseVideoResponseList(
+                    videoRepository.getCourseVideosByCourseIdAndCommonStatusNot(courseId, CommonStatus.DELETED));
         }
-        return videoMapper.mapToCourseVideoResponseList(videoRepository.getCourseVideosByCourseIdAndCommonStatus(courseId, CommonStatus.AVAILABLE));
+        return videoMapper.mapToCourseVideoResponseList(
+                videoRepository.getCourseVideosByCourseIdAndCommonStatus(courseId, CommonStatus.AVAILABLE));
     }
 
 }

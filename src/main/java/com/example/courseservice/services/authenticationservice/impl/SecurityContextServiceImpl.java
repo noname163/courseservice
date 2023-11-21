@@ -11,6 +11,7 @@ import com.example.courseservice.configs.CustomUserDetails;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.ForbiddenException;
+import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 
 @Service
@@ -55,6 +56,11 @@ public class SecurityContextServiceImpl implements SecurityContextService {
         if (authentication == null) {
             return null;
         }
+        var roles = authentication.getAuthorities();
+        var role = roles.stream().findFirst();
+        if (role.get().getAuthority().equals("ROLE_ANONYMOUS")) {
+            return null;
+        }
         Object principal = authentication.getPrincipal();
         return ((CustomUserDetails) principal).getUser();
     }
@@ -72,13 +78,17 @@ public class SecurityContextServiceImpl implements SecurityContextService {
 
     @Override
     public boolean getIsAuthenticatedAndIsStudent() {
-        Authentication authentication = securityContext.getAuthentication();
-        var roles = authentication.getAuthorities();
-        var role = roles.stream().findFirst();
-        if(role.get().getAuthority().equals("ROLE_ANONYMOUS")&& !role.get().getAuthority().equals("STUDENT")){
+        try {
+            Authentication authentication = securityContext.getAuthentication();
+            var roles = authentication.getAuthorities();
+            var role = roles.stream().findFirst();
+            if (role.get().getAuthority().equals("ROLE_ANONYMOUS") && !role.get().getAuthority().equals("STUDENT")) {
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
             return false;
         }
-        return true;
     }
 
     @Override
