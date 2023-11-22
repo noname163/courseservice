@@ -43,7 +43,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
             if (request.getRequestURI().contentEquals("/api/courses/user")
-                    || request.getRequestURI().contentEquals("/api/videos/user")
+                    || request.getRequestURI().contains("/api/videos/user")
                     || (request.getRequestURI().contentEquals("/api/videos") && request.getMethod().equals("GET"))) {
                 processAuthenticationOfCourse(request, response, filterChain);
             } else {
@@ -99,7 +99,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 String accessToken = requestTokenHeaderOpt.get();
                 Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(request));
                 Claims claims = jwtClaims.getBody();
-                if (claims.get("role").toString().equals("STUDENT")) {
+                if (claims != null && !claims.equals("")) {
                     securityContextService.setLoginStatus(true);
                     UserInformation userInformation = UserInformation
                             .builder()

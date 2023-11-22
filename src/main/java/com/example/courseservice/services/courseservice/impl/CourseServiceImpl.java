@@ -143,7 +143,9 @@ public class CourseServiceImpl implements CourseService {
                 .getCourseDetailsByCourseId(id, commonStatus);
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, commonStatus);
+        List<String> topics = courseTopicService.getTopicsByCourseId(id);
         courseDetailResponse.setCourseVideoResponses(videos);
+        courseDetailResponse.setTopics(topics);
         return courseDetailResponse;
     }
 

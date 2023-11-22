@@ -50,8 +50,6 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
-    private CourseTopicRepository courseTopicRepository;
-    @Autowired
     private CourseService courseService;
     @Autowired
     private CourseTopicService courseTopicService;
@@ -154,7 +152,10 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         CourseTemporary courseTemporary = courseTemporaryRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(
                         "Not found course temporary with id " + id + " in getCourseDetail temporary function"));
-        return courseTemporaryMapper.mapCourseDetailResponse(courseTemporary);
+        CourseDetailResponse courseDetailResponse = courseTemporaryMapper.mapCourseDetailResponse(courseTemporary);
+        List<String> topics = courseTopicService.getTopicsByCourseTmpId(id);
+        courseDetailResponse.setTopics(topics);
+        return courseDetailResponse;
     }
 
     @Override

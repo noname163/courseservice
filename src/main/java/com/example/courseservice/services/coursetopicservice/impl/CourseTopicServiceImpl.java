@@ -113,4 +113,14 @@ public class CourseTopicServiceImpl implements CourseTopicService {
         }
     }
 
+    @Override
+    public List<String> getTopicsByCourseId(Long courseId) {
+        return courseTopicRepository.getTopicNamesByCourseId(courseId);
+    }
+
+    @Override
+    public List<String> getTopicsByCourseTmpId(Long courseTmpId) {
+        return courseTopicRepository.getTopicNamesByCourseTmpId(courseTmpId);
+    }
+
 }
