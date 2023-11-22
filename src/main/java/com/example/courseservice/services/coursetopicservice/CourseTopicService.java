@@ -14,4 +14,6 @@ public interface CourseTopicService {
     public void createCourseTopics(List<Topic>  courseTopicRequests, CourseTemporary courseTemporary);
     public void updateCourseTopicByCourseTemporary(CourseTemporary courseTemporary, Course course);
     public List<CourseTopic> courseTopicsByString(List<Topic> courseTopicsName);
+    public List<String> getTopicsByCourseId(Long courseId);
+    public List<String> getTopicsByCourseTmpId(Long courseTmpId);
 }

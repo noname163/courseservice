@@ -29,5 +29,6 @@ public class CourseDetailResponse{
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;
     private CommonStatus status;
+    private List<String> topics;
     private List<CourseVideoResponse> courseVideoResponses;
 }
