@@ -97,6 +97,7 @@ public class VideoTemporaryMapper {
     public VideoItemResponse mapVideoItemResponse(VideoTemporary videoTemporary) {
         return VideoItemResponse
                 .builder()
+                .id(videoTemporary.getId())
                 .name(videoTemporary.getName())
                 .duration(videoTemporary.getDuration())
                 .thumnial(videoTemporary.getUrlThumbnail())

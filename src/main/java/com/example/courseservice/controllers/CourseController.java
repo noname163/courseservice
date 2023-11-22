@@ -293,7 +293,7 @@ public class CourseController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
-    @GetMapping("/detail/draft")
+    @GetMapping("/admin/detail/draft")
     public ResponseEntity<CourseDetailResponse> getCoursesDraftDetail(
             @RequestParam(required = true, defaultValue = "0") Long id) {
         return ResponseEntity

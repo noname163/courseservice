@@ -102,6 +102,7 @@ public class CourseTemporaryMapper {
     public CourseDetailResponse mapCourseDetailResponse(CourseTemporary courseTemporary) {
         return CourseDetailResponse
                 .builder()
+                .id(courseTemporary.getId())
                 .name(courseTemporary.getName())
                 .createdDate(courseTemporary.getCreateDate())
                 .updateDate(courseTemporary.getUpdateTime())
