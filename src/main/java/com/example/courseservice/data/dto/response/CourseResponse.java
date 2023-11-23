@@ -13,6 +13,7 @@ public class CourseResponse {
     private long id;
     private String thumbnial;
     private String teacherName;
+    private String teacherAvatar;
     private String courseName;
     private float rating;
     private int numberOfRate;

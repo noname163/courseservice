@@ -44,6 +44,8 @@ public class Course {
 
     private String teacherName;
 
+    private String teacherAvatar;
+
     private String thumbnial;
 
     private Long subjectId;

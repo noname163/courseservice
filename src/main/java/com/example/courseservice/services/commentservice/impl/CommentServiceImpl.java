@@ -55,6 +55,7 @@ public class CommentServiceImpl implements CommentService {
                 || studentEnrollCourseService.isStudentEnrolled(email, courseId)) {
             Comment comment = Comment.builder()
                     .createDate(LocalDateTime.now())
+                    .userAvatar(currentUser.getAvatar())
                     .studentEmail(email)
                     .studentId(currentUser.getId())
                     .userName(currentUser.getFullname())
@@ -81,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
         }
         comment.setCommented(commentRequest.getCommentContent());
         comment.setUpdateTime(LocalDateTime.now());
-
+        comment.setUserAvatar(currentUser.getAvatar());
         commentRepository.save(comment);
     }
 

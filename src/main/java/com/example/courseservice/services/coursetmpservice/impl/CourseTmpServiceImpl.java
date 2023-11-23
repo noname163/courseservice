@@ -1,5 +1,6 @@
 package com.example.courseservice.services.coursetmpservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +80,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         course.setThumbnial(thumbinial.getUrl());
         course.setLevelId(courseRequest.getLevelId());
         course.setStatus(CommonStatus.DRAFT);
+        course.setCreateDate(LocalDateTime.now());
         course = courseTemporaryRepository.save(course);
         courseTopicService.createCourseTopics(courseRequest.getTopic(), course);
     }
@@ -170,6 +172,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         Course course = courseTemporaryMapper.mapToCourse(courseTemporary);
         course.setCommonStatus(CommonStatus.AVAILABLE);
         course.setLevel(level);
+        course.setTeacherAvatar(courseTemporary.getTeacherAvatar());
         course = courseRepository.save(course);
         courseTopicService.updateCourseTopicByCourseTemporary(courseTemporary, course);
         videoTmpService.insertVideoTmpToReal(courseTeporaryId);

@@ -70,6 +70,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, "+
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -89,6 +90,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, "+
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -107,6 +109,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, "+
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -130,6 +133,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, "+
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -201,6 +205,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, "+
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +

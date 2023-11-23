@@ -77,6 +77,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 UserInformation userInformation = UserInformation
                         .builder()
                         .id(Long.parseLong(claims.get("id").toString()))
+                        .avatar(claims.get("avatar").toString())
                         .email(claims.get("email").toString())
                         .role(claims.get("role").toString())
                         .fullname(claims.get("fullName").toString())
@@ -103,6 +104,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                     securityContextService.setLoginStatus(true);
                     UserInformation userInformation = UserInformation
                             .builder()
+                            .avatar(claims.get("avatar").toString())
                             .id(Long.parseLong(claims.get("id").toString()))
                             .email(claims.get("email").toString())
                             .role(claims.get("role").toString())

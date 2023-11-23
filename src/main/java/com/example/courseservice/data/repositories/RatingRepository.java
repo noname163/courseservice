@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.courseservice.data.entities.Rating;
 
 public interface RatingRepository extends JpaRepository<Rating, Long> {
-    public Optional<Rating> findByStudentId(Long studentId);
+    public Optional<Rating> findByStudentIdAndCourseId(Long studentId, Long courseId);
     public Page<Rating> findByCourseId(Long courseId, Pageable pageable);
 }

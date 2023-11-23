@@ -36,6 +36,10 @@ public class ReplyComment {
 
     private String studentEmail;
 
+    private String userAvatar;
+
+    private Long userId;
+
     @Column(columnDefinition = "TEXT")
     private String comment;
 

@@ -46,6 +46,7 @@ public class CourseTemporaryMapper {
                 .name(courseRequest.getName())
                 .teacherName(currentUser.getFullname())
                 .teacherEmail(currentUser.getEmail())
+                .teacherAvatar(currentUser.getAvatar())
                 .description(courseRequest.getDescription())
                 .build();
     }
@@ -68,6 +69,7 @@ public class CourseTemporaryMapper {
         return CourseResponse
                 .builder()
                 .id(course.getId())
+                .teacherAvatar(course.getTeacherAvatar())
                 .price(course.getPrice())
                 .createdDate(course.getCreateDate())
                 .updateDate(course.getUpdateTime())
