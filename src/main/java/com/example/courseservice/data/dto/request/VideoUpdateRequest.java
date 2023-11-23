@@ -10,7 +10,6 @@ import lombok.Data;
 @Builder
 @Data
 public class VideoUpdateRequest {
-    private Long videoId;
     @NotNull(message = "Course id is require")
     private Long courseId;
     private String name;

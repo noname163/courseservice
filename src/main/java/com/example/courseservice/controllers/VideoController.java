@@ -25,10 +25,12 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
+import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.videoservice.VideoService;
@@ -59,7 +61,7 @@ public class VideoController {
     })
     @PreAuthorize("hasAuthority('TEACHER')")
     @PostMapping("")
-    public ResponseEntity<Void> uploadVideo(
+    public ResponseEntity<Void> createVideo(
             @RequestPart VideoRequest videoRequest,
             @RequestPart() MultipartFile video,
             @RequestPart() MultipartFile thumbnail) throws IOException {
@@ -77,10 +79,10 @@ public class VideoController {
     @PreAuthorize("hasAuthority('TEACHER')")
     @PutMapping("/updload")
     public ResponseEntity<Void> updateVideo(
-            @RequestPart VideoRequest videoRequest,
+            @RequestPart VideoUpdateRequest videoRequest,
             @RequestPart(required = true) MultipartFile video,
             @RequestPart(required = true) MultipartFile thumbnail) throws IOException {
-        eventPublisher.publishEvent(videoService.uploadVideoByCourse(videoRequest, video, thumbnail));
+        eventPublisher.publishEvent(videoTmpService.updateVideo(videoRequest, video, thumbnail));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
@@ -113,19 +115,6 @@ public class VideoController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(videoService.getVideoDetailByIdExcept(id, CommonStatus.DELETED));
-    }
-
-    @Operation(summary = "Verify video")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Verify video successfully."),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/admin/verify-video")
-    public ResponseEntity<Void> verifyCourse(@Valid @RequestBody VerifyRequest verifyRequest) {
-        videoService.verifyVideo(verifyRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "Get list video course id")

@@ -45,8 +45,6 @@ public interface VideoService {
     public PaginationResponse<List<VideoItemResponse>> getListVideoAvailableByCourse(Long courseId, Integer page,
             Integer size, String field, SortType sortType);
 
-    public void verifyVideo(VerifyRequest verifyRequest);
-
     public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId);
 
     public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,

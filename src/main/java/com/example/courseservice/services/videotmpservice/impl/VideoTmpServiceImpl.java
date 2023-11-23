@@ -1,9 +1,15 @@
 package com.example.courseservice.services.videotmpservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.FileResponse;
@@ -24,6 +31,7 @@ import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoUpdate;
+import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.data.repositories.VideoTemporaryRepository;
@@ -44,11 +52,12 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     @Autowired
     private VideoRepository videoRepository;
     @Autowired
+    @Lazy
+    private CourseRepository courseRepository;
+    @Autowired
     private VideoTemporaryMapper videoTemporaryMapper;
     @Autowired
     private CourseTemporaryRepository courseTemporaryRepository;
-    @Autowired
-    private VideoService videoService;
     @Autowired
     private FileService fileService;
     @Autowired
@@ -57,28 +66,36 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     private PageableUtil pageableUtil;
 
     @Override
-    public VideoResponse saveTempVideo(VideoUpdateRequest videoUpdateRequest, MultipartFile video,
+    public VideoResponse updateVideo(VideoUpdateRequest videoUpdateRequest, MultipartFile video,
             MultipartFile thumbnail) {
         UserInformation currentUser = securityContextService.getCurrentUser();
-        Video videoOld = videoService.getVideoByIdAndCommonStatusNot(videoUpdateRequest.getVideoId(),
-                CommonStatus.DELETED);
+        Course course = courseRepository
+                .findByIdAndCommonStatusNot(videoUpdateRequest.getCourseId(), CommonStatus.DELETED)
+                .orElseThrow(
+                        () -> new BadRequestException("Not exist video with id " + videoUpdateRequest.getCourseId()));
 
-        if (!videoOld.getCourse().getTeacherEmail().equals(currentUser.getEmail())) {
-            throw new InValidAuthorizationException("Cannot edit this video");
+        if (!course.getTeacherEmail().equals(currentUser.getEmail())) {
+            throw new InValidAuthorizationException("Not this course to create video");
         }
+        course.setCommonStatus(CommonStatus.UNAVAILABLE);
+        courseRepository.save(course);
 
-        VideoTemporary videoConvert = videoTemporaryMapper.mapDtoToEntity(videoUpdateRequest, videoOld);
-        if (video == null) {
-            videoConvert.setUrlVideo(videoOld.getUrlVideo());
-        }
-        if (thumbnail == null) {
-            videoConvert.setUrlThumbnail(videoOld.getUrlThumbnail());
-        }
-        videoConvert.setStatus(CommonStatus.UPDATING);
-        videoConvert.setCourse(videoOld.getCourse());
-        VideoTemporary videoInsert = videoTemporaryRepository.save(videoConvert);
-        FileResponse videoFile = video != null ? fileService.fileStorage(video) : null;
-        FileResponse thumbnialFile = thumbnail != null ? fileService.fileStorage(thumbnail) : null;
+        CourseTemporary courseTemporary = courseTemporaryRepository.save(CourseTemporary
+                .builder()
+                .updateTime(LocalDateTime.now())
+                .course(course)
+                .build());
+        VideoTemporary videoInsert = videoTemporaryRepository.save(
+                VideoTemporary
+                        .builder()
+                        .course(course)
+                        .courseTemporary(courseTemporary)
+                        .createDate(LocalDateTime.now())
+                        .status(CommonStatus.UPDATING)
+                        .videoStatus(videoUpdateRequest.getVideoStatus())
+                        .build());
+        FileResponse videoFile = fileService.fileStorage(video);
+        FileResponse thumbnialFile = fileService.fileStorage(thumbnail);
 
         return VideoResponse
                 .builder()
@@ -108,11 +125,11 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     }
 
     @Override
-    public void insertVideoTmpToReal(Long courseTeporaryId) {
+    public void insertVideoTmpToReal(Long courseTeporaryId, Course course) {
         List<VideoTemporary> videoTemporaries = videoTemporaryRepository
                 .findByCourseTemporaryIdAndStatus(courseTeporaryId, CommonStatus.DRAFT);
         if (!videoTemporaries.isEmpty()) {
-            List<Video> videos = videoTemporaryMapper.mapVideosTmpToReal(videoTemporaries);
+            List<Video> videos = videoTemporaryMapper.mapVideosTmpToReal(videoTemporaries, course);
             videoRepository.saveAll(videos);
             videoTemporaryRepository.deleteAll(videoTemporaries);
         }
@@ -164,6 +181,30 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         List<VideoTemporary> videoTemporaries = videoTemporaryRepository
                 .findByCourseTemporaryIdAndStatus(courseTemporaryId, CommonStatus.DRAFT);
         return videoTemporaryMapper.mapVideoItemResponses(videoTemporaries);
+    }
+
+    @Override
+    public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId) {
+
+        Set<Long> videoIds = videoOrders.stream()
+                .map(VideoOrder::getVideoId)
+                .collect(Collectors.toSet());
+
+        List<VideoTemporary> videosToUpdate = videoTemporaryRepository.findByCourseTemporaryIdAndIdIn(courseId, videoIds);
+
+        Map<Long, VideoTemporary> videoMap = videosToUpdate.stream()
+                .collect(Collectors.toMap(VideoTemporary::getId, Function.identity()));
+
+        List<VideoTemporary> updatedVideos = videoOrders.stream()
+                .filter(videoOrder -> videoMap.containsKey(videoOrder.getVideoId()))
+                .map(videoOrder -> {
+                    VideoTemporary video = videoMap.get(videoOrder.getVideoId());
+                    video.setOrdinalNumber(videoOrder.getVideoOrder());
+                    return video;
+                })
+                .collect(Collectors.toList());
+
+        videoTemporaryRepository.saveAll(updatedVideos);
     }
 
 }

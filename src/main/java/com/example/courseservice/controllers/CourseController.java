@@ -23,6 +23,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
+import com.example.courseservice.data.dto.request.CourseTemporaryUpdateRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
@@ -57,7 +58,7 @@ public class CourseController {
     @PutMapping("/teacher/update")
     public ResponseEntity<Void> updateCourse(@Valid @RequestPart CourseUpdateRequest courseRequest,
             @RequestPart(required = false) MultipartFile thumbnail) {
-        courseTmpService.insertTmpCourse(courseRequest, thumbnail);
+        courseTmpService.updateRealCourse(courseRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -329,6 +330,21 @@ public class CourseController {
     @PutMapping("/teacher/send-verify-request")
     public ResponseEntity<Void> requestVerifyCourses(@RequestBody @Valid List<Long> ids) {
         courseTmpService.requestVerifyCourses(ids);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(summary = "Teacher request admin verify courses")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Send request successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @PutMapping("/teacher/edit-waiting-course")
+    public ResponseEntity<Void> editCoursesTemporary(
+            @RequestPart @Valid CourseTemporaryUpdateRequest courseTemporaryUpdateRequest,
+            @RequestPart(required = false) MultipartFile thumbnail) {
+        courseTmpService.editTmpCourse(courseTemporaryUpdateRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

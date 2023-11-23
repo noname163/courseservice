@@ -12,6 +12,7 @@ import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
 
@@ -71,9 +72,10 @@ public class VideoTemporaryMapper {
                 .collect(Collectors.toList());
     }
 
-    public Video mapVideoTmpToReal(VideoTemporary videoTemporary) {
+    public Video mapVideoTmpToReal(VideoTemporary videoTemporary, Course course) {
         return Video
                 .builder()
+                .course(course)
                 .name(videoTemporary.getName())
                 .description(videoTemporary.getDescription())
                 .duration(videoTemporary.getDuration())
@@ -87,10 +89,10 @@ public class VideoTemporaryMapper {
                 .build();
     }
 
-    public List<Video> mapVideosTmpToReal(List<VideoTemporary> videoTemporaries) {
+    public List<Video> mapVideosTmpToReal(List<VideoTemporary> videoTemporaries, Course course) {
         return videoTemporaries
                 .stream()
-                .map(this::mapVideoTmpToReal)
+                .map(videoTemporary -> mapVideoTmpToReal(videoTemporary, course))
                 .collect(Collectors.toList());
     }
 

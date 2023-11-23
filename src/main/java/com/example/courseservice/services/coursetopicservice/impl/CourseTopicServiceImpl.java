@@ -1,5 +1,6 @@
 package com.example.courseservice.services.coursetopicservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,13 +13,17 @@ import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.dto.request.CourseTopicRequest;
+import com.example.courseservice.data.dto.request.TopicEditRequest;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.CourseTopic;
 import com.example.courseservice.data.object.Topic;
 import com.example.courseservice.data.repositories.CourseRepository;
+import com.example.courseservice.data.repositories.CourseTemporaryRepository;
 import com.example.courseservice.data.repositories.CourseTopicRepository;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.exceptions.InValidAuthorizationException;
+import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 
 @Service
@@ -28,6 +33,10 @@ public class CourseTopicServiceImpl implements CourseTopicService {
     private CourseTopicRepository courseTopicRepository;
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private CourseTemporaryRepository courseTemporaryRepository;
+    @Autowired
+    private SecurityContextService securityContextService;
 
     @Override
     public void createCourseTopic(CourseTopicRequest courseTopicRequest) {
@@ -107,7 +116,7 @@ public class CourseTopicServiceImpl implements CourseTopicService {
                 result.add(courseTopic);
             }
             result = courseTopicRepository.saveAll(result);
-            if(result.size()!=courseTopicRequests.size()){
+            if (result.size() != courseTopicRequests.size()) {
                 throw new BadRequestException("Cannot save all topic rollback");
             }
         }
@@ -121,6 +130,81 @@ public class CourseTopicServiceImpl implements CourseTopicService {
     @Override
     public List<String> getTopicsByCourseTmpId(Long courseTmpId) {
         return courseTopicRepository.getTopicNamesByCourseTmpId(courseTmpId);
+    }
+
+    @Override
+    public void addTopicByCourseId(TopicEditRequest topicEditRequest) {
+        String email = securityContextService.getCurrentUser().getEmail();
+
+        Course course = courseRepository.findCourseByTeacherEmailAndId(email, topicEditRequest.getCourseId())
+                .orElseThrow(() -> new InValidAuthorizationException("Need owner permisstion to add topic"));
+        createCourseTopicForCourse(topicEditRequest.getTopics(), course);
+    }
+
+    @Override
+    public void addTopicByCourseTmpId(TopicEditRequest topicEditRequest) {
+        Long id = securityContextService.getCurrentUser().getId();
+
+        CourseTemporary course = courseTemporaryRepository.findByTeacherIdAndId(id, topicEditRequest.getCourseId())
+                .orElseThrow(() -> new InValidAuthorizationException("Need owner permisstion to add topic"));
+
+        createCourseTopics(topicEditRequest.getTopics(), course);
+    }
+
+    @Override
+    public void removeTopicByCourseId(TopicEditRequest topicEditRequest) {
+        String email = securityContextService.getCurrentUser().getEmail();
+
+        courseRepository.findCourseByTeacherEmailAndId(email, topicEditRequest.getCourseId())
+                .orElseThrow(() -> new InValidAuthorizationException("Need owner permisstion to add topic"));
+
+        Set<String> topicsName = topicEditRequest.getTopics()
+                .stream()
+                .map(Topic::getName)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toSet());
+
+        List<CourseTopic> courseTopics = courseTopicRepository
+                .findByCourseIdAndTopicNameIn(topicEditRequest.getCourseId(), topicsName);
+
+        courseTopicRepository.deleteAll(courseTopics);
+    }
+
+    @Override
+    public void removeTopicByCourseTmpId(TopicEditRequest topicEditRequest) {
+        Long id = securityContextService.getCurrentUser().getId();
+
+        courseTemporaryRepository.findByTeacherIdAndId(id, topicEditRequest.getCourseId())
+                .orElseThrow(() -> new InValidAuthorizationException("Need owner permisstion to add topic"));
+
+        Set<String> topicsName = topicEditRequest.getTopics()
+                .stream()
+                .map(Topic::getName)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toSet());
+
+        List<CourseTopic> courseTopics = courseTopicRepository
+                .findByCourseTemporaryAndTopicNameIn(topicEditRequest.getCourseId(), topicsName);
+
+        courseTopicRepository.deleteAll(courseTopics);
+    }
+
+    private void createCourseTopicForCourse(List<Topic> topics, Course course) {
+        if (topics != null && !topics.isEmpty()) {
+            List<CourseTopic> courseTopics = new ArrayList<>();
+            for (Topic topic : topics) {
+                courseTopics.add(CourseTopic
+                        .builder()
+                        .course(course)
+                        .id(topic.getId())
+                        .topicName(topic.getName())
+                        .createDate(LocalDateTime.now())
+                        .build());
+            }
+            courseTopicRepository.saveAll(courseTopics);
+        }
     }
 
 }

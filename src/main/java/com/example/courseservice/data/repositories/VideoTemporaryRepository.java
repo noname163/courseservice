@@ -2,9 +2,9 @@ package com.example.courseservice.data.repositories;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -14,6 +14,8 @@ import com.example.courseservice.data.entities.VideoTemporary;
 
 public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, Long> {
     public Optional<VideoTemporary> findByVideoId(Long videoId);
+
+    public List<VideoTemporary> findByCourseTemporaryIdAndIdIn(Long courseTemporaryId, Set<Long> ids);
 
     public List<VideoTemporary> findByCourseTemporaryIdAndStatus(Long courseTemporaryId, CommonStatus commonStatus);
 
