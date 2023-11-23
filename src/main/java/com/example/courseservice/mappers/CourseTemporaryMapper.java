@@ -47,6 +47,7 @@ public class CourseTemporaryMapper {
                 .teacherName(currentUser.getFullname())
                 .teacherEmail(currentUser.getEmail())
                 .teacherAvatar(currentUser.getAvatar())
+                .teacherId(currentUser.getId())
                 .description(courseRequest.getDescription())
                 .build();
     }

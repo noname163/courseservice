@@ -284,6 +284,7 @@ public class CourseController {
                 .status(HttpStatus.OK)
                 .body(courseService.getCourseDetail(id, CommonStatus.AVAILABLE));
     }
+
     @Operation(summary = "Get draft courses detail")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get draft course detail successfully.", content = {
@@ -316,5 +317,18 @@ public class CourseController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseService.getCourseDetailExcept(id, CommonStatus.DELETED));
+    }
+
+    @Operation(summary = "Teacher request admin verify courses")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Send request successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @PutMapping("/teacher/send-verify-request")
+    public ResponseEntity<Void> requestVerifyCourses(@RequestBody @Valid List<Long> ids) {
+        courseTmpService.requestVerifyCourses(ids);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -11,6 +11,7 @@ import com.example.courseservice.data.object.NotificationContent;
 public interface NotificationService {
     public void sendNotification(NotificationResponse content);
     public NotificationResponse createNotificationForCurrentUser(NotificationContent notificationContent);
+    public void createNotification(NotificationContent notificationContent);
     public List<ListNotificationResponse> getNotificationOfCurrentUser();
     public List<ListNotificationResponse> getNotificationOfCurrentUserByType(NotificationType notificationType);
     public Notification getNotificationDetail(Long id);

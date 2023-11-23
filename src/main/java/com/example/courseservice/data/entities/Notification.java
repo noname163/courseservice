@@ -1,5 +1,8 @@
 package com.example.courseservice.data.entities;
 
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,6 +29,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "notification_sequence")
     private long id;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private String title;
@@ -35,6 +39,8 @@ public class Notification {
     private String sendTo;
 
     private Long userId;
+
+    private LocalDateTime crateDate;
 
     private NotificationType notificationType;
 }

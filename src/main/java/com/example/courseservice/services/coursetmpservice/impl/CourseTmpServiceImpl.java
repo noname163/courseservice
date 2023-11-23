@@ -1,21 +1,27 @@
 package com.example.courseservice.services.coursetmpservice.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.constants.NotificationTitle;
+import com.example.courseservice.data.constants.NotificationType;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
+import com.example.courseservice.data.dto.request.SendMailRequest;
+import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
@@ -26,6 +32,7 @@ import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.CourseTopic;
 import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.object.CourseResponseInterface;
+import com.example.courseservice.data.object.NotificationContent;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
@@ -39,9 +46,12 @@ import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.fileservice.FileService;
+import com.example.courseservice.services.notificationservice.NotificationService;
+import com.example.courseservice.services.sendmailservice.SendEmailService;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.services.videotmpservice.VideoTmpService;
+import com.example.courseservice.template.SendMailTemplate;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
@@ -70,6 +80,12 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     private CourseTemporaryMapper courseTemporaryMapper;
     @Autowired
     private PageableUtil pageableUtil;
+    @Autowired
+    @Lazy
+    private SendEmailService sendEmailService;
+    @Autowired
+    @Lazy
+    private NotificationService notificationService;
 
     @Override
     @Transactional
@@ -161,10 +177,11 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
-    public void insertCourseTmpToReal(Long courseTeporaryId) {
-        CourseTemporary courseTemporary = courseTemporaryRepository.findById(courseTeporaryId)
-                .orElseThrow(() -> new BadRequestException("Cannot found course temporary with id " + courseTeporaryId
-                        + " in function insertCourseTmpToReal"));
+    public void insertCourseTmpToReal(VerifyRequest verifyRequest) {
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(verifyRequest.getId())
+                .orElseThrow(
+                        () -> new BadRequestException("Cannot found course temporary with id " + verifyRequest.getId()
+                                + " in function insertCourseTmpToReal"));
         Level level = levelRepository.findById(courseTemporary.getLevelId())
                 .orElseThrow(() -> new BadRequestException("Cannot found level with id " + courseTemporary.getLevelId()
                         + " in function insertCourseTmpToReal"));
@@ -175,17 +192,55 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         course.setTeacherAvatar(courseTemporary.getTeacherAvatar());
         course = courseRepository.save(course);
         courseTopicService.updateCourseTopicByCourseTemporary(courseTemporary, course);
-        videoTmpService.insertVideoTmpToReal(courseTeporaryId);
+        videoTmpService.insertVideoTmpToReal(verifyRequest.getId());
         courseTemporaryRepository.delete(courseTemporary);
+        String mailTemplate = SendMailTemplate.approveEmail(courseTemporary.getTeacherName(),
+                courseTemporary.getName());
+
+        sendEmailService.sendMailService(SendMailRequest
+                .builder()
+                .mailTemplate(mailTemplate)
+                .subject(NotificationTitle.VERIFY_TITLE)
+                .userEmail(courseTemporary.getTeacherEmail())
+                .build());
+        notificationService.createNotification(NotificationContent
+                .builder()
+                .content(mailTemplate)
+                .title(NotificationTitle.VERIFY_TITLE)
+                .type(NotificationType.SYSTEM)
+                .email(courseTemporary.getTeacherEmail())
+                .userId(courseTemporary.getTeacherId())
+                .build());
     }
 
     @Override
-    public void rejectCourse(Long courseTmpId) {
-        CourseTemporary courseTemporary = courseTemporaryRepository.findById(courseTmpId)
-                .orElseThrow(() -> new BadRequestException("Cannot found course temporary with id " + courseTmpId
-                        + " in function rejectCourse"));
+    public void rejectCourse(VerifyRequest actionRequest) {
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(actionRequest.getId())
+                .orElseThrow(
+                        () -> new BadRequestException("Cannot found course temporary with id " + actionRequest.getId()
+                                + " in function rejectCourse"));
+        if (courseTemporary.getStatus().equals(CommonStatus.REJECT)) {
+            throw new BadRequestException("Course with id " + actionRequest.getId() + " have been rejected.");
+        }
         courseTemporary.setStatus(CommonStatus.REJECT);
         courseTemporaryRepository.save(courseTemporary);
+
+        String mailTemplate = SendMailTemplate.rejectEmail(courseTemporary.getTeacherName(), courseTemporary.getName(),
+                actionRequest.getReason());
+        sendEmailService.sendMailService(SendMailRequest
+                .builder()
+                .mailTemplate(mailTemplate)
+                .subject(NotificationTitle.VERIFY_TITLE)
+                .userEmail(courseTemporary.getTeacherEmail())
+                .build());
+        notificationService.createNotification(NotificationContent
+                .builder()
+                .content(mailTemplate)
+                .title(NotificationTitle.VERIFY_TITLE)
+                .type(NotificationType.SYSTEM)
+                .email(courseTemporary.getTeacherEmail())
+                .userId(courseTemporary.getTeacherId())
+                .build());
     }
 
     @Override
@@ -201,6 +256,22 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 .totalPage(courseTemporary.getTotalPages())
                 .totalRow(courseTemporary.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public void requestVerifyCourses(List<Long> courseIds) {
+        Long teacherId = securityContextService.getCurrentUser().getId();
+        List<CourseTemporary> courseTemporaries = courseTemporaryRepository.findByTeacherIdAndIdIn(teacherId,
+                courseIds);
+        if (courseTemporaries.isEmpty()) {
+            throw new BadRequestException("Invaild data in function requestVerifyCourses");
+        }
+        List<CourseTemporary> courseTemporariesUpdate = new ArrayList<>();
+        for (CourseTemporary courseTemporary : courseTemporaries) {
+            courseTemporary.setStatus(CommonStatus.WAITING);
+            courseTemporariesUpdate.add(courseTemporary);
+        }
+        courseTemporaryRepository.saveAll(courseTemporariesUpdate);
     }
 
 }

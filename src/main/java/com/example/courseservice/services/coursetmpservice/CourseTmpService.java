@@ -8,6 +8,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
+import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -21,7 +22,8 @@ public interface CourseTmpService {
             Integer size, String field, SortType sortType);
     public boolean isUpdate(Long courseId);
     public void insertUpdateCourseTmpToReal(Long courseId);
-    public void insertCourseTmpToReal(Long courseTeporaryId);
+    public void insertCourseTmpToReal(VerifyRequest courseTeporaryId);
     public CourseDetailResponse getCourseDetail(Long id);
-    public void rejectCourse(Long courseTmpId);
+    public void requestVerifyCourses(List<Long> courseIds);
+    public void rejectCourse(VerifyRequest actionRequest);
 }

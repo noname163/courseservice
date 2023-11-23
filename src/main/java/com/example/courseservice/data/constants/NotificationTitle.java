@@ -11,5 +11,5 @@ public class NotificationTitle {
     public static final String ENDING = "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.";
     public static final String OPENING = "Xin chào bạn, ";
     public static final String SEND_URL = "/topic/notification/";
-    
+    public static final String VERIFY_TITLE="Thông báo kiểm duyệt.";
 }
