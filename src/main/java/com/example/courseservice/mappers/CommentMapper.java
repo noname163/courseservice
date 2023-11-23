@@ -21,6 +21,7 @@ public class CommentMapper {
     public CommentResponse mapEntityToDto(Comment comment){
         return CommentResponse.builder()
         .email(comment.getStudentEmail())
+        .avatar(comment.getUserAvatar())
         .useName(comment.getUserName())
         .createDate(comment.getCreateDate().toLocalDate())
         .comment(comment.getCommented())

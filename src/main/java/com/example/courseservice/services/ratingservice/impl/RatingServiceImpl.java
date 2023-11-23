@@ -54,6 +54,7 @@ public class RatingServiceImpl implements RatingService {
             ratingRepository.save(Rating
                     .builder()
                     .comment(ratingRequest.getContent())
+                    .userAvatar(currentUser.getAvatar())
                     .rate(ratingRequest.getRating())
                     .studentId(currentUser.getId())
                     .studentName(currentUser.getFullname())

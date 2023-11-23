@@ -11,4 +11,5 @@ public class RatingResponse {
     private String fullName;
     private Integer rate;
     private String content;
+    private String avatar;
 }

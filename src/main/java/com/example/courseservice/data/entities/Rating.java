@@ -38,6 +38,8 @@ public class Rating {
 
     private String studentName;
 
+    private String userAvatar;
+
     @Column(name = "student_id")
     private Long studentId;
 

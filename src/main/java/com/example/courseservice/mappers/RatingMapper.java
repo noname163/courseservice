@@ -15,6 +15,7 @@ public class RatingMapper {
                 .builder()
                 .content(rating.getComment())
                 .rate(rating.getRate())
+                .avatar(rating.getUserAvatar())
                 .fullName(rating.getStudentName())
                 .build();
     }

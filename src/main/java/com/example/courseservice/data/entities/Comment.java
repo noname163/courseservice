@@ -38,6 +38,8 @@ public class Comment {
 
     private String studentEmail;
 
+    private String userAvatar;
+
     private Long studentId;
 
     private String userName;

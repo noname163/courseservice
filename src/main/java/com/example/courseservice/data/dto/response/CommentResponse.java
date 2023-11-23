@@ -14,4 +14,5 @@ public class CommentResponse {
     private String useName;
     private LocalDate createDate;
     private String comment;
+    private String avatar;
 }

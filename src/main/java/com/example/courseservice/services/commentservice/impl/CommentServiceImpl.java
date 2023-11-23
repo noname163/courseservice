@@ -55,6 +55,7 @@ public class CommentServiceImpl implements CommentService {
                 || studentEnrollCourseService.isStudentEnrolled(email, courseId)) {
             Comment comment = Comment.builder()
                     .createDate(LocalDateTime.now())
+                    .userAvatar(currentUser.getAvatar())
                     .studentEmail(email)
                     .studentId(currentUser.getId())
                     .userName(currentUser.getFullname())
