@@ -9,7 +9,7 @@ import com.example.courseservice.data.dto.response.RatingResponse;
 
 public interface RatingService {
     public void createRating(RatingRequest ratingRequest);
-    public void updateRating(RatingRequest ratingRequest);
+    public boolean updateRating(RatingRequest ratingRequest);
     public PaginationResponse<List<RatingResponse>> getRatingByCourse(Long courseId, Integer page,
             Integer size, String field, SortType sortType);
 }

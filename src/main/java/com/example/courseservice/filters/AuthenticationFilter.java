@@ -77,6 +77,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 UserInformation userInformation = UserInformation
                         .builder()
                         .id(Long.parseLong(claims.get("id").toString()))
+                        .avatar(claims.get("avatar").toString())
                         .email(claims.get("email").toString())
                         .role(claims.get("role").toString())
                         .fullname(claims.get("fullName").toString())

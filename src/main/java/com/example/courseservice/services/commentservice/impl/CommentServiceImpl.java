@@ -82,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
         }
         comment.setCommented(commentRequest.getCommentContent());
         comment.setUpdateTime(LocalDateTime.now());
-
+        comment.setUserAvatar(currentUser.getAvatar());
         commentRepository.save(comment);
     }
 

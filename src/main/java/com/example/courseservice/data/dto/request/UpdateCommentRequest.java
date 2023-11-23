@@ -10,5 +10,4 @@ import lombok.Setter;
 public class UpdateCommentRequest {
     private Long id;
     private String commentContent;
-    private long videoId;
 }

@@ -1,5 +1,6 @@
 package com.example.courseservice.services.ratingservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +33,7 @@ public class RatingServiceImpl implements RatingService {
     private RatingMapper ratingMapper;
     @Autowired
     private CourseService courseService;
-    @Autowired 
+    @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
     private PageableUtil pageableUtil;
@@ -46,14 +47,13 @@ public class RatingServiceImpl implements RatingService {
         if (!studentEnrollCourseService.isStudentEnrolled(currentUser.getEmail(), ratingRequest.getCourseId())) {
             throw new BadRequestException("User must owner course to rate");
         }
-        if (ratingRepository.findByStudentId(currentUser.getId()).isPresent()) {
-            updateRating(ratingRequest);
-        } else {
+        if (!updateRating(ratingRequest)) {
             Course course = courseService.getCourseById(ratingRequest.getCourseId());
 
             ratingRepository.save(Rating
                     .builder()
                     .comment(ratingRequest.getContent())
+                    .createDate(LocalDateTime.now())
                     .userAvatar(currentUser.getAvatar())
                     .rate(ratingRequest.getRating())
                     .studentId(currentUser.getId())
@@ -64,20 +64,27 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
-    public void updateRating(RatingRequest ratingRequest) {
+    public boolean updateRating(RatingRequest ratingRequest) {
         UserInformation currentUser = securityContextService.getCurrentUser();
 
-        Rating rating = ratingRepository
-                .findByStudentId(currentUser.getId())
-                .orElseThrow(() -> new BadRequestException("Not exist rating of user " + currentUser.getFullname()));
+        Optional<Rating> ratingOpt = ratingRepository
+                .findByStudentIdAndCourseId(currentUser.getId(), ratingRequest.getCourseId());
+        if (ratingOpt.isEmpty()) {
+            return false;
+        }
+        Rating rating = ratingOpt.get();
         rating.setRate(Optional.ofNullable(ratingRequest.getRating()).orElse(rating.getRate()));
+        rating.setUpdateTime(LocalDateTime.now());
+        rating.setUserAvatar(currentUser.getAvatar());
         rating.setComment(Optional.ofNullable(ratingRequest.getContent()).orElse(rating.getComment()));
         ratingRepository.save(rating);
+        return true;
 
     }
 
     @Override
-    public PaginationResponse<List<RatingResponse>> getRatingByCourse(Long courseId, Integer page, Integer size, String field,
+    public PaginationResponse<List<RatingResponse>> getRatingByCourse(Long courseId, Integer page, Integer size,
+            String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<Rating> ratings = ratingRepository.findByCourseId(courseId, pageable);
