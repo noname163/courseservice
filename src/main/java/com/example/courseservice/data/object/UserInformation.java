@@ -17,4 +17,5 @@ public class UserInformation {
     private String email;
     private String role;
     private String fullname;
+    private String avatar;
 }

@@ -18,16 +18,19 @@ public class CommentMapper {
                 .build();
     }
 
-    public CommentResponse mapEntityToDto(Comment comment){
+    public CommentResponse mapEntityToDto(Comment comment) {
         return CommentResponse.builder()
-        .email(comment.getStudentEmail())
-        .useName(comment.getUserName())
-        .createDate(comment.getCreateDate().toLocalDate())
-        .comment(comment.getCommented())
-        .build();
+                .id(comment.getId())
+                .email(comment.getStudentEmail())
+                .avatar(comment.getUserAvatar())
+                .useName(comment.getUserName())
+                .createDate(comment.getCreateDate().toLocalDate())
+                .upDateTime(comment.getUpdateTime())
+                .comment(comment.getCommented())
+                .build();
     }
 
-    public List<CommentResponse> mapEntitiesToDtos(List<Comment> comments){
+    public List<CommentResponse> mapEntitiesToDtos(List<Comment> comments) {
         return comments.stream().map(this::mapEntityToDto).collect(Collectors.toList());
     }
 }

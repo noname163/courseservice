@@ -12,6 +12,8 @@ public interface CourseResponseInterface {
 
     String getTeacherName();
 
+    String getTeacherAvatar();
+
     String getCourseName();
 
     Float getAverageRating();

@@ -13,8 +13,12 @@ public class RatingMapper {
     public RatingResponse mapEntityToDto(Rating rating) {
         return RatingResponse
                 .builder()
+                .id(rating.getId())
                 .content(rating.getComment())
                 .rate(rating.getRate())
+                .crateDate(rating.getCreateDate())
+                .upDateTime(rating.getUpdateTime())
+                .avatar(rating.getUserAvatar())
                 .fullName(rating.getStudentName())
                 .build();
     }
