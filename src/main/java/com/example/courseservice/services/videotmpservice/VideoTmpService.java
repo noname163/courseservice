@@ -11,6 +11,8 @@ import com.example.courseservice.data.dto.request.VideoTemporaryUpdateRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.dto.response.VideoAdminResponse;
+import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Course;
@@ -42,7 +44,9 @@ public interface VideoTmpService {
 
     public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId);
 
-    public VideoResponse  editVideoTmpById(VideoTemporaryUpdateRequest videoTemporaryUpdateRequest, MultipartFile video, MultipartFile thumbnial, MultipartFile material);
+    public VideoResponse editVideoTmpById(VideoTemporaryUpdateRequest videoTemporaryUpdateRequest, MultipartFile video, MultipartFile thumbnial, MultipartFile material);
     
     public void uploadEditVideoTemporaryFile(VideoResponse videoResponse);
+
+    public VideoAdminResponse getVideoTemporaryById(Long id);
 }

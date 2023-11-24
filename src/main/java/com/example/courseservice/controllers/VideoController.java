@@ -50,7 +50,7 @@ public class VideoController {
     @Autowired
     private VideoTmpService videoTmpService;
 
-    @Operation(summary = "Create Video")
+    @Operation(summary = "Create video for new course")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Accepted."),
             @ApiResponse(responseCode = "400", description = "File not valid.", content = {
@@ -68,7 +68,7 @@ public class VideoController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    @Operation(summary = "Upload Video By Course Id")
+    @Operation(summary = "Upload Video For Exsited Course")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Accepted."),
             @ApiResponse(responseCode = "400", description = "File not valid.", content = {
@@ -86,7 +86,7 @@ public class VideoController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    @Operation(summary = "Update Video Content")
+    @Operation(summary = "Update Video Content ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Accepted."),
             @ApiResponse(responseCode = "400", description = "File not valid.", content = {
@@ -130,6 +130,22 @@ public class VideoController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(videoService.getVideoDetailByIdExcept(id, CommonStatus.DELETED));
+    }
+
+    @Operation(summary = "Get temporary video detail by video id for teacher and admin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get video detail successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoDetailResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/teacher/temporary/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
+    public ResponseEntity<VideoAdminResponse> getTemporaryVideoForTeacherAdminById(@PathVariable Long id) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(videoTmpService.getVideoTemporaryById(id));
     }
 
     @Operation(summary = "Get list video course id")
@@ -269,7 +285,7 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping("/admin/draft-video")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<VideoItemResponse>> getListVideoByCourseTemporaryForAdmin(
             @RequestParam(required = true) Long courseId) {
         return ResponseEntity
@@ -277,7 +293,7 @@ public class VideoController {
                 .body(videoTmpService.getVideoTemporaryByCourseTemporaryIdForAdmin(courseId));
     }
 
-    @Operation(summary = "Get list draft video by temporary course id for admin")
+    @Operation(summary = "Get list draft video by temporary course id for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get video successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = VideoAdminResponse.class))
@@ -324,7 +340,6 @@ public class VideoController {
             @RequestPart(required = false) MultipartFile thumbnail,
             @RequestPart(required = false) MultipartFile material) {
         eventPublisher.publishEvent(videoTmpService.editVideoTmpById(videoRequest, video, thumbnail, material));
-        ;
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
