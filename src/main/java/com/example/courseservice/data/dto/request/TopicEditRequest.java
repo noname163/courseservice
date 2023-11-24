@@ -9,11 +9,7 @@ import lombok.Data;
 
 @Builder
 @Data
-public class CourseUpdateRequest {
+public class TopicEditRequest {
+    private List<Topic> topics;
     private Long courseId;
-    private String description;
-    private String name;
-    private Double price;
-    private Long levelId;
-    private List<VideoOrder> videoOrders;
 }

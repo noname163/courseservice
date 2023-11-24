@@ -11,4 +11,5 @@ public class VideoResponse {
     private long videoId;
     private FileResponse video;
     private FileResponse thumbnail;
+    private FileResponse material;
 }

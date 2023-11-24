@@ -23,9 +23,7 @@ import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
-import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.Level;
-import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
@@ -34,7 +32,6 @@ import com.example.courseservice.data.repositories.CourseTemporaryRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.mappers.CourseTemporaryMapper;
-import com.example.courseservice.mappers.VideoCourseMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetmpservice.CourseTmpService;
@@ -112,9 +109,10 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
         if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
-            PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(securityContextService.getCurrentUser().getEmail(), page, size, field,
+            PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(
+                    securityContextService.getCurrentUser().getEmail(), page, size, field,
                     sortType);
-            if(!result.getData().isEmpty()){
+            if (!result.getData().isEmpty()) {
                 return result;
             }
         }
@@ -239,9 +237,9 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void verifyCourse(VerifyRequest verifyRequest) {
         if (verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
-            courseTmpService.insertCourseTmpToReal(verifyRequest.getId());
+            courseTmpService.insertCourseTmpToReal(verifyRequest);
         } else {
-            courseTmpService.rejectCourse(verifyRequest.getId());
+            courseTmpService.rejectCourse(verifyRequest);
         }
     }
 

@@ -33,7 +33,7 @@ public class ReactVideoServiceImpl implements ReactVideoService {
     public void createReact(ReactRequest reactRequest) {
 
         UserInformation currentUser = securityContextService.getCurrentUser();
-        Video video = videoService.getVideoByIdAndCommonStatus(reactRequest.getVideoId(),CommonStatus.AVAILABLE);
+        Video video = videoService.getVideoByIdAndCommonStatus(reactRequest.getVideoId(), CommonStatus.AVAILABLE);
 
         if (studentEnrollCourseService.isStudentEnrolled(currentUser.getEmail(), video.getCourse().getId())) {
             Optional<ReactVideo> reactVideoOtp = reactVideoRepository
@@ -45,13 +45,14 @@ public class ReactVideoServiceImpl implements ReactVideoService {
                         .studentId(currentUser.getId())
                         .studentName(currentUser.getFullname())
                         .build());
+            } else {
+                ReactVideo reactVideo = reactVideoOtp.get();
+                if (reactVideo.getReactStatus().equals(reactRequest.getStatus())) {
+                    reactVideo.setReactStatus(ReactStatus.NONE);
+                }
+                reactVideo.setReactStatus(reactRequest.getStatus());
+                reactVideoRepository.save(reactVideo);
             }
-            ReactVideo reactVideo = reactVideoOtp.get();
-            if (reactVideo.getReactStatus().equals(reactRequest.getStatus())) {
-                reactVideo.setReactStatus(ReactStatus.NONE);
-            }
-            reactVideo.setReactStatus(reactRequest.getStatus());
-            reactVideoRepository.save(reactVideo);
 
         }
     }

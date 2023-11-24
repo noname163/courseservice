@@ -18,6 +18,7 @@ public class VideoDetailResponse {
     private String name;
     private long like;
     private long dislike;
+    private String material;
     private ReactStatus reactStatus;
     private VideoStatus videoStatus;
     List<VideoItemResponse> videoItemResponses;

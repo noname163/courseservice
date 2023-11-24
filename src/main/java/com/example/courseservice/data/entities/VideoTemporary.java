@@ -50,6 +50,9 @@ public class VideoTemporary {
     @Column(columnDefinition = "TEXT")
     private String urlThumbnail;
 
+    @Column(columnDefinition = "TEXT")
+    private String urlMaterial ;
+    
     private float duration;
 
     private LocalDateTime updateTime;
