@@ -1,5 +1,7 @@
 package com.example.courseservice.data.dto.response;
 
+import com.example.courseservice.data.constants.VideoStatus;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,4 +15,5 @@ public class CourseVideoResponse {
     private long totalLike;
     private int totalComment;
     private int ordinalNumber;
+    private VideoStatus videoStatus;
 }

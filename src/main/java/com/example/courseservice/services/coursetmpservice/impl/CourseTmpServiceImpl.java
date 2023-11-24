@@ -163,7 +163,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(CommonStatus status, Integer page,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status, Integer page,
             Integer size, String field,
             SortType sortType) {
 

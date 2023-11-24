@@ -43,6 +43,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
             if (request.getRequestURI().contentEquals("/api/courses/user")
+                    || request.getRequestURI().contentEquals("/api/courses/user/find-by-email")
                     || request.getRequestURI().contains("/api/videos/user")
                     || (request.getRequestURI().contentEquals("/api/videos") && request.getMethod().equals("GET"))) {
                 processAuthenticationOfCourse(request, response, filterChain);

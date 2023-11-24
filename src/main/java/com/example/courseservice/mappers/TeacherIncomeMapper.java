@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
+import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.entities.Transaction;
 import com.example.courseservice.data.object.CourseReportInterface;
+import com.example.courseservice.data.object.CourseRevenueByMonthInterface;
 
 @Component
 public class TeacherIncomeMapper {
@@ -45,6 +47,21 @@ public class TeacherIncomeMapper {
         return courseReportInterfaces
                 .stream()
                 .map(this::mapEntityToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    public CourseRevenueByMonth mapToCourseRevenueByMonth(CourseRevenueByMonthInterface courseRevenueByMonth) {
+        return CourseRevenueByMonth
+                .builder()
+                .revenue(courseRevenueByMonth.getRevenue())
+                .month(courseRevenueByMonth.getMonth())
+                .year(courseRevenueByMonth.getYear())
+                .build();
+    }
+
+    public List<CourseRevenueByMonth> mapToCourseRevenueByMonths(
+            List<CourseRevenueByMonthInterface> courseRevenueByMonthInterfaces) {
+        return courseRevenueByMonthInterfaces.stream().map(this::mapToCourseRevenueByMonth)
                 .collect(Collectors.toList());
     }
 }

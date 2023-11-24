@@ -18,7 +18,7 @@ public interface CourseTmpService {
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail);
     public void updateRealCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thumbnail);
     public void editTmpCourse(CourseTemporaryUpdateRequest courseUpdateRequest, MultipartFile thumbnail);
-    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(CommonStatus status,Integer page,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status,Integer page,
             Integer size, String field, SortType sortType);
     public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(CommonStatus status,Integer page,
             Integer size, String field, SortType sortType);
