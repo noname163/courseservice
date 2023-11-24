@@ -353,4 +353,18 @@ public class CourseServiceImpl implements CourseService {
                 .build();
     }
 
+    @Override
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmailForUser(String email, Integer page,
+            Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+
+        Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmailAndStatus(email, CommonStatus.AVAILABLE, pageable);
+        
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
+                .totalPage(listSubject.getTotalPages())
+                .totalRow(listSubject.getTotalElements())
+                .build();
+    }
+
 }

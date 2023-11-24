@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.object.CourseReportInterface;
+import com.example.courseservice.data.object.CourseRevenueByMonthInterface;
 
 public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Long> {
 
@@ -37,4 +38,15 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
     List<CourseReportInterface> getRevenueByTeacherEmailAndCourseIdForLast10Months(
             @Param("userId") Long userId,
             @Param("courseId") Long courseId);
+
+    @Query("SELECT ti.month AS month, " +
+            "ti.year AS year, " +
+            "SUM(ti.money) AS revenue " +
+            "FROM TeacherIncome ti " +
+            "WHERE ti.userId = :userId " +
+            "AND ti.year = EXTRACT(YEAR FROM CURRENT_DATE) " +
+            "AND ti.month BETWEEN EXTRACT(MONTH FROM CURRENT_DATE) - 9 AND EXTRACT(MONTH FROM CURRENT_DATE) " +
+            "GROUP BY ti.month, ti.year")
+    List<CourseRevenueByMonthInterface> getTeacherRevenueByMonth(@Param("userId") Long userId);
+
 }

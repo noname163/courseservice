@@ -35,9 +35,9 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "LEFT JOIN ct.videoTemporaries vt " +
             "LEFT JOIN ct.courseTopics ctt " +
             "LEFT JOIN Level l ON ct.levelId = l.id " +
-            "WHERE ct.status <> :status " +
+            "WHERE ct.status NOT IN :status " +
             "GROUP BY ct.id, l.name")
-    Page<CourseResponseInterface> getByStatusNot(@Param("status") CommonStatus status, Pageable pageable);
+    Page<CourseResponseInterface> getByStatusNot(@Param("status") List<CommonStatus> status, Pageable pageable);
 
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +

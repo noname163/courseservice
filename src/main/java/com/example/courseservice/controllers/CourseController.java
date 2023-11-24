@@ -1,5 +1,6 @@
 package com.example.courseservice.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -144,9 +145,13 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+                List<CommonStatus> status = new ArrayList<>();
+                status.add(CommonStatus.DRAFT);
+                status.add(CommonStatus.REJECT);
+                status.add(CommonStatus.DELETED);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpAndStatusNot(CommonStatus.DRAFT, page, size, field,
+                .body(courseTmpService.getCourseTmpAndStatusNot(status, page, size, field,
                         sortType));
     }
 
@@ -209,6 +214,26 @@ public class CourseController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourseByEmail(page, size, field, sortType));
+    }
+
+    @Operation(summary = "Get courses by teacher email for user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/user/find-by-email")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesByTeacherEmailForUser(
+            @RequestParam(required = true) String email,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.getListCourseByEmailForUser(email, page, size, field, sortType));
     }
 
     @Operation(summary = "Search courses for user")
