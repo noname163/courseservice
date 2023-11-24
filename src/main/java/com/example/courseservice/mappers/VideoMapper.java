@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.constants.ReactStatus;
+import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
@@ -134,6 +135,7 @@ public class VideoMapper {
                 .duration(courseVideoResponseInterface.getDuration())
                 .totalLike(courseVideoResponseInterface.getTotalLike())
                 .totalComment(courseVideoResponseInterface.getTotalComment())
+                .videoStatus(courseVideoResponseInterface.getVideoStatus())
                 .ordinalNumber(Optional.ofNullable(courseVideoResponseInterface.getOrdinalNumber()).orElse(0))
                 .build();
     }

@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.TeacherIncomeStatus;
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
+import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.object.CourseReportInterface;
+import com.example.courseservice.data.object.CourseRevenueByMonthInterface;
 import com.example.courseservice.data.repositories.TeacherIncomeRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.TeacherIncomeMapper;
@@ -41,8 +43,7 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
             TeacherIncome teacherIncome = teacherIncomeOtp.get();
             teacherIncome.setMoney(teacherIncome.getMoney() + teacherIncomeRequest.getAmount());
             teacherIncomeRepository.save(teacherIncome);
-        }
-        else{
+        } else {
             TeacherIncome teacherIncome = teacherIncomeMapper.mapRequestDtoToEntity(teacherIncomeRequest);
             teacherIncome.setMonth(LocalDate.now().getMonthValue());
             teacherIncome.setYear(LocalDate.now().getYear());
@@ -71,6 +72,14 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
             return Collections.emptyList();
         }
         return teacherIncomeMapper.mapEntitiesToResponseDtos(courseReportInterfaces);
+    }
+
+    @Override
+    public List<CourseRevenueByMonth> getCurrentTeacherIncomeIn10Motnh() {
+        Long userId = securityContextService.getCurrentUser().getId();
+        List<CourseRevenueByMonthInterface> courseRevenueByMonths = teacherIncomeRepository
+                .getTeacherRevenueByMonth(userId);
+        return teacherIncomeMapper.mapToCourseRevenueByMonths(courseRevenueByMonths);
     }
 
 }

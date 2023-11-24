@@ -5,11 +5,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.courseservice.data.entities.Course;import com.example.courseservice.data.entities.CourseTemporary;
+import com.example.courseservice.data.entities.Course;
+import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.CourseTopic;
 
 public interface CourseTopicRepository extends JpaRepository<CourseTopic, Long> {
