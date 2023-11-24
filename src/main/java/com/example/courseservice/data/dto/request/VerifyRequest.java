@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VerifyRequest {
-    private Long id;
     private VerifyStatus verifyStatus;
+    private String reason;
+    private Long id;
 }

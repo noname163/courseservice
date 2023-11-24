@@ -1,6 +1,7 @@
 package com.example.courseservice.mappers;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -52,6 +53,7 @@ public class VideoMapper {
                 .videoStatus(video.getVideoStatus())
                 .url(video.getUrlVideo())
                 .thumbnail(video.getUrlThumbnail())
+                .material(video.getUrlMaterial())
                 .like(video.getReaction(ReactStatus.LIKE))
                 .dislike(video.getReaction(ReactStatus.DISLIKE))
                 .name(video.getName())
@@ -64,7 +66,8 @@ public class VideoMapper {
                 .id(video.getId())
                 .videoStatus(video.getVideoStatus())
                 .duration(video.getDuration())
-                .thumnial(video.getUrlThumbnail())
+                .thumbnial(video.getUrlThumbnail())
+                .material(video.getUrlMaterial())
                 .name(video.getName())
                 .build();
     }
@@ -131,7 +134,7 @@ public class VideoMapper {
                 .duration(courseVideoResponseInterface.getDuration())
                 .totalLike(courseVideoResponseInterface.getTotalLike())
                 .totalComment(courseVideoResponseInterface.getTotalComment())
-                .ordinalNumber(courseVideoResponseInterface.getOrdinalNumber())
+                .ordinalNumber(Optional.ofNullable(courseVideoResponseInterface.getOrdinalNumber()).orElse(0))
                 .build();
     }
 

@@ -8,6 +8,7 @@ import lombok.Data;
 public class VideoUpdate {
     private String videoUrl;
     private String thumbnailUrl;
+    private String material;
     private float duration;
     private Long videoId;
 }

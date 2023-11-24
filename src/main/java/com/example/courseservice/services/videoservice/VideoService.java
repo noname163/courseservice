@@ -7,8 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VerifyRequest;
+import com.example.courseservice.data.dto.request.VideoContentUpdate;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
@@ -19,7 +21,7 @@ import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.VideoUpdate;
 
 public interface VideoService {
-    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial);
+    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial, MultipartFile material);
 
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
@@ -45,8 +47,6 @@ public interface VideoService {
     public PaginationResponse<List<VideoItemResponse>> getListVideoAvailableByCourse(Long courseId, Integer page,
             Integer size, String field, SortType sortType);
 
-    public void verifyVideo(VerifyRequest verifyRequest);
-
     public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId);
 
     public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,
@@ -55,4 +55,6 @@ public interface VideoService {
     public void deleteVideo(Long videoId);
 
     public List<CourseVideoResponse> getVideoByCourseIdAndCommonStatus(Long courseId, CommonStatus commonStatus);
+
+    public void editVideoContent(VideoContentUpdate videoUpdateRequest);
 }

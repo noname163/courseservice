@@ -21,6 +21,7 @@ public class NotificationContent {
     private String course;
     private String email;
     private String replyEmail;
+    private String title;
     private Long userId;
     private NotificationType type;
 }

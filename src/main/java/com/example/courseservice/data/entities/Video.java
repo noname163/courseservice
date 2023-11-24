@@ -49,6 +49,9 @@ public class Video {
     @Column(columnDefinition = "TEXT")
     private String urlThumbnail;
 
+    @Column(columnDefinition = "TEXT")
+    private String urlMaterial ;
+
     private LocalDateTime createDate;
 
     private float duration;

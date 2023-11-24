@@ -1,5 +1,6 @@
 package com.example.courseservice.services.notificationservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -193,4 +194,18 @@ public class NotificationServiceImpl implements NotificationService {
                 .build());
         return listNotificationResponses;
     }
+
+@Override
+public void createNotification(NotificationContent notificationContent) {
+        notificationRepository.save(Notification
+                .builder()
+                .content(notificationContent.getContent())
+                .title(notificationContent.getTitle())
+                .userId(notificationContent.getUserId())
+                .isReading(false)
+                .crateDate(LocalDateTime.now())
+                .notificationType(notificationContent.getType())
+                .sendTo(notificationContent.getEmail())
+                .build());
+}
 }
