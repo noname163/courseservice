@@ -137,8 +137,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
 
         UserInformation currentUser = securityContextService.getCurrentUser();
         CourseTemporary courseTemporary = courseTemporaryRepository
-                .findByTeacherIdAndId(courseUpdateRequest.getCourseId(),
-                        currentUser.getId())
+                .findByTeacherIdAndId(currentUser.getId(),courseUpdateRequest.getCourseId())
                 .orElseThrow(() -> new InValidAuthorizationException("Require permission to edit this course"));
         if (courseTemporary.getStatus().equals(CommonStatus.DRAFT)
                 && courseTemporary.getStatus().equals(CommonStatus.UPDATING)
