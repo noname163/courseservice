@@ -25,6 +25,8 @@ import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.dto.response.VideoAdminResponse;
+import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Course;
@@ -216,7 +218,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     @Override
     public List<VideoItemResponse> getVideoTemporaryByCourseTemporaryIdForAdmin(Long courseTemporaryId) {
         List<VideoTemporary> videoTemporaries = videoTemporaryRepository
-                .findByCourseTemporaryIdAndStatus(courseTemporaryId, CommonStatus.DRAFT);
+                .findByCourseTemporaryIdAndStatusNot(courseTemporaryId, CommonStatus.DRAFT);
         return videoTemporaryMapper.mapVideoItemResponses(videoTemporaries);
     }
 
@@ -335,6 +337,13 @@ public class VideoTmpServiceImpl implements VideoTmpService {
             video.setUrlMaterial(cloudinaryUrl.getUrl());
         }
         videoTemporaryRepository.save(video);
+    }
+
+    @Override
+    public VideoAdminResponse getVideoTemporaryById(Long id) {
+        VideoTemporary videoTemporary = videoTemporaryRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Not exist temporary video with id " + id));
+        return videoTemporaryMapper.mapVideoToVideoAdminResponse(videoTemporary);
     }
 
 }

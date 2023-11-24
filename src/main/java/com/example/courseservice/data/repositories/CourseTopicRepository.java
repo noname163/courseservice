@@ -19,7 +19,7 @@ public interface CourseTopicRepository extends JpaRepository<CourseTopic, Long> 
             @Param("courseId") Long courseId,
             @Param("courseTemporaryId") Long courseTemporaryId);
 
-    public Optional<CourseTopic> findByCourseTemporary(CourseTemporary courseTemporary);
+    public List<CourseTopic> findByCourseTemporary(CourseTemporary courseTemporary);
 
     @Query("SELECT ct.topicName FROM CourseTopic ct WHERE ct.course.id = :courseId")
     List<String> getTopicNamesByCourseId(@Param("courseId") Long courseId);

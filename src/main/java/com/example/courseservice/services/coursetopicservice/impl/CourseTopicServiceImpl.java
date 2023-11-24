@@ -2,6 +2,7 @@ package com.example.courseservice.services.coursetopicservice.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -98,12 +99,17 @@ public class CourseTopicServiceImpl implements CourseTopicService {
 
     @Override
     public void updateCourseTopicByCourseTemporary(CourseTemporary courseTemporary, Course course) {
-        CourseTopic courseTopic = courseTopicRepository.findByCourseTemporary(courseTemporary).orElseThrow(
-                () -> new BadRequestException("Not found course topic for course tepmorary with id "
-                        + courseTemporary.getId()));
-        courseTopic.setCourse(course);
-        courseTopic.setCourseTemporary(null);
-        courseTopicRepository.save(courseTopic);
+        List<CourseTopic> courseTopics = courseTopicRepository.findByCourseTemporary(courseTemporary);
+        if(courseTopics.isEmpty()){
+            throw new BadRequestException("Cannot verify course without topic");
+        }
+        List<CourseTopic> editCourseTopic = new ArrayList<>();
+        for (CourseTopic courseTopic : courseTopics) {
+            courseTopic.setCourse(course);
+            courseTopic.setCourseTemporary(null);
+            editCourseTopic.add(courseTopic);
+        }
+        courseTopicRepository.saveAll(courseTopics);
     }
 
     @Override
