@@ -207,4 +207,17 @@ public class CourseTopicServiceImpl implements CourseTopicService {
         }
     }
 
+    @Override
+    public void addCourseTemporaryToTopic(Course course, CourseTemporary courseTemporary) {
+        List<CourseTopic> courseTopics = courseTopicRepository.findByCourse(course);
+        List<CourseTopic> updateData = new ArrayList<>();
+        if (!courseTopics.isEmpty()) {
+            for (CourseTopic courseTopic : courseTopics) {
+                courseTopic.setCourseTemporary(courseTemporary);
+                updateData.add(courseTopic);
+            }
+            courseTopicRepository.saveAll(updateData);
+        }
+    }
+
 }

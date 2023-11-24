@@ -10,6 +10,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
+import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Course;
@@ -81,6 +82,7 @@ public class VideoTemporaryMapper {
                 .duration(videoTemporary.getDuration())
                 .ordinalNumber(videoTemporary.getOrdinalNumber())
                 .urlThumbnail(videoTemporary.getUrlThumbnail())
+                .urlMaterial(videoTemporary.getUrlMaterial())
                 .urlVideo(videoTemporary.getUrlVideo())
                 .videoStatus(videoTemporary.getVideoStatus())
                 .createDate(videoTemporary.getCreateDate())
@@ -101,8 +103,9 @@ public class VideoTemporaryMapper {
                 .builder()
                 .id(videoTemporary.getId())
                 .name(videoTemporary.getName())
+                .material(videoTemporary.getUrlMaterial())
                 .duration(videoTemporary.getDuration())
-                .thumnial(videoTemporary.getUrlThumbnail())
+                .thumbnial(videoTemporary.getUrlThumbnail())
                 .videoUrl(videoTemporary.getUrlVideo())
                 .videoStatus(videoTemporary.getVideoStatus())
                 .build();
@@ -112,6 +115,25 @@ public class VideoTemporaryMapper {
         return videoTemporaries
                 .stream()
                 .map(this::mapVideoItemResponse)
+                .collect(Collectors.toList());
+    }
+
+    public CourseVideoResponse mapToCourseVideoResponse(VideoTemporary videoTemporary) {
+        return CourseVideoResponse
+                .builder()
+                .id(videoTemporary.getId())
+                .name(videoTemporary.getName())
+                .duration(videoTemporary.getDuration())
+                .thumbnail(videoTemporary.getUrlThumbnail())
+                .ordinalNumber(0)
+                .duration(videoTemporary.getDuration())
+                .build();
+    }
+
+    public List<CourseVideoResponse> mapToCourseVideosResponse(List<VideoTemporary> videoTemporaries) {
+        return videoTemporaries
+                .stream()
+                .map(this::mapToCourseVideoResponse)
                 .collect(Collectors.toList());
     }
 }

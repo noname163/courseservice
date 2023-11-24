@@ -110,6 +110,7 @@ public class CourseTemporaryMapper {
                                 .name(courseTemporary.getName())
                                 .createdDate(courseTemporary.getCreateDate())
                                 .updateDate(courseTemporary.getUpdateTime())
+                                .status(courseTemporary.getStatus())
                                 .price(courseTemporary.getPrice())
                                 .subject(courseTemporary.getSubject())
                                 .teacherName(courseTemporary.getTeacherName())

@@ -9,6 +9,7 @@ import com.example.courseservice.data.dto.response.VideoUrls;
 public interface UploadService {
     public CloudinaryUrl uploadMedia(FileResponse fileResponse);
     public List<CloudinaryUrl> uploadMediaList(List<FileResponse> files);
+    public CloudinaryUrl uploadMetrial(FileResponse file);
     public List<VideoUrls> splitVideo(String publicId, int maxSegmentDuration,
             float videoDuration);
     public String createUrlById(String publicId, String mediaType, String subfixType);

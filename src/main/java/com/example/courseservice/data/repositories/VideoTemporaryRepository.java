@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +20,16 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
     public List<VideoTemporary> findByCourseTemporaryIdAndIdIn(Long courseTemporaryId, Set<Long> ids);
 
     public List<VideoTemporary> findByCourseTemporaryIdAndStatus(Long courseTemporaryId, CommonStatus commonStatus);
+
+    public List<VideoTemporary> findByCourseTemporaryIdAndStatusNot(Long courseTemporaryId, CommonStatus commonStatus);
+    
+    public List<VideoTemporary> findByCourseTemporaryId(Long courseTemporaryId);
+
+    @Query("SELECT vt FROM VideoTemporary vt " +
+           "WHERE vt.courseTemporary IN " +
+           "(SELECT ct FROM CourseTemporary ct " +
+           "WHERE ct.teacherId = :teacherId)")
+    public Page<VideoTemporary> findVideosByTeacherId(@Param("teacherId") Long teacherId,Pageable pageable);
 
     public Boolean existsByVideoId(Long videoId);
 

@@ -61,5 +61,8 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             @Param("status") CommonStatus status, Pageable pageable);
 
     List<CourseTemporary> findByTeacherIdAndIdIn(Long teacherId, List<Long> courseIds);
+
     Optional<CourseTemporary> findByTeacherIdAndId(Long teacherId, Long courseId);
+
+    Boolean existsByTeacherIdAndId(Long teacherId, Long courseId);
 }

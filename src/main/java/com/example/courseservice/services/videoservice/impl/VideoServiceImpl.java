@@ -1,5 +1,6 @@
 package com.example.courseservice.services.videoservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -18,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VideoStatus;
+import com.example.courseservice.data.dto.request.VideoContentUpdate;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
@@ -71,7 +75,9 @@ public class VideoServiceImpl implements VideoService {
     private ReactVideoService reactVideoService;
 
     @Override
-    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial) {
+    @Transactional
+    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial,
+            MultipartFile material) {
         Course course = courseRepository
                 .findByIdAndCommonStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoRequest.getCourseId()));
@@ -86,12 +92,17 @@ public class VideoServiceImpl implements VideoService {
         Video videoInsert = videoRepository.save(videoConvert);
         FileResponse videoFile = fileService.fileStorage(video);
         FileResponse thumbnialFile = fileService.fileStorage(thumbnial);
-        return VideoResponse
+        VideoResponse videoResponse = VideoResponse
                 .builder()
                 .videoId(videoInsert.getId())
                 .video(videoFile)
                 .thumbnail(thumbnialFile)
                 .build();
+        if (material != null) {
+            FileResponse materialFile = fileService.fileStorage(material);
+            videoResponse.setMaterial(materialFile);
+        }
+        return videoResponse;
     }
 
     @Override
@@ -285,6 +296,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
+    @Transactional
     public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,
             MultipartFile thumbnail) {
         UserInformation currentUser = securityContextService.getCurrentUser();
@@ -408,6 +420,26 @@ public class VideoServiceImpl implements VideoService {
         }
         return videoMapper.mapToCourseVideoResponseList(
                 videoRepository.getCourseVideosByCourseIdAndCommonStatus(courseId, CommonStatus.AVAILABLE));
+    }
+
+    @Override
+    public void editVideoContent(VideoContentUpdate videoUpdateRequest) {
+        
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        Video video = videoRepository
+                .findById(videoUpdateRequest.getVideoId())
+                .orElseThrow(() -> new BadRequestException(
+                        "Not exist video with id " + videoUpdateRequest.getVideoId() + " in function delete video"));
+
+        if (Boolean.FALSE.equals(courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getCourse().getId()))) {
+            throw new InValidAuthorizationException("Cannot edit this video");
+        }
+
+        video.setName(Optional.ofNullable(videoUpdateRequest.getName()).orElse(video.getName()));
+        video.setDescription(Optional.ofNullable(videoUpdateRequest.getDescription()).orElse(video.getDescription()));
+        video.setVideoStatus(Optional.ofNullable(videoUpdateRequest.getVideoStatus()).orElse(video.getVideoStatus()));
+        video.setUpdateTime(LocalDateTime.now());
+        videoRepository.save(video);
     }
 
 }

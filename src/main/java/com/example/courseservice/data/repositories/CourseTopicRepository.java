@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.example.courseservice.data.entities.CourseTemporary;
+import com.example.courseservice.data.entities.Course;import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.CourseTopic;
 
 public interface CourseTopicRepository extends JpaRepository<CourseTopic, Long> {
@@ -30,5 +30,7 @@ public interface CourseTopicRepository extends JpaRepository<CourseTopic, Long> 
     List<CourseTopic> findByCourseIdAndTopicNameIn(Long courseId, Set<String> name);
 
     List<CourseTopic> findByCourseTemporaryAndTopicNameIn(Long courseId, Set<String> name);
+
+    List<CourseTopic> findByCourse(Course course);
 
 }

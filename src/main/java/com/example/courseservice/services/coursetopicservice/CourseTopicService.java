@@ -20,5 +20,6 @@ public interface CourseTopicService {
     public void removeTopicByCourseTmpId(TopicEditRequest topicEditRequest);
     public List<CourseTopic> courseTopicsByString(List<Topic> courseTopicsName);
     public List<String> getTopicsByCourseId(Long courseId);
+    public void addCourseTemporaryToTopic(Course course, CourseTemporary courseTemporary);
     public List<String> getTopicsByCourseTmpId(Long courseTmpId);
 }

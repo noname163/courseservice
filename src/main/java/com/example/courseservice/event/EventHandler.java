@@ -12,7 +12,10 @@ import org.springframework.stereotype.Component;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.dto.response.VideoUrls;
+import com.example.courseservice.data.entities.VideoTemporary;
 import com.example.courseservice.data.object.VideoUpdate;
+import com.example.courseservice.data.repositories.VideoTemporaryRepository;
+import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.services.videotmpservice.VideoTmpService;
@@ -26,16 +29,9 @@ import lombok.extern.log4j.Log4j2;
 @EnableAsync
 public class EventHandler implements ApplicationListener<Event> {
     @Autowired
-    private EnvironmentVariable environmentVariables;
-    @Autowired
     private UploadService uploadService;
     @Autowired
-    private VideoService videoService;
-    @Autowired
-    private VideoUrlService videoUrlService;
-    @Autowired
     private VideoTmpService videoTmpService;
-    private final String UPDATEURI = "/video/upload";
 
     @Override
     @Async
@@ -43,21 +39,29 @@ public class EventHandler implements ApplicationListener<Event> {
         Map<String, Object> data = event.getData();
         VideoResponse videoResponse = (VideoResponse) data.get("videoResponse");
         String url = (String) data.get("URI");
-        if (videoResponse != null && videoResponse.getThumbnail() != null && videoResponse.getVideo() != null) {
-            CloudinaryUrl video = uploadService.uploadMedia(videoResponse.getVideo());
-            CloudinaryUrl thumbnial = uploadService.uploadMedia(videoResponse.getThumbnail());
-            VideoUpdate videoUpdate = VideoUpdate
-                    .builder()
-                    .videoId(videoResponse.getVideoId())
-                    .videoUrl(video.getUrl())
-                    .duration(video.getDuration())
-                    .thumbnailUrl(thumbnial.getUrl())
-                    .build();
+        if (url.contains("/teacher/edit-temporary-video")) {
+            videoTmpService.uploadEditVideoTemporaryFile(videoResponse);
+        } else {
+            if (videoResponse != null && videoResponse.getThumbnail() != null && videoResponse.getVideo() != null) {
+                CloudinaryUrl video = uploadService.uploadMedia(videoResponse.getVideo());
+                CloudinaryUrl thumbnial = uploadService.uploadMedia(videoResponse.getThumbnail());
+                VideoUpdate videoUpdate = VideoUpdate
+                        .builder()
+                        .videoId(videoResponse.getVideoId())
+                        .videoUrl(video.getUrl())
+                        .duration(video.getDuration())
+                        .thumbnailUrl(thumbnial.getUrl())
+                        .build();
+                if (videoResponse.getMaterial() != null) {
+                    CloudinaryUrl material = uploadService.uploadMetrial(videoResponse.getMaterial());
+                    videoUpdate.setMaterial(material.getUrl());
+                }
 
-            videoTmpService.insertVideoUrl(videoUpdate);
-            // List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(),
-            //         environmentVariables.getVideoMaxSegment(), video.getDuration());
-            // videoUrlService.insertVideoUrl(videoUrls, videoResponse.getVideoId());
+                videoTmpService.insertVideoUrl(videoUpdate);
+                // List<VideoUrls> videoUrls = uploadService.splitVideo(video.getPublicId(),
+                // environmentVariables.getVideoMaxSegment(), video.getDuration());
+                // videoUrlService.insertVideoUrl(videoUrls, videoResponse.getVideoId());
+            }
         }
     }
 }
