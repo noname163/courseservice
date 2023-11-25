@@ -126,6 +126,7 @@ public class VideoTemporaryMapper {
                 .name(videoTemporary.getName())
                 .duration(videoTemporary.getDuration())
                 .thumbnail(videoTemporary.getUrlThumbnail())
+                .videoStatus(videoTemporary.getVideoStatus())
                 .ordinalNumber(0)
                 .duration(videoTemporary.getDuration())
                 .build();
@@ -148,6 +149,7 @@ public class VideoTemporaryMapper {
                 .name(videoAdminResponseInterface.getName())
                 .teacherName(videoAdminResponseInterface.getTeacherName())
                 .description(videoAdminResponseInterface.getDescription())
+                .material(videoAdminResponseInterface.getMaterial())
                 .url(videoAdminResponseInterface.getUrl())
                 .subject(videoAdminResponseInterface.getSubject())
                 .thumbnail(videoAdminResponseInterface.getThumbnail())
