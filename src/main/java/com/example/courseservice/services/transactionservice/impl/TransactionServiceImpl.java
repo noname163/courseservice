@@ -49,7 +49,6 @@ import com.example.courseservice.services.transactionservice.TransactionService;
 import com.example.courseservice.utils.ConvertStringToLocalDateTime;
 import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.GetIpAddress;
-import com.netflix.discovery.converters.Auto;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {

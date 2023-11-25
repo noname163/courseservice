@@ -91,7 +91,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
                                 + videoUpdateRequest.getCourseId()));
 
         if (!course.getTeacherEmail().equals(currentUser.getEmail())) {
-            throw new InValidAuthorizationException("Not this course to create video");
+            throw new InValidAuthorizationException("Owner this course to create video");
         }
         course.setCommonStatus(CommonStatus.UNAVAILABLE);
         courseRepository.save(course);

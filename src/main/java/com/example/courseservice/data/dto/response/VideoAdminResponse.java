@@ -18,6 +18,7 @@ public class VideoAdminResponse {
     private String description;
     private String subject;
     private String thumbnail;
+    private String material;
     private String courseName;
     private long like;
     private long dislike;

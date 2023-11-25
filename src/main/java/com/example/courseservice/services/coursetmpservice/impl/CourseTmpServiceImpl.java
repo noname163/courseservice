@@ -107,7 +107,6 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Course course = courseService.getCourseByIdAndEmail(courseUpdateRequest.getCourseId(),
                 currentUser.getEmail());
-        course.setCommonStatus(CommonStatus.UNAVAILABLE);
         CloudinaryUrl thumbnial = null;
         if (thumbnail != null) {
             FileResponse fileResponse = fileService.fileStorage(thumbnail);
@@ -118,12 +117,18 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         if (existCourseTemporaryOtp.isEmpty()) {
             CourseTemporary courseTemporary = courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
+            courseTemporary.setTeacherEmail(currentUser.getEmail());
+            courseTemporary.setTeacherId(currentUser.getId());
+            courseTemporary.setTeacherName(currentUser.getFullname());
             courseTemporaryRepository.save(courseTemporary);
         } else {
             CourseTemporary courseTemporary = existCourseTemporaryOtp.get();
             courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
             courseTemporary.setStatus(CommonStatus.DRAFT);
+            courseTemporary.setTeacherEmail(currentUser.getEmail());
+            courseTemporary.setTeacherId(currentUser.getId());
+            courseTemporary.setTeacherName(currentUser.getFullname());
             courseTemporaryRepository.save(courseTemporary);
             if (courseUpdateRequest.getVideoOrders() != null && !courseUpdateRequest.getVideoOrders().isEmpty()) {
                 videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
