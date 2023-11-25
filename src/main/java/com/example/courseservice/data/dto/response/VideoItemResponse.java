@@ -13,6 +13,7 @@ public class VideoItemResponse {
     private long id;
     private String thumbnial;
     private String videoUrl;
+    private Integer like;
     private String material;
     private String name;
     private float duration;

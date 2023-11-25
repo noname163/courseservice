@@ -13,12 +13,16 @@ import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.entities.Course;
+import com.example.courseservice.data.entities.CourseTemporary;
 
 public interface CourseTmpService {
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail);
     public void updateRealCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thumbnail);
     public void editTmpCourse(CourseTemporaryUpdateRequest courseUpdateRequest, MultipartFile thumbnail);
     public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status,Integer page,
+            Integer size, String field, SortType sortType);
+    public PaginationResponse<List<CourseResponse>> searchTemporaryCourseForTeacher(String searchTerm,Integer page,
             Integer size, String field, SortType sortType);
     public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(CommonStatus status,Integer page,
             Integer size, String field, SortType sortType);
@@ -28,4 +32,5 @@ public interface CourseTmpService {
     public CourseDetailResponse getCourseDetail(Long id);
     public void requestVerifyCourses(List<Long> courseIds);
     public void rejectCourse(VerifyRequest actionRequest);
+    public CourseTemporary createNewCourseTemporaryByCourse(Course course);
 }
