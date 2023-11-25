@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class VideoAdminResponse {
     private Long id;
+    private String url;
     private String name;
     private String teacherName;
     private String description;

@@ -16,6 +16,7 @@ import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
+import com.example.courseservice.data.object.VideoAdminResponseInterface;
 
 @Component
 public class VideoTemporaryMapper {
@@ -134,6 +135,34 @@ public class VideoTemporaryMapper {
         return videoTemporaries
                 .stream()
                 .map(this::mapToCourseVideoResponse)
+                .collect(Collectors.toList());
+    }
+
+    public VideoAdminResponse mapToVideoAdminResponse(VideoAdminResponseInterface videoAdminResponseInterface) {
+        if (videoAdminResponseInterface == null) {
+            return null;
+        }
+
+        return VideoAdminResponse.builder()
+                .id(videoAdminResponseInterface.getId())
+                .name(videoAdminResponseInterface.getName())
+                .teacherName(videoAdminResponseInterface.getTeacherName())
+                .description(videoAdminResponseInterface.getDescription())
+                .url(videoAdminResponseInterface.getUrl())
+                .subject(videoAdminResponseInterface.getSubject())
+                .thumbnail(videoAdminResponseInterface.getThumbnail())
+                .courseName(videoAdminResponseInterface.getCourseName())
+                .duration(videoAdminResponseInterface.getDuration())
+                .status(videoAdminResponseInterface.getStatus())
+                .createDate(videoAdminResponseInterface.getCreateDate())
+                .updateDate(videoAdminResponseInterface.getUpdateDate())
+                .videoStatus(videoAdminResponseInterface.getVideoStatus())
+                .build();
+    }
+
+    public List<VideoAdminResponse> mapToVideoAdminResponseList(List<VideoAdminResponseInterface> videoAdminResponseInterfaces) {
+        return videoAdminResponseInterfaces.stream()
+                .map(this::mapToVideoAdminResponse)
                 .collect(Collectors.toList());
     }
 }
