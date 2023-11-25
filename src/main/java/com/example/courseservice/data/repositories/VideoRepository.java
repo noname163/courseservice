@@ -22,6 +22,8 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     Page<Video> findByStatusAndCourseIn(CommonStatus status, List<Course> courses, Pageable pageable);
 
+    Page<Video> findByCourseId(Long courseId, Pageable pageable);
+
     Page<Video> findByCourseIn(List<Course> courses, Pageable pageable);
 
     List<Video> findByCourseAndStatus(Course course, CommonStatus status);

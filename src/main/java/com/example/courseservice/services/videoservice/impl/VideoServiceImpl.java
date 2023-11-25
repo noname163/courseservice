@@ -442,4 +442,16 @@ public class VideoServiceImpl implements VideoService {
         videoRepository.save(video);
     }
 
+    @Override
+    public PaginationResponse<List<VideoAdminResponse>>  getVideoByCourseId(Long courseId,Integer page,
+    Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Page<Video> videos = videoRepository.findByCourseId(courseId, pageable);
+        return PaginationResponse.<List<VideoAdminResponse>>builder()
+                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                .totalPage(videos.getTotalPages())
+                .totalRow(videos.getTotalElements())
+                .build();
+    }
+
 }

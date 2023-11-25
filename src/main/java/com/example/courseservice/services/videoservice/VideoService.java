@@ -21,7 +21,8 @@ import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.VideoUpdate;
 
 public interface VideoService {
-    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial, MultipartFile material);
+    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial,
+            MultipartFile material);
 
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
@@ -57,4 +58,7 @@ public interface VideoService {
     public List<CourseVideoResponse> getVideoByCourseIdAndCommonStatus(Long courseId, CommonStatus commonStatus);
 
     public void editVideoContent(VideoContentUpdate videoUpdateRequest);
+
+    public PaginationResponse<List<VideoAdminResponse>> getVideoByCourseId(Long courseId, Integer page,
+            Integer size, String field, SortType sortType);
 }

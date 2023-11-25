@@ -34,6 +34,7 @@ import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.entities.VideoTemporary;
 import com.example.courseservice.data.object.UserInformation;
+import com.example.courseservice.data.object.VideoAdminResponseInterface;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
@@ -333,9 +334,9 @@ public class VideoTmpServiceImpl implements VideoTmpService {
 
     @Override
     public VideoAdminResponse getVideoTemporaryById(Long id) {
-        VideoTemporary videoTemporary = videoTemporaryRepository.findById(id)
+        VideoAdminResponseInterface videoTemporary = videoTemporaryRepository.getVideoAdminResponseByVideoTemporaryId(id)
                 .orElseThrow(() -> new BadRequestException("Not exist temporary video with id " + id));
-        return videoTemporaryMapper.mapVideoToVideoAdminResponse(videoTemporary);
+        return videoTemporaryMapper.mapToVideoAdminResponse(videoTemporary);
     }
 
     @Override
