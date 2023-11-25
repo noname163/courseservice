@@ -13,6 +13,7 @@ public interface VideoAdminResponseInterface {
     String getDescription();
     String getSubject();
     String getThumbnail();
+    String getMaterial();
     String getCourseName();
     Long getLike();
     Long getDislike();

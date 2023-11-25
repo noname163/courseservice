@@ -40,12 +40,14 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
     @Query("SELECT " +
             "vt.id AS id, " +
             "ct.teacherName AS teacherName, " +
-            "ct.description AS description, " +
+            "vt.description AS description, " +
             "ct.subject AS subject, " +
             "ct.name AS courseName, " +
             "vt.urlVideo AS url, "+
             "vt.name AS name, " +
             "vt.duration AS duration, " +
+            "vt.urlThumbnail AS thumbnail, "+
+            "vt.urlMaterial AS material, "+
             "vt.status AS status, " +
             "vt.createDate AS createDate, " +
             "vt.updateTime AS updateDate, " +
