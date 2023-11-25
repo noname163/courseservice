@@ -127,7 +127,7 @@ public class VideoTemporaryMapper {
                 .duration(videoTemporary.getDuration())
                 .thumbnail(videoTemporary.getUrlThumbnail())
                 .videoStatus(videoTemporary.getVideoStatus())
-                .ordinalNumber(0)
+                .ordinalNumber(Optional.ofNullable(videoTemporary.getOrdinalNumber()).orElse(0))
                 .duration(videoTemporary.getDuration())
                 .build();
     }
