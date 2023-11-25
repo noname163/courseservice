@@ -107,6 +107,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Course course = courseService.getCourseByIdAndEmail(courseUpdateRequest.getCourseId(),
                 currentUser.getEmail());
+        course.setCommonStatus(CommonStatus.UNAVAILABLE);
         CloudinaryUrl thumbnial = null;
         if (thumbnail != null) {
             FileResponse fileResponse = fileService.fileStorage(thumbnail);
@@ -122,11 +123,13 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             CourseTemporary courseTemporary = existCourseTemporaryOtp.get();
             courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
+            courseTemporary.setStatus(CommonStatus.DRAFT);
             courseTemporaryRepository.save(courseTemporary);
             if (courseUpdateRequest.getVideoOrders() != null && !courseUpdateRequest.getVideoOrders().isEmpty()) {
                 videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
             }
         }
+        courseRepository.save(course);
     }
 
     @Override
