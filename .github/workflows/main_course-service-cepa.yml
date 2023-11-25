@@ -7,12 +7,6 @@ on:
   push:
     branches:
       - main
-      - fixbug
-  pull_request:
-    types:
-      - closed
-    branches:
-      - develop
   workflow_dispatch:
 
 jobs:
@@ -42,18 +36,18 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+      
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
           name: java-app
-
+      
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'course-service-cepa'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E0BAC78AA16E4F219BE2A68AE7DEC169 }}
           package: '*.jar'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AE41DAEE2E31458E899E09A27F9D25D7 }}
