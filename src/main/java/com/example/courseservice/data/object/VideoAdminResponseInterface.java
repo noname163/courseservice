@@ -7,6 +7,7 @@ import com.example.courseservice.data.constants.VideoStatus;
 
 public interface VideoAdminResponseInterface {
     Long getId();
+    String getUrl();
     String getName();
     String getTeacherName();
     String getDescription();

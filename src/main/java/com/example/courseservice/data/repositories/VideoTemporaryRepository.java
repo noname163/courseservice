@@ -43,6 +43,7 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
             "ct.description AS description, " +
             "ct.subject AS subject, " +
             "ct.name AS courseName, " +
+            "vt.urlVideo AS url, "+
             "vt.name AS name, " +
             "vt.duration AS duration, " +
             "vt.status AS status, " +
