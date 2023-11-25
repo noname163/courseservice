@@ -43,6 +43,7 @@ import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.VideoTemporaryMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
+import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.uploadservice.UploadService;
@@ -59,6 +60,9 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     @Autowired
     @Lazy
     private CourseRepository courseRepository;
+    @Autowired
+    @Lazy
+    private CourseTmpService courseTmpService;
     @Autowired
     private VideoTemporaryMapper videoTemporaryMapper;
     @Autowired
@@ -82,7 +86,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         Course course = courseRepository
                 .findByIdAndCommonStatusNot(videoUpdateRequest.getCourseId(), CommonStatus.DELETED)
                 .orElseThrow(
-                        () -> new BadRequestException("Not exist video with id "
+                        () -> new BadRequestException("Not exist course with id "
                                 + videoUpdateRequest.getCourseId()));
 
         if (!course.getTeacherEmail().equals(currentUser.getEmail())) {
@@ -91,22 +95,8 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         course.setCommonStatus(CommonStatus.UNAVAILABLE);
         courseRepository.save(course);
 
-        CourseTemporary courseTemporary = courseTemporaryRepository.save(CourseTemporary
-                .builder()
-                .updateTime(LocalDateTime.now())
-                .status(CommonStatus.UPDATING)
-                .course(course)
-                .name(course.getName())
-                .price(course.getPrice())
-                .description(course.getDescription())
-                .teacherEmail(course.getTeacherEmail())
-                .teacherName(currentUser.getFullname())
-                .teacherId(currentUser.getId())
-                .thumbnial(course.getThumbnial())
-                .subject(course.getSubject())
-                .levelId(course.getLevel().getId())
-                .build());
-        courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
+        CourseTemporary courseTemporary = courseTmpService.createNewCourseTemporaryByCourse(course);
+        
         VideoTemporary videoInsert = videoTemporaryRepository.save(
                 VideoTemporary
                         .builder()
@@ -116,7 +106,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
                         .videoStatus(videoUpdateRequest.getVideoStatus())
                         .courseTemporary(courseTemporary)
                         .createDate(LocalDateTime.now())
-                        .status(CommonStatus.UPDATING)
+                        .status(CommonStatus.DRAFT)
                         .videoStatus(videoUpdateRequest.getVideoStatus())
                         .build());
         FileResponse videoFile = fileService.fileStorage(video);
@@ -188,11 +178,11 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial,
             MultipartFile material) {
         CourseTemporary course = courseTemporaryRepository
-                .findByIdAndStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
+                .findByIdAndStatusNot(videoRequest.getCourseId(), CommonStatus.WAITING)
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist video with id " + videoRequest.getCourseId()));
         Integer maxOrdinalNumber = videoTemporaryRepository.findMaxOrdinalNumberByCourse(course);
-
+        
         // Set the ordinalNumber for the new video
         int ordinalNumber = maxOrdinalNumber != null ? maxOrdinalNumber + 1 : 1;
         VideoTemporary videoConvert = videoTemporaryMapper.mapDtoToEntity(videoRequest);
@@ -212,6 +202,8 @@ public class VideoTmpServiceImpl implements VideoTmpService {
             FileResponse materialFile = fileService.fileStorage(material);
             videoResponse.setMaterial(materialFile);
         }
+        course.setStatus(CommonStatus.DRAFT);
+        courseTemporaryRepository.save(course);
         return videoResponse;
     }
 
@@ -257,7 +249,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         }
 
         List<VideoTemporary> videoTemporaries = videoTemporaryRepository
-                .findByCourseTemporaryIdAndStatus(courseTemporaryId, CommonStatus.DRAFT);
+                .findByCourseTemporaryIdAndStatusNot(courseTemporaryId, CommonStatus.DELETED);
         return videoTemporaryMapper.mapVideoItemResponses(videoTemporaries);
     }
 
@@ -344,6 +336,17 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         VideoTemporary videoTemporary = videoTemporaryRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Not exist temporary video with id " + id));
         return videoTemporaryMapper.mapVideoToVideoAdminResponse(videoTemporary);
+    }
+
+    @Override
+    public void deletedTemporaryVideo(Long id) {
+        UserInformation userInformation = securityContextService.getCurrentUser();
+        VideoTemporary videoTemporary = videoTemporaryRepository.findById(id).orElseThrow(()->new BadRequestException("Not exist temporary video with id "+ id));
+        CourseTemporary courseTemporary = videoTemporary.getCourseTemporary();
+        if(courseTemporary.getTeacherId()!=userInformation.getId()){
+            throw new InValidAuthorizationException("Require owner permission to delete video");
+        }
+        videoTemporaryRepository.delete(videoTemporary);
     }
 
 }

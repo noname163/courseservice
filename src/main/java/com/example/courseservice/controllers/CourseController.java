@@ -372,4 +372,25 @@ public class CourseController {
         courseTmpService.editTmpCourse(courseTemporaryUpdateRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @Operation(summary = "Search temporary courses for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/teacher/search/temporary-course")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> searchTemporaryCourse(
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseTmpService.searchTemporaryCourseForTeacher(searchTerm, page, size, field, sortType));
+    }
 }

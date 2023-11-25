@@ -10,11 +10,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.courseservice.data.constants.CommonStatus;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.object.CourseResponseInterface;
 
 public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary, Long> {
     public Optional<CourseTemporary> findByCourseId(Long courseId);
+
+    public CourseTemporary findByCourse(Course course);
 
     public Optional<CourseTemporary> findByIdAndStatusNot(Long id, CommonStatus commonStatus);
 
@@ -59,6 +62,22 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "GROUP BY ct.id, l.name")
     Page<CourseResponseInterface> getByEmailAndStatusNot(@Param("email") String email,
             @Param("status") CommonStatus status, Pageable pageable);
+
+    @Query("SELECT ct FROM CourseTemporary ct " +
+            "WHERE LOWER(ct.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(ct.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR EXISTS (SELECT 1 FROM CourseTopic ctt WHERE ctt.courseTemporary = ct AND LOWER(ctt.topicName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) ")
+    Page<CourseTemporary> searchCourseTemporaries(@Param("searchTerm") String searchTerm, Pageable pageable);
+
+    @Query("SELECT ct FROM CourseTemporary ct " +
+            "WHERE (LOWER(ct.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(ct.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR EXISTS (SELECT 1 FROM CourseTopic ctt WHERE ctt.courseTemporary = ct AND LOWER(ctt.topicName) LIKE LOWER(CONCAT('%', :searchTerm, '%')))) "
+            +
+            "AND ct.teacherId = :teacherId")
+    Page<CourseTemporary> searchCourseTemporariesByTeacher(@Param("searchTerm") String searchTerm,
+            @Param("teacherId") Long teacherId,
+            Pageable pageable);
 
     List<CourseTemporary> findByTeacherIdAndIdIn(Long teacherId, List<Long> courseIds);
 

@@ -310,22 +310,6 @@ public class VideoController {
                 .body(videoTmpService.getVideoTemporaryByCourseTemporaryIdForTeacher(courseId));
     }
 
-    @Operation(summary = "Delete video for teacher")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Delete video successfully."),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @DeleteMapping()
-    @PreAuthorize("hasAuthority('TEACHER')")
-    public ResponseEntity<Void> deleteVideo(
-            @RequestParam(required = true) Long videoId) {
-        videoService.deleteVideo(videoId);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
-    }
-
     @Operation(summary = "Edit video temporary video for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Edit temporary video successfully."),
@@ -344,4 +328,37 @@ public class VideoController {
                 .status(HttpStatus.NO_CONTENT)
                 .build();
     }
+
+    @Operation(summary = "Delete video for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Delete video successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @DeleteMapping()
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public ResponseEntity<Void> deleteVideo(
+            @RequestParam(required = true) Long videoId) {
+        videoService.deleteVideo(videoId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
+    @Operation(summary = "Delete temporary video for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Delete temporary video successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @DeleteMapping("temporary-video")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public ResponseEntity<Void> deleteTemporaryVideo(
+            @RequestParam(required = true) Long videoId) {
+        videoTmpService.deletedTemporaryVideo(videoId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
 }
