@@ -134,9 +134,9 @@ public class CourseTmpServiceImpl implements CourseTmpService {
 
         UserInformation currentUser = securityContextService.getCurrentUser();
         CourseTemporary courseTemporary = courseTemporaryRepository
-                .findByTeacherIdAndId(currentUser.getId(),courseUpdateRequest.getCourseId())
+                .findByTeacherIdAndId(currentUser.getId(), courseUpdateRequest.getCourseId())
                 .orElseThrow(() -> new InValidAuthorizationException("Require permission to edit this course"));
-        if (courseTemporary.getStatus().equals(CommonStatus.DRAFT)
+        if (courseTemporary.getStatus().equals(CommonStatus.WAITING)
                 && courseTemporary.getStatus().equals(CommonStatus.UPDATING)
                 && courseTemporary.getStatus().equals(CommonStatus.BANNED)) {
             throw new BadRequestException("Cannot edit course temporary in this status");
@@ -150,6 +150,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : courseTemporary.getThumbnial());
         courseTemporary = courseTemporaryMapper.mapUpdateTemporaryToCourseTemporary(courseUpdateRequest,
                 courseTemporary);
+        courseTemporary.setStatus(CommonStatus.DRAFT);
         courseTemporaryRepository.save(courseTemporary);
 
         if (courseUpdateRequest.getVideoOrders() != null && !courseUpdateRequest.getVideoOrders().isEmpty()) {
@@ -315,10 +316,53 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         }
         List<CourseTemporary> courseTemporariesUpdate = new ArrayList<>();
         for (CourseTemporary courseTemporary : courseTemporaries) {
+            if (courseTemporary.getStatus().equals(CommonStatus.REJECT)) {
+                throw new BadRequestException("Edit course before request verify.");
+            }
             courseTemporary.setStatus(CommonStatus.WAITING);
             courseTemporariesUpdate.add(courseTemporary);
         }
         courseTemporaryRepository.saveAll(courseTemporariesUpdate);
+    }
+
+    @Override
+    public PaginationResponse<List<CourseResponse>> searchTemporaryCourseForTeacher(String searchTerm, Integer page, Integer size,
+            String field, SortType sortType) {
+        Long teacherId = securityContextService.getCurrentUser().getId();
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Page<CourseTemporary> courseTemporaries = courseTemporaryRepository.searchCourseTemporariesByTeacher(searchTerm,teacherId,
+                pageable);
+
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseTemporaryMapper.mapCoursesTmpToCourseResponses(courseTemporaries.getContent()))
+                .totalPage(courseTemporaries.getTotalPages())
+                .totalRow(courseTemporaries.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public CourseTemporary createNewCourseTemporaryByCourse(Course course) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        CourseTemporary courseTemporary = courseTemporaryRepository.findByCourse(course);
+        if (courseTemporary == null) {
+            courseTemporary = courseTemporaryRepository.save(CourseTemporary
+                    .builder()
+                    .updateTime(LocalDateTime.now())
+                    .status(CommonStatus.UPDATING)
+                    .course(course)
+                    .name(course.getName())
+                    .price(course.getPrice())
+                    .description(course.getDescription())
+                    .teacherEmail(course.getTeacherEmail())
+                    .teacherName(currentUser.getFullname())
+                    .teacherId(currentUser.getId())
+                    .thumbnial(course.getThumbnial())
+                    .subject(course.getSubject())
+                    .levelId(course.getLevel().getId())
+                    .build());
+        }
+        courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
+        return courseTemporary;
     }
 
 }

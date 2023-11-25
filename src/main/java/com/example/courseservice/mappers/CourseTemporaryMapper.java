@@ -1,5 +1,6 @@
 package com.example.courseservice.mappers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ public class CourseTemporaryMapper {
         course.setPrice(courseTemporary.getPrice());
         course.setSubject(courseTemporary.getSubject());
         course.setUpdateTime(courseTemporary.getUpdateTime());
+        course.setUpdateTime(LocalDateTime.now());
         course.setThumbnial(courseTemporary.getThumbnial());
         course.setCommonStatus(courseTemporary.getStatus());
         return course;

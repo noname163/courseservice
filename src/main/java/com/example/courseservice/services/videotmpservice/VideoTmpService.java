@@ -49,4 +49,6 @@ public interface VideoTmpService {
     public void uploadEditVideoTemporaryFile(VideoResponse videoResponse);
 
     public VideoAdminResponse getVideoTemporaryById(Long id);
+
+    public void deletedTemporaryVideo(Long id);
 }
