@@ -140,6 +140,8 @@ public class VideoTmpServiceImpl implements VideoTmpService {
                 .orElseThrow(() -> new BadRequestException(
                         "Cannot found Video temporary with id " + videoUpdate.getVideoId()));
         video.setUrlVideo(videoUpdate.getVideoUrl());
+        video.setDuration(videoUpdate.getDuration());
+        video.setCreateDate(LocalDateTime.now());
         video.setUrlThumbnail(videoUpdate.getThumbnailUrl());
         if (videoUpdate.getMaterial() != null) {
             video.setUrlMaterial(videoUpdate.getMaterial());
