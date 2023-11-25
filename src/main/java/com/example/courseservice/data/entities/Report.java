@@ -34,6 +34,8 @@ public class Report {
 
     private String userEmail;
 
+    private Long userId;
+
     private String url;
 
     private Long objectId;

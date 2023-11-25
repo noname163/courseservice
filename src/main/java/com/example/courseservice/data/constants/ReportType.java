@@ -4,5 +4,5 @@ public enum ReportType {
     COURSE,
     VIDEO,
     COMMENT,
-    MATERIAL
+    REPLY
 }
