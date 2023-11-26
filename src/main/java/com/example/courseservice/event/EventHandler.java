@@ -53,7 +53,7 @@ public class EventHandler implements ApplicationListener<Event> {
                         .thumbnailUrl(thumbnial.getUrl())
                         .build();
                 if (videoResponse.getMaterial() != null) {
-                    CloudinaryUrl material = uploadService.uploadMetrial(videoResponse.getMaterial());
+                    CloudinaryUrl material = uploadService.uploadMaterial(videoResponse.getMaterial());
                     videoUpdate.setMaterial(material.getUrl());
                 }
 

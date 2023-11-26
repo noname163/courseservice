@@ -129,13 +129,18 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public String createUrlById(String id, String mediaType, String subfixType) {
+        if (mediaType.equals("application")) {
+            return cloudinary.url()
+                    .resourceType("raw") // Set the resource type to "raw" for non-image files like PDFs
+                    .generate(id + "." + subfixType);
+        }
         return cloudinary.url()
                 .resourceType(mediaType)
                 .generate(id + "." + subfixType);
     }
 
     @Override
-    public CloudinaryUrl uploadMetrial(FileResponse file) {
+    public CloudinaryUrl uploadMaterial(FileResponse file) {
         try {
             // Check if the content type is supported
             String contentType = file.getContentType();
@@ -154,7 +159,7 @@ public class UploadServiceImpl implements UploadService {
 
             // Extract information from the upload result
             String publicId = uploadResult.get("public_id").toString();
-            String url = createUrlById(publicId, mediaType.getMediaType(), mediaType.getSubfix());
+            String url = uploadResult.get("secure_url").toString();
             float videoDuration = 0;
             if (uploadResult.get("duration") != null) {
                 videoDuration = Float.parseFloat(uploadResult.get("duration").toString());
@@ -175,7 +180,7 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public CloudinaryUrl uploadMedia(MultipartFile file) {
-       try {
+        try {
             // Check if the content type is supported
             String contentType = file.getContentType();
             if (contentType == null || !environmentVariable.initializeAllowedContentTypes().containsKey(contentType)) {

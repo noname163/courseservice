@@ -1,8 +1,5 @@
 package com.example.courseservice.data.constants;
 
 public enum ReportType {
-    COURSE,
-    VIDEO,
-    COMMENT,
-    REPLY
+    TECHNICAL, ETHICAL, POLITICAL
 }

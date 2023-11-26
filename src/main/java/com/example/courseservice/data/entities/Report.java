@@ -2,6 +2,7 @@ package com.example.courseservice.data.entities;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,13 +33,21 @@ public class Report {
 
     private String message;
 
-    private String userEmail;
+    @Column(columnDefinition = "TEXT")
+    private String userAvatar;
+
+    private String userName;
 
     private Long userId;
 
+    private String userRole;
+
+    @Column(columnDefinition = "TEXT")
     private String url;
 
     private Long objectId;
+
+    private Boolean isProcessed;
 
     private LocalDateTime createDate;
 

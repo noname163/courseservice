@@ -27,13 +27,13 @@ public class CourseTemporaryMapper {
     private SecurityContextService securityContextService;
 
     public Course mapCoursetmpToCourse(Course course, CourseTemporary courseTemporary) {
-        course.setName(courseTemporary.getName());
-        course.setDescription(courseTemporary.getDescription());
-        course.setPrice(courseTemporary.getPrice());
-        course.setSubject(courseTemporary.getSubject());
+        course.setName(Optional.ofNullable(courseTemporary.getName()).orElse(course.getName()));
+        course.setDescription(Optional.ofNullable(courseTemporary.getDescription()).orElse(course.getDescription()));
+        course.setPrice(Optional.ofNullable(courseTemporary.getPrice()).orElse(course.getPrice()));
+        course.setSubject(Optional.ofNullable(courseTemporary.getSubject()).orElse(course.getSubject()));
         course.setUpdateTime(courseTemporary.getUpdateTime());
         course.setUpdateTime(LocalDateTime.now());
-        course.setThumbnial(courseTemporary.getThumbnial());
+        course.setThumbnial(Optional.ofNullable(courseTemporary.getThumbnial()).orElse(course.getThumbnial()));
         course.setCommonStatus(courseTemporary.getStatus());
         return course;
     }

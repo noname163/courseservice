@@ -120,10 +120,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.commonStatus AS status " +
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
-            "WHERE c.commonStatus = :status " +
+            "WHERE c.commonStatus <> :status " +
             "AND c.id NOT IN :excludedIds " +
             "GROUP BY c.id, c.level.name")
-    Page<CourseResponseInterface> getAvailableCoursesByCommonStatusAndNotInList(
+    Page<CourseResponseInterface> getAvailableCoursesByCommonStatusNotAndNotInList(
             @Param("status") CommonStatus status,
             @Param("excludedIds") List<Long> excludedIds,
             Pageable pageable);
