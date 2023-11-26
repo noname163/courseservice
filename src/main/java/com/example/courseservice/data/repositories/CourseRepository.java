@@ -68,7 +68,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
-            "c.teacherAvatar AS teacherAvatar, "+
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -88,7 +88,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
-            "c.teacherAvatar AS teacherAvatar, "+
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -107,7 +107,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
-            "c.teacherAvatar AS teacherAvatar, "+
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -131,7 +131,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
-            "c.teacherAvatar AS teacherAvatar, "+
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -151,7 +151,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
-            "c.teacherAvatar AS teacherAvatar, "+
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -165,9 +165,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
             "WHERE c.teacherEmail = :email " +
-            "AND c.commonStatus = :status "+
+            "AND c.commonStatus = :status " +
             "GROUP BY c.id, c.level.name")
-    Page<CourseResponseInterface> getCourseByEmailAndStatus(@Param("email") String email, @Param("status") CommonStatus commonStatus,Pageable pageable);
+    Page<CourseResponseInterface> getCourseByEmailAndStatus(@Param("email") String email,
+            @Param("status") CommonStatus commonStatus, Pageable pageable);
 
     @Query("SELECT " +
             "c.id AS id, " +
@@ -182,6 +183,9 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
+            "c.teacherEmail AS teacherEmail, " +
+            "c.teacherId AS teacherId, " +
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.createDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
@@ -201,6 +205,9 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.description AS description, " +
             "c.thumbnial AS thumbnail, " +
             "c.teacherName AS teacherName, " +
+            "c.teacherEmail AS teacherEmail, " +
+            "c.teacherId AS teacherId, " +
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.name AS name, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -224,7 +231,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
-            "c.teacherAvatar AS teacherAvatar, "+
+            "c.teacherAvatar AS teacherAvatar, " +
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -244,7 +251,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "   OR EXISTS (SELECT 1 FROM c.courseTopics ct WHERE LOWER(ct.topicName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) "
             +
             "   OR LOWER(c.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
-            "AND c.commonStatus = 'AVAILABLE' "+
+            "AND c.commonStatus = 'AVAILABLE' " +
             "GROUP BY c.id, c.thumbnial, c.teacherName, c.name, c.subject, c.level.name, c.price, c.createDate, c.updateTime, c.commonStatus")
     Page<CourseResponseInterface> searchCourses(
             @Param("searchTerm") String searchTerm,

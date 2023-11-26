@@ -80,7 +80,7 @@ public class CourseTemporaryMapper {
                 .status(course.getStatus())
                 .courseName(course.getName())
                 .teacherName(course.getTeacherName())
-                .thumbnial(course.getThumbnial())
+                .thumbnail(course.getThumbnial())
                 .subject(course.getSubject())
                 .build();
     }
@@ -150,7 +150,7 @@ public class CourseTemporaryMapper {
                 .status(courseResponseInterface.getStatus())
                 .subject(courseResponseInterface.getSubject())
                 .teacherName(courseResponseInterface.getTeacherName())
-                .thumbnial(courseResponseInterface.getThumbnial())
+                .thumbnail(courseResponseInterface.getThumbnial())
                 .totalVideo(courseResponseInterface.getTotalVideo())
                 .build();
     }

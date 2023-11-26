@@ -106,7 +106,8 @@ public class VideoTemporaryMapper {
                 .name(videoTemporary.getName())
                 .material(videoTemporary.getUrlMaterial())
                 .duration(videoTemporary.getDuration())
-                .thumbnial(videoTemporary.getUrlThumbnail())
+                .thumbnail(videoTemporary.getUrlThumbnail())
+                .createDate(videoTemporary.getCreateDate())
                 .videoUrl(videoTemporary.getUrlVideo())
                 .videoStatus(videoTemporary.getVideoStatus())
                 .build();
