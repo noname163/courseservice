@@ -21,4 +21,5 @@ public class Validation {
     public static final int MAX_LENGTH_PASSWORD = 24;
     public static final int MAX_LENGTH_INPUT = 100;
     public static final int MAX_LENGTH_TEXTAREA = 500;
+
 }

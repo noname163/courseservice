@@ -38,6 +38,8 @@ public class Report {
 
     private String userName;
 
+    private String userEmail;
+
     private Long userId;
 
     private String userRole;

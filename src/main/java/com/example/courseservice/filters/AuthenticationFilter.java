@@ -14,11 +14,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.courseservice.data.constants.Common;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.WhitelistedUri;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.ForbiddenException;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
+import com.example.courseservice.utils.CookiesUtil;
 import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.JwtTokenUtil;
 
@@ -33,6 +35,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private CookiesUtil cookiesUtil;
     @Autowired
     private SecurityContextService securityContextService;
     @Autowired
@@ -51,7 +55,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             }
         } else {
-            processAuthentication(request, response, filterChain);
+            if (cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN) != null
+                    && !cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN).isBlank()) {
+                processAuthenticationForCookies(cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN), request,
+                        response, filterChain);
+            } else {
+                processAuthentication(request, response, filterChain);
+            }
         }
     }
 
@@ -74,6 +84,32 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             try {
                 String accessToken = requestTokenHeaderOpt.get();
                 Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(request));
+                Claims claims = jwtClaims.getBody();
+                UserInformation userInformation = UserInformation
+                        .builder()
+                        .id(Long.parseLong(claims.get("id").toString()))
+                        .avatar(claims.get("avatar").toString())
+                        .email(claims.get("email").toString())
+                        .role(claims.get("role").toString())
+                        .fullname(claims.get("fullName").toString())
+                        .build();
+                securityContextService.setSecurityContext(userInformation);
+                filterChain.doFilter(request, response);
+            } catch (Exception ex) {
+                throw new BadRequestException(ex.getMessage(), ex);
+            }
+        } else {
+            throw new ForbiddenException("JWT Access Token does not start with 'Bearer '.");
+        }
+    }
+
+    private void processAuthenticationForCookies(String token, HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) {
+        final Optional<String> requestTokenHeaderOpt = getJwtFromRequest(token);
+        if (requestTokenHeaderOpt.isPresent()) {
+            try {
+                String accessToken = requestTokenHeaderOpt.get();
+                Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(token));
                 Claims claims = jwtClaims.getBody();
                 UserInformation userInformation = UserInformation
                         .builder()
@@ -134,6 +170,13 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         return Optional.empty();
     }
 
+    private Optional<String> getJwtFromRequest(String token) {
+        if (StringUtils.hasText(token) && (token.startsWith(BEARER) || token.startsWith(SERVICE))) {
+            return Optional.of(token.substring(7));
+        }
+        return Optional.empty();
+    }
+
     private String getJwtPrefix(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION);
         if (StringUtils.hasText(bearerToken)) {
@@ -141,6 +184,18 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 return BEARER;
             }
             if (bearerToken.startsWith(SERVICE)) {
+                return SERVICE;
+            }
+        }
+        return null;
+    }
+
+    private String getJwtPrefix(String token) {
+        if (StringUtils.hasText(token)) {
+            if (token.startsWith(BEARER)) {
+                return BEARER;
+            }
+            if (token.startsWith(SERVICE)) {
                 return SERVICE;
             }
         }
