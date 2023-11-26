@@ -328,7 +328,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
             video.setUrlThumbnail(cloudinaryUrl.getUrl());
         }
         if (videoResponse.getMaterial() != null) {
-            CloudinaryUrl cloudinaryUrl = uploadService.uploadMetrial(videoResponse.getMaterial());
+            CloudinaryUrl cloudinaryUrl = uploadService.uploadMaterial(videoResponse.getMaterial());
             video.setUrlMaterial(cloudinaryUrl.getUrl());
         }
         videoTemporaryRepository.save(video);

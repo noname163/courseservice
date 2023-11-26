@@ -405,11 +405,12 @@ public class VideoServiceImpl implements VideoService {
                 .findById(videoId)
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist video with id " + videoId + " in function delete video"));
-        if (Boolean.FALSE.equals(courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getId()))) {
+        Course course = video.getCourse();
+        if (Boolean.FALSE.equals(course.getTeacherEmail().equals(currentUser.getEmail()))) {
             throw new InValidAuthorizationException("Cannot delete this video");
         }
-        commentService.deleteComments(video);
-        videoRepository.delete(video);
+        video.setStatus(CommonStatus.DELETED);
+        videoRepository.save(video);
     }
 
     @Override
@@ -424,14 +425,15 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public void editVideoContent(VideoContentUpdate videoUpdateRequest) {
-        
+
         UserInformation currentUser = securityContextService.getCurrentUser();
         Video video = videoRepository
                 .findById(videoUpdateRequest.getVideoId())
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist video with id " + videoUpdateRequest.getVideoId() + " in function delete video"));
 
-        if (Boolean.FALSE.equals(courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getCourse().getId()))) {
+        if (Boolean.FALSE.equals(
+                courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getCourse().getId()))) {
             throw new InValidAuthorizationException("Cannot edit this video");
         }
 
@@ -443,8 +445,8 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public PaginationResponse<List<VideoAdminResponse>>  getVideoByCourseId(Long courseId,Integer page,
-    Integer size, String field, SortType sortType) {
+    public PaginationResponse<List<VideoAdminResponse>> getVideoByCourseId(Long courseId, Integer page,
+            Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<Video> videos = videoRepository.findByCourseId(courseId, pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()

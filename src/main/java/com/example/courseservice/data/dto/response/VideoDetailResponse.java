@@ -15,6 +15,7 @@ import lombok.Setter;
 public class VideoDetailResponse {
     private String url;
     private String thumbnail;
+    private String description;
     private String name;
     private long like;
     private long dislike;

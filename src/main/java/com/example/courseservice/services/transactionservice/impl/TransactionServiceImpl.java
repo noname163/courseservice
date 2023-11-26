@@ -28,6 +28,7 @@ import com.example.courseservice.data.constants.TransactionStatus;
 import com.example.courseservice.data.constants.Validation;
 import com.example.courseservice.data.constants.VnPayConstants;
 import com.example.courseservice.data.dto.request.PaymentRequest;
+import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.TransactionResponse;
@@ -43,9 +44,11 @@ import com.example.courseservice.mappers.TeacherIncomeMapper;
 import com.example.courseservice.mappers.TransactionMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.notificationservice.NotificationService;
+import com.example.courseservice.services.sendmailservice.SendEmailService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.teacherincomeservice.TeacherIncomeService;
 import com.example.courseservice.services.transactionservice.TransactionService;
+import com.example.courseservice.template.SendMailTemplate;
 import com.example.courseservice.utils.ConvertStringToLocalDateTime;
 import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.GetIpAddress;
@@ -73,6 +76,8 @@ public class TransactionServiceImpl implements TransactionService {
     private ConvertStringToLocalDateTime convertStringToLocalDateTime;
     @Autowired
     private GetIpAddress getIpAddress;
+    @Autowired
+    private SendEmailService sendEmailService;
     @Autowired
     private EnvironmentVariable environmentVariable;
 
@@ -230,6 +235,13 @@ public class TransactionServiceImpl implements TransactionService {
                             .build()));
         }
 
+        sendEmailService.sendMailService(SendMailRequest
+                .builder()
+                .subject("Thanh Toán Thành Công")
+                .mailTemplate(SendMailTemplate
+                        .paymentSuccessEmail(transaction.getUserEmail(), course.getName(), course.getPrice()))
+                .userEmail(transaction.getUserEmail())
+                .build());
         return transactionMapper.mapEntityToDto(transaction);
     }
 

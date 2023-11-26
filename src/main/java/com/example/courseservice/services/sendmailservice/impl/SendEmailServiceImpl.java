@@ -25,6 +25,7 @@ public class SendEmailServiceImpl implements SendEmailService {
     public void sendMailService(SendMailRequest sendMailRequest) {
         MimeMessage massage = javaMailSender.createMimeMessage();
         try {
+            log.info("Start send mail for email {} ", sendMailRequest.getUserEmail());
             MimeMessageHelper helper = new MimeMessageHelper(massage);
             helper.setSubject(sendMailRequest.getSubject());
             helper.setFrom("CEPANoReply@gmail.com");

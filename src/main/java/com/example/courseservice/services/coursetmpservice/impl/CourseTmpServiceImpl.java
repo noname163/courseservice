@@ -134,7 +134,6 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
             }
         }
-        courseRepository.save(course);
     }
 
     @Override

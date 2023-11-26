@@ -53,6 +53,7 @@ public class VideoMapper {
                 .builder()
                 .videoStatus(video.getVideoStatus())
                 .url(video.getUrlVideo())
+                .description(video.getDescription())
                 .thumbnail(video.getUrlThumbnail())
                 .material(video.getUrlMaterial())
                 .like(video.getReaction(ReactStatus.LIKE))
