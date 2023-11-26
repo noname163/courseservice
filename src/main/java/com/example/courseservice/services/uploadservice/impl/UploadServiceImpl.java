@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
@@ -128,13 +129,18 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public String createUrlById(String id, String mediaType, String subfixType) {
+        if (mediaType.equals("application")) {
+            return cloudinary.url()
+                    .resourceType("raw") // Set the resource type to "raw" for non-image files like PDFs
+                    .generate(id + "." + subfixType);
+        }
         return cloudinary.url()
                 .resourceType(mediaType)
                 .generate(id + "." + subfixType);
     }
 
     @Override
-    public CloudinaryUrl uploadMetrial(FileResponse file) {
+    public CloudinaryUrl uploadMaterial(FileResponse file) {
         try {
             // Check if the content type is supported
             String contentType = file.getContentType();
@@ -150,6 +156,46 @@ public class UploadServiceImpl implements UploadService {
             log.info("Start uploading file: {}", file.getFileName());
             // Perform the upload
             var uploadResult = cloudinary.uploader().upload(file.getFileStorage(), options);
+
+            // Extract information from the upload result
+            String publicId = uploadResult.get("public_id").toString();
+            String url = uploadResult.get("secure_url").toString();
+            float videoDuration = 0;
+            if (uploadResult.get("duration") != null) {
+                videoDuration = Float.parseFloat(uploadResult.get("duration").toString());
+            }
+
+            log.info("Upload successful. URL: {}", url);
+
+            // Create and return a CloudinaryUrl object
+            return CloudinaryUrl.builder()
+                    .url(url)
+                    .publicId(publicId)
+                    .duration(videoDuration)
+                    .build();
+        } catch (IOException e) {
+            throw new MediaUploadException("Failed to upload media", e);
+        }
+    }
+
+    @Override
+    public CloudinaryUrl uploadMedia(MultipartFile file) {
+        try {
+            // Check if the content type is supported
+            String contentType = file.getContentType();
+            if (contentType == null || !environmentVariable.initializeAllowedContentTypes().containsKey(contentType)) {
+                throw new BadRequestException("Unsupported file type. Supported types are: "
+                        + String.join(", ", environmentVariable.initializeAllowedContentTypes().values()));
+            }
+
+            MediaType mediaType = stringUtil.convertStringToMediaType(contentType);
+            // Define upload options
+            Map<String, String> options = new HashMap<>();
+            options.put("resource_type", "auto");
+
+            log.info("Start uploading file: {}", file.getOriginalFilename());
+            // Perform the upload
+            var uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
 
             // Extract information from the upload result
             String publicId = uploadResult.get("public_id").toString();

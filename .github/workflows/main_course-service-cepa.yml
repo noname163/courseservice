@@ -55,5 +55,5 @@ jobs:
         with:
           app-name: 'course-service-cepa'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E0BAC78AA16E4F219BE2A68AE7DEC169 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AE41DAEE2E31458E899E09A27F9D25D7 }}
           package: '*.jar'
