@@ -26,8 +26,10 @@ import com.example.courseservice.utils.JwtTokenUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import lombok.extern.log4j.Log4j2;
 
 @Component
+@Log4j2
 public class AuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION = "Authorization";
     public static final String BEARER = "Bearer ";
@@ -55,9 +57,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             }
         } else {
-            if (cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN) != null
-                    && !cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN).isBlank()) {
-                processAuthenticationForCookies(cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN), request,
+            String cookiesToken = cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN);
+            if (cookiesToken != null
+                    && !cookiesToken.isBlank()) {
+                logger.info("Authentication by cookies");       
+                processAuthenticationForCookies(cookiesToken, request,
                         response, filterChain);
             } else {
                 processAuthentication(request, response, filterChain);
@@ -105,11 +109,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private void processAuthenticationForCookies(String token, HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) {
-        final Optional<String> requestTokenHeaderOpt = getJwtFromRequest(token);
-        if (requestTokenHeaderOpt.isPresent()) {
             try {
-                String accessToken = requestTokenHeaderOpt.get();
-                Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken, getJwtPrefix(token));
+                log.info("Start decode token " + token);
+                String accessToken = token;
+                Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken);
                 Claims claims = jwtClaims.getBody();
                 UserInformation userInformation = UserInformation
                         .builder()
@@ -120,13 +123,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                         .fullname(claims.get("fullName").toString())
                         .build();
                 securityContextService.setSecurityContext(userInformation);
+                log.info("Authentication success");
                 filterChain.doFilter(request, response);
             } catch (Exception ex) {
+                log.error("Authentication fail " + ex.getMessage());
                 throw new BadRequestException(ex.getMessage(), ex);
             }
-        } else {
-            throw new ForbiddenException("JWT Access Token does not start with 'Bearer '.");
-        }
     }
 
     private void processAuthenticationOfCourse(HttpServletRequest request, HttpServletResponse response,
@@ -166,13 +168,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader(AUTHORIZATION);
         if (StringUtils.hasText(bearerToken) && (bearerToken.startsWith(BEARER) || bearerToken.startsWith(SERVICE))) {
             return Optional.of(bearerToken.substring(7));
-        }
-        return Optional.empty();
-    }
-
-    private Optional<String> getJwtFromRequest(String token) {
-        if (StringUtils.hasText(token) && (token.startsWith(BEARER) || token.startsWith(SERVICE))) {
-            return Optional.of(token.substring(7));
         }
         return Optional.empty();
     }

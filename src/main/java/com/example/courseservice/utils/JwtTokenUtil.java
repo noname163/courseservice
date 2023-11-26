@@ -60,6 +60,22 @@ public class JwtTokenUtil {
         return tokenInfor;
     }
 
+    public Jws<Claims> getJwsClaims(String token) {
+        String secretKey = environmentVariables.getJwtSecret();
+
+        Jws<Claims> tokenInfor = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+        Claims claims = tokenInfor.getBody();
+
+        // Check if the token has expired
+        Date expirationDate = claims.getExpiration();
+        Date now = new Date();
+
+        if (expirationDate != null && expirationDate.before(now)) {
+            throw new InValidAuthorizationException("Token has expired");
+        }
+        return tokenInfor;
+    }
+
     public Jws<Claims> getJwsClaimsForService(String token) {
         Jws<Claims> tokenInfor = Jwts.parser().setSigningKey(environmentVariables.getJwtSecret()).parseClaimsJws(token);
         Claims claims = tokenInfor.getBody();
