@@ -7,4 +7,5 @@ import lombok.NoArgsConstructor;
 public class Common {
     public static final String BEARER = "Bearer ";
     public static final String SERVICE = "Service ";
+    public static final String ACCESS_TOKEN = "access-token";
 }
