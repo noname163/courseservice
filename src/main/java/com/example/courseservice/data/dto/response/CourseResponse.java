@@ -11,7 +11,7 @@ import lombok.Data;
 @Builder
 public class CourseResponse {
     private long id;
-    private String thumbnial;
+    private String thumbnail;
     private String teacherName;
     private String teacherAvatar;
     private String courseName;

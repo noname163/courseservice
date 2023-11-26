@@ -1,5 +1,7 @@
 package com.example.courseservice.data.dto.response;
 
+import java.time.LocalDateTime;
+
 import com.example.courseservice.data.constants.VideoStatus;
 
 import lombok.Builder;
@@ -11,12 +13,13 @@ import lombok.Setter;
 @Setter
 public class VideoItemResponse {
     private long id;
-    private String thumbnial;
+    private String thumbnail;
     private String videoUrl;
-    private Integer like;
+    private Long like;
     private String material;
     private String name;
     private float duration;
+    private LocalDateTime createDate;
     private VideoStatus videoStatus;
     private Boolean isAccess;
 }

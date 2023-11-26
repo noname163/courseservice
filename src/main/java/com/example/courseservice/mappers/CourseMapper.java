@@ -39,6 +39,9 @@ public class CourseMapper {
         return CourseDetailResponse
                 .builder()
                 .id(course.getId())
+                .teacherEmail(course.getTeacherEmail())
+                .teacherAvatar(course.getTeacherAvatar())
+                .teacherId(course.getTeacherId())
                 .description(course.getDescription())
                 .totalStudent(course.getStudentEnrolledCourses().size())
                 .build();
@@ -55,6 +58,9 @@ public class CourseMapper {
                 .description(courseDetailResponseInterface.getDescription())
                 .name(courseDetailResponseInterface.getName())
                 .thumbnail(courseDetailResponseInterface.getthumbnail())
+                .teacherAvatar(courseDetailResponseInterface.getTeacherAvatar())
+                .teacherId(courseDetailResponseInterface.getTeacherId())
+                .teacherEmail(courseDetailResponseInterface.getTeacherEmail())
                 .teacherName(courseDetailResponseInterface.getTeacherName())
                 .rating(courseDetailResponseInterface.getAverageRating())
                 .numberOfRate(courseDetailResponseInterface.getNumberOfRate())
@@ -79,7 +85,7 @@ public class CourseMapper {
                 .level(course.getLevel().getName())
                 .courseName(course.getName())
                 .teacherName(course.getTeacherName())
-                .thumbnial(course.getThumbnial())
+                .thumbnail(course.getThumbnial())
                 .rating(course.getAverageRating())
                 .numberOfRate(course.getRatings().size())
                 .subject(course.getSubject())
@@ -102,7 +108,7 @@ public class CourseMapper {
                 .subject(courseResponseInterface.getSubject())
                 .teacherName(courseResponseInterface.getTeacherName())
                 .teacherAvatar(courseResponseInterface.getTeacherAvatar())
-                .thumbnial(courseResponseInterface.getThumbnial())
+                .thumbnail(courseResponseInterface.getThumbnial())
                 .totalVideo(courseResponseInterface.getTotalVideo())
                 .build();
     }

@@ -20,6 +20,9 @@ public class CourseDetailResponse{
     private String thumbnail;
     private int ordinalNumber;
     private String teacherName;
+    private String teacherAvatar;
+    private String teacherEmail;
+    private Long teacherId;
     private float rating;
     private int numberOfRate;
     private int totalVideo;
