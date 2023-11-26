@@ -12,6 +12,9 @@ public interface CourseDetailResponseInterface {
     String getName();
     String getthumbnail();
     String getTeacherName();
+    String getTeacherEmail();
+    String getTeacherAvatar();
+    Long getTeacherId();
     Float getAverageRating();
     Integer getNumberOfRate();
     Integer getTotalVideo();

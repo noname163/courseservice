@@ -1,5 +1,7 @@
 package com.example.courseservice.data.object;
 
+import java.time.LocalDateTime;
+
 import com.example.courseservice.data.constants.VideoStatus;
 
 public interface VideoItemResponseInterface {
@@ -7,5 +9,6 @@ public interface VideoItemResponseInterface {
     String getName();
     Float getDuration();
     VideoStatus getVideoStatus();
+    LocalDateTime getCreateDate();
     Boolean getIsAccess();
 }
