@@ -11,7 +11,6 @@ import com.example.courseservice.data.object.ReportResponseInterface;
 public interface ReportRepository extends JpaRepository<Report, Long> {
     @Query("SELECT " +
             "r.id AS reportId, " +
-            "r.userName AS userEmail, " +
             "r.userName AS userName, " +
             "r.userAvatar AS userAvatar, " +
             "r.userRole AS userRole, " +
@@ -19,10 +18,11 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "r.message AS reportContent, " +
             "r.reportType AS reportType, " +
             "r.createDate AS createDate, " +
-            "CASE WHEN r.updateTime IS NOT NULL THEN true ELSE false END AS isProcessed " +
+            "r.isProcessed AS isProcessed, "+
+            "r.objectId AS objectId "+
             "FROM Report r " +
             "LEFT JOIN Video v ON r.objectId = v.id " +
-            "WHERE r.objectId IS NOT NULL")
+            "WHERE r.objectId IS NOT NULL AND r.isProcessed = false")
     Page<ReportResponseInterface> getReportResponsesForVideos(Pageable pageable);
 
 }

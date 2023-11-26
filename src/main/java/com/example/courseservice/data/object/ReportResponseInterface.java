@@ -7,7 +7,7 @@ import com.example.courseservice.data.constants.ReportType;
 public interface ReportResponseInterface {
     Long getReportId();
 
-    String getUserEmail();
+    Long getObjectId();
 
     String getUserName();
 

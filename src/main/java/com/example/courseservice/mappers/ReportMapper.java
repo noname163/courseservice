@@ -17,13 +17,15 @@ public class ReportMapper {
 
         return ReportResponse.builder()
                 .reportId(reportResponseInterface.getReportId())
-                .userEmail(reportResponseInterface.getUserEmail())
                 .userName(reportResponseInterface.getUserName())
                 .userAvatar(reportResponseInterface.getUserAvatar())
                 .userRole(reportResponseInterface.getUserRole())
                 .objectName(reportResponseInterface.getObjectName())
                 .reportContent(reportResponseInterface.getReportContent())
                 .reportType(reportResponseInterface.getReportType())
+                .isProcessed(reportResponseInterface.getIsProcessed())
+                .createDate(reportResponseInterface.getCreateDate())
+                .objectId(reportResponseInterface.getObjectId())
                 .build();
     }
 
