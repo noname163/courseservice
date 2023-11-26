@@ -9,18 +9,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.NotificationTitle;
 import com.example.courseservice.data.constants.NotificationType;
 import com.example.courseservice.data.constants.ReportType;
 import com.example.courseservice.data.constants.SortType;
+import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.dto.request.ReportRequest;
 import com.example.courseservice.data.dto.request.SendMailRequest;
+import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.NotificationResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.ReportResponse;
 import com.example.courseservice.data.entities.Comment;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.ReplyComment;
 import com.example.courseservice.data.entities.Report;
 import com.example.courseservice.data.entities.Video;
@@ -66,13 +70,17 @@ public class ReportServiceImpl implements ReportService {
     public void createReport(ReportRequest reportRequest, MultipartFile multipartFile) {
         UserInformation currentUser = securityContextService.getCurrentUser();
         videoRepository.findById(reportRequest.getObjectId())
-                .orElseThrow(() -> new BadRequestException("Not found video with id " + reportRequest.getObjectId()));
+                .orElseThrow(() -> new BadRequestException(
+                        "Not found video with id " + reportRequest.getObjectId()));
 
         Report report = Report
                 .builder()
                 .userAvatar(currentUser.getAvatar())
                 .userRole(currentUser.getRole())
+                .userName(currentUser.getFullname())
+                .userEmail(currentUser.getEmail())
                 .userId(currentUser.getId())
+                .isProcessed(false)
                 .createDate(LocalDateTime.now())
                 .message(reportRequest.getContent())
                 .reportType(reportRequest.getReportType())
@@ -83,6 +91,7 @@ public class ReportServiceImpl implements ReportService {
             CloudinaryUrl cloudinaryUrl = uploadService.uploadMedia(multipartFile);
             report.setUrl(cloudinaryUrl.getUrl());
         }
+
         reportRepository.save(report);
 
         NotificationResponse notificationContent = notificationService
@@ -108,13 +117,54 @@ public class ReportServiceImpl implements ReportService {
     public PaginationResponse<List<ReportResponse>> getListReportResponse(Integer page, Integer size, String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<ReportResponseInterface> reportResponseInterfaces = reportRepository.getReportResponsesForVideos(pageable);
+        Page<ReportResponseInterface> reportResponseInterfaces = reportRepository
+                .getReportResponsesForVideos(pageable);
 
         return PaginationResponse.<List<ReportResponse>>builder()
                 .data(reportMapper.mapToReportResponseList(reportResponseInterfaces.getContent()))
                 .totalPage(reportResponseInterfaces.getTotalPages())
                 .totalRow(reportResponseInterfaces.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public void processReport(VerifyRequest verifyRequest) {
+        Report report = reportRepository.findById(verifyRequest.getId())
+                .orElseThrow(() -> new BadRequestException("Not found report with id " + verifyRequest.getId()));
+        Video video = videoRepository.findById(report.getObjectId())
+                .orElseThrow(() -> new BadRequestException("Not found video with id " + report.getObjectId()));
+        Course course = video.getCourse();
+        String notificationContent = "Hệ thống từ chối báo cáo video tên " + video.getName() + " của bạn. Lý do "
+                + verifyRequest.getReason();
+        report.setIsProcessed(true);
+        if (verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
+            video.setStatus(CommonStatus.BANNED);
+            videoRepository.save(video);
+            sendEmailService.sendMailService(SendMailRequest
+                    .builder()
+                    .subject("Thông báo hệ thống")
+                    .mailTemplate(SendMailTemplate.acceptReportEmail(report.getUserName(), report.getMessage()))
+                    .userEmail(report.getUserEmail())
+                    .build());
+            sendEmailService.sendMailService(SendMailRequest
+                    .builder()
+                    .subject("Thông báo hệ thống")
+                    .mailTemplate(SendMailTemplate.reportMessageToTeacherEmail(course.getTeacherName(), video.getName(),
+                            course.getName(), verifyRequest.getReason()))
+                    .userEmail(course.getTeacherEmail())
+                    .build());
+            notificationContent = "Hệ thống chấp nhận báo cáo video " + video.getName() + " của bạn.";
+        }
+        reportRepository.save(report);
+        notificationService
+                .createNotification(NotificationContent
+                        .builder()
+                        .title(NotificationTitle.SYSTEM_TITLE)
+                        .content(notificationContent)
+                        .email(report.getUserEmail())
+                        .userId(report.getUserId())
+                        .type(NotificationType.SYSTEM)
+                        .build());
     }
 
 }

@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class ReportResponse {
     private Long reportId;
+    private Long objectId;
     private String userEmail;
     private String userName;
     private String userAvatar;
