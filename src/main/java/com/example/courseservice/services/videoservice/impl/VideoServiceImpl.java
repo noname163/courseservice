@@ -155,10 +155,15 @@ public class VideoServiceImpl implements VideoService {
     public PaginationResponse<List<VideoItemResponse>> getListVideoAvailableByCourse(Long courseId, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Course course = courseRepository
-                .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
-                .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
-
+        Course course;
+        if (securityContextService.isLogin() != null) {
+            course = courseRepository.findByIdAndCommonStatusNot(courseId, CommonStatus.BANNED)
+                    .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
+        } else {
+            course = courseRepository
+                    .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
+                    .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
+        }
         Page<Video> videos = videoRepository.findByCourseAndStatus(course, CommonStatus.AVAILABLE, pageable);
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
         if (securityContextService.isLogin() != null) {

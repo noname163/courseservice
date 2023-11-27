@@ -148,7 +148,7 @@ public class VideoController {
                 .body(videoTmpService.getVideoTemporaryById(id));
     }
 
-    @Operation(summary = "Get list video course id")
+    @Operation(summary = "Get list video by course id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get video detail successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = VideoItemResponse.class))
