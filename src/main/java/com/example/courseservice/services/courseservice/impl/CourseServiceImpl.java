@@ -140,7 +140,7 @@ public class CourseServiceImpl implements CourseService {
         CourseDetailResponseInterface result;
         if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
             result = courseRepository
-                    .getCourseDetailsByCourseIdAndStatusNot(id, commonStatus);
+                    .getCourseDetailsByCourseIdAndStatusNot(id, CommonStatus.BANNED);
         } else {
             result = courseRepository
                     .getCourseDetailsByCourseId(id, commonStatus);
