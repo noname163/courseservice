@@ -20,22 +20,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.courseservice.configs.VNPayConfig;
 import com.example.courseservice.data.constants.NotificationType;
+import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TransactionStatus;
 import com.example.courseservice.data.constants.Validation;
 import com.example.courseservice.data.constants.VnPayConstants;
 import com.example.courseservice.data.dto.request.PaymentRequest;
 import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.StudentEnrollRequest;
+import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.TransactionResponse;
+import com.example.courseservice.data.dto.response.UserTransactionResponse;
+import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Notification;
 import com.example.courseservice.data.entities.Transaction;
 import com.example.courseservice.data.object.NotificationContent;
+import com.example.courseservice.data.object.TransactionResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.TransactionRepository;
@@ -52,6 +59,7 @@ import com.example.courseservice.template.SendMailTemplate;
 import com.example.courseservice.utils.ConvertStringToLocalDateTime;
 import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.GetIpAddress;
+import com.example.courseservice.utils.PageableUtil;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -80,6 +88,8 @@ public class TransactionServiceImpl implements TransactionService {
     private SendEmailService sendEmailService;
     @Autowired
     private EnvironmentVariable environmentVariable;
+    @Autowired
+    private PageableUtil pageableUtil;
 
     @Transactional
     @Override
@@ -243,6 +253,33 @@ public class TransactionServiceImpl implements TransactionService {
                 .userEmail(transaction.getUserEmail())
                 .build());
         return transactionMapper.mapEntityToDto(transaction);
+    }
+
+    @Override
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(Integer page, Integer size, String field,
+            SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Long userId = securityContextService.getCurrentUser().getId();
+        Page<TransactionResponseInterface> userTransaction = transactionRepository.findTransactionsByUserId(userId,
+                pageable);
+        return PaginationResponse.<List<UserTransactionResponse>>builder()
+                .data(transactionMapper.mapToTransactionResponseList(userTransaction.getContent()))
+                .totalPage(userTransaction.getTotalPages())
+                .totalRow(userTransaction.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(TransactionStatus transactionStatus,Integer page, Integer size, String field,
+            SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+
+        Page<TransactionResponseInterface> userTransaction = transactionRepository.findTransactionsByStatus(transactionStatus, pageable);
+        return PaginationResponse.<List<UserTransactionResponse>>builder()
+                .data(transactionMapper.mapToTransactionResponseList(userTransaction.getContent()))
+                .totalPage(userTransaction.getTotalPages())
+                .totalRow(userTransaction.getTotalElements())
+                .build();
     }
 
 }

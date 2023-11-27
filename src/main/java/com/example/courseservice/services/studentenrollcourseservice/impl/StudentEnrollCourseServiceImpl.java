@@ -49,7 +49,8 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
                 pageable);
         List<CourseResponse> courseResponses = studentEnrollCourse.getContent()
                 .stream()
-                .map(studentEnrolledCourse -> courseMapper.mapEntityToDto(studentEnrolledCourse.getCourse()))
+                .map(studentEnrolledCourse -> courseMapper
+                        .mapEntityToDto(studentEnrolledCourse.getCourse()))
                 .collect(Collectors.toList());
 
         return PaginationResponse.<List<CourseResponse>>builder()
@@ -86,23 +87,26 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
 
     @Override
     public List<Long> getListCourseId(String studentEmail) {
-        
-        List<StudentEnrolledCourses> courseEnrolled = studentEnrolledCoursesRepository.findByStudentEmail(studentEmail);
 
+        List<StudentEnrolledCourses> courseEnrolled = studentEnrolledCoursesRepository
+                .findByStudentEmail(studentEmail);
+        if (courseEnrolled == null) {
+            return List.of();
+        }
         return courseEnrolled.stream()
                 .map(enrolledCourse -> enrolledCourse.getCourse().getId())
                 .collect(Collectors.toList());
     }
 
-@Override
-public List<Long> getListCourseStudentNotEnrolled(String studentEmail, List<Course> courses) {
+    @Override
+    public List<Long> getListCourseStudentNotEnrolled(String studentEmail, List<Course> courses) {
         return studentEnrolledCoursesRepository.filterCourseStudentNotEnrolled(studentEmail, courses);
-}
+    }
 
-@Override
-public List<Long> getListVideoIdStudentAccess(String email, List<Course> courses) {
-        return studentEnrolledCoursesRepository.getVideoIdsByStudentEmailAndCourses(email, courses, CommonStatus.AVAILABLE);
-}
-
+    @Override
+    public List<Long> getListVideoIdStudentAccess(String email, List<Course> courses) {
+        return studentEnrolledCoursesRepository.getVideoIdsByStudentEmailAndCourses(email, courses,
+                CommonStatus.AVAILABLE);
+    }
 
 }

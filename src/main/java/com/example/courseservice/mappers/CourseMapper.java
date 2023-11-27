@@ -110,6 +110,7 @@ public class CourseMapper {
                 .teacherAvatar(courseResponseInterface.getTeacherAvatar())
                 .thumbnail(courseResponseInterface.getThumbnial())
                 .totalVideo(courseResponseInterface.getTotalVideo())
+                .isAccess(courseResponseInterface.getIsAccess())
                 .build();
     }
 

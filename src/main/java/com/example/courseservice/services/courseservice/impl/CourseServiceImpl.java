@@ -137,9 +137,18 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus) {
-        CourseDetailResponseInterface course = courseRepository
-                .getCourseDetailsByCourseId(id, commonStatus);
-        CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
+        CourseDetailResponseInterface result;
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
+            result = courseRepository
+                    .getCourseDetailsByCourseIdAndStatusNot(id, commonStatus);
+        } else {
+            result = courseRepository
+                    .getCourseDetailsByCourseId(id, commonStatus);
+        }
+        if (result == null) {
+            throw new BadRequestException("Not found course with id " + id);
+        }
+        CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(result);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, commonStatus);
         List<String> topics = courseTopicService.getTopicsByCourseId(id);
         courseDetailResponse.setCourseVideoResponses(videos);
@@ -357,9 +366,14 @@ public class CourseServiceImpl implements CourseService {
     public PaginationResponse<List<CourseResponse>> getListCourseByEmailForUser(String email, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        List<Long> enrolled = new ArrayList<>();
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
+            enrolled = studentEnrollCourseService.getListCourseId(securityContextService.getCurrentUser().getEmail());
+        }
 
-        Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmailAndStatus(email, CommonStatus.AVAILABLE, pageable);
-        
+        Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmail(email, enrolled,
+                CommonStatus.AVAILABLE, pageable);
+
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
                 .totalPage(listSubject.getTotalPages())

@@ -15,6 +15,7 @@ public class Validation {
     public static final String ONLY_ALPHABET_AND_SPACE_REGEX = "^.*[A-Za-z].*[\\s]?+.*$";
     public static final String ONLY_ALPHABET_AND_NUMBER_REGEX = "^[a-zA-Z0-9]*$";
     public static final String ONLY_ALPHABET_AND_NUMBER_AND_SPACE_REGEX = "^[a-zA-Z0-9 ]*$";
+    public static final String TIME_REGEX = "([2][0-3]|[0-1][0-9]|[1-9]):[0-5][0-9]:([0-5][0-9]|[6][0])";
     public static final int MIN_LENGTH_PASSWORD = 6;
     public static final int MIN_AGE = 16;
     public static final int MAX_AGE = 100;
