@@ -57,15 +57,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             }
         } else {
-            String cookiesToken = cookiesUtil.getCookieValue(request, Common.ACCESS_TOKEN);
-            if (cookiesToken != null
-                    && !cookiesToken.isBlank()) {
-                logger.info("Authentication by cookies");       
-                processAuthenticationForCookies(cookiesToken, request,
-                        response, filterChain);
-            } else {
-                processAuthentication(request, response, filterChain);
-            }
+            processAuthentication(request, response, filterChain);
+
         }
     }
 
@@ -109,26 +102,26 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private void processAuthenticationForCookies(String token, HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) {
-            try {
-                log.info("Start decode token " + token);
-                String accessToken = token;
-                Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken);
-                Claims claims = jwtClaims.getBody();
-                UserInformation userInformation = UserInformation
-                        .builder()
-                        .id(Long.parseLong(claims.get("id").toString()))
-                        .avatar(claims.get("avatar").toString())
-                        .email(claims.get("email").toString())
-                        .role(claims.get("role").toString())
-                        .fullname(claims.get("fullName").toString())
-                        .build();
-                securityContextService.setSecurityContext(userInformation);
-                log.info("Authentication success");
-                filterChain.doFilter(request, response);
-            } catch (Exception ex) {
-                log.error("Authentication fail " + ex.getMessage());
-                throw new BadRequestException(ex.getMessage(), ex);
-            }
+        try {
+            log.info("Start decode token " + token);
+            String accessToken = token;
+            Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken);
+            Claims claims = jwtClaims.getBody();
+            UserInformation userInformation = UserInformation
+                    .builder()
+                    .id(Long.parseLong(claims.get("id").toString()))
+                    .avatar(claims.get("avatar").toString())
+                    .email(claims.get("email").toString())
+                    .role(claims.get("role").toString())
+                    .fullname(claims.get("fullName").toString())
+                    .build();
+            securityContextService.setSecurityContext(userInformation);
+            log.info("Authentication success");
+            filterChain.doFilter(request, response);
+        } catch (Exception ex) {
+            log.error("Authentication fail " + ex.getMessage());
+            throw new BadRequestException(ex.getMessage(), ex);
+        }
     }
 
     private void processAuthenticationOfCourse(HttpServletRequest request, HttpServletResponse response,
