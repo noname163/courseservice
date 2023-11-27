@@ -161,6 +161,32 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.price AS price, " +
             "c.createDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status, " +
+            "CASE WHEN c.id IN :enrolledIds THEN true ELSE false END AS isAccess " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "WHERE c.teacherEmail = :email " +
+            "AND c.commonStatus = :status " +
+            "GROUP BY c.id, c.level.name")
+    Page<CourseResponseInterface> getCourseByEmail(
+            @Param("email") String email,
+            @Param("enrolledIds") List<Long> enrolledIds,
+            @Param("status") CommonStatus status,
+            Pageable pageable);
+
+    @Query("SELECT c.id AS id, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.name AS courseName, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +

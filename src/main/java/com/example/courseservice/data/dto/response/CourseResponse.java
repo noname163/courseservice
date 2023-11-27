@@ -24,4 +24,5 @@ public class CourseResponse {
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;
     private CommonStatus status;
+    private Boolean isAccess;
 }

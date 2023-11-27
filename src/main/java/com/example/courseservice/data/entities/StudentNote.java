@@ -1,6 +1,5 @@
 package com.example.courseservice.data.entities;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -38,7 +37,7 @@ public class StudentNote {
 
     private LocalDateTime updateTime;
 
-    private Time duration;
+    private String duration;
 
     private Long studentId;
     

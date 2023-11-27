@@ -34,4 +34,5 @@ public interface CourseResponseInterface {
 
     CommonStatus getStatus();
 
+    Boolean getIsAccess();
 }
