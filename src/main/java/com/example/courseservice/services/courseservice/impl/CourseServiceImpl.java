@@ -282,7 +282,7 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
         Page<CourseResponseInterface> courses = courseRepository.getAvailableCoursesByCommonStatusNotAndNotInList(
-                CommonStatus.AVAILABLE, coursesId,
+                CommonStatus.BANNED, coursesId,
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
