@@ -108,7 +108,7 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())&&securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
             PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(
                     securityContextService.getCurrentUser().getEmail(), page, size, field,
                     sortType);
