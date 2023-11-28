@@ -272,6 +272,22 @@ public class CourseController {
                 .build();
     }
 
+    @Operation(summary = "Delete draft courses for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Delete draft course successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @DeleteMapping("/teacher/draft")
+    public ResponseEntity<Void> deleteDraftCourseForTeacher(
+            @RequestParam(required = true) Long courseId) {
+        courseTmpService.deleteDraftCourse(courseId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
+
     @Operation(summary = "Filter courses for student")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
