@@ -16,7 +16,7 @@ public class ReportMapper {
         }
 
         return ReportResponse.builder()
-                .reportId(reportResponseInterface.getReportId())
+                .id(reportResponseInterface.getReportId())
                 .userName(reportResponseInterface.getUserName())
                 .userAvatar(reportResponseInterface.getUserAvatar())
                 .userRole(reportResponseInterface.getUserRole())
