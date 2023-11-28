@@ -8,6 +8,8 @@ public interface CourseResponseInterface {
 
     long getId();
 
+    Long getTeacherId();
+
     String getThumbnial();
 
     String getTeacherName();

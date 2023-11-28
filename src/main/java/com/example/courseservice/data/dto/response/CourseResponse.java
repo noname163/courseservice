@@ -25,4 +25,5 @@ public class CourseResponse {
     private LocalDateTime updateDate;
     private CommonStatus status;
     private Boolean isAccess;
+    private Long teacherId;
 }
