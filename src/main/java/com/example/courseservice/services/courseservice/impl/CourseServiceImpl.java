@@ -276,7 +276,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus) {
         CourseDetailResponseInterface course = courseRepository
-                .getCourseDetailsByCourseIdAndStatusNot(id, commonStatus);
+                .getCourseDetailsByCourseIdIgnoreStatus(id);
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, CommonStatus.ALL);
         courseDetailResponse.setCourseVideoResponses(videos);
