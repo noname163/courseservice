@@ -109,7 +109,7 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())&&securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
             PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(
                     securityContextService.getCurrentUser().getEmail(), page, size, field,
                     sortType);
@@ -277,7 +277,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus) {
         CourseDetailResponseInterface course = courseRepository
-                .getCourseDetailsByCourseIdAndStatusNot(id, commonStatus);
+                .getCourseDetailsByCourseIdIgnoreStatus(id);
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, CommonStatus.ALL);
         courseDetailResponse.setCourseVideoResponses(videos);

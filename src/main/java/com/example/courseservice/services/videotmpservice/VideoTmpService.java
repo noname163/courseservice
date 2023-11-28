@@ -51,4 +51,5 @@ public interface VideoTmpService {
     public VideoAdminResponse getVideoTemporaryById(Long id);
 
     public void deletedTemporaryVideo(Long id);
+    public void deletedTemporaryVideoByCourseId(Long id);
 }

@@ -20,6 +20,7 @@ public class SendEmailServiceImpl implements SendEmailService {
 
     @Autowired
     private JavaMailSender javaMailSender;
+    
     @Override
     @Async
     public void sendMailService(SendMailRequest sendMailRequest) {

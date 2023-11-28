@@ -4,13 +4,10 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,14 +18,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.courseservice.data.constants.ReportType;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.ReportRequest;
-import com.example.courseservice.data.dto.request.TopicEditRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.ReportResponse;
 import com.example.courseservice.exceptions.BadRequestException;
-import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.reportservice.ReportService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -85,6 +81,24 @@ public class ReportController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(reportService.getListReportResponse(page, size, field, sortType));
+    }
+
+    @Operation(summary = "Get list report by type")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get successfull."),
+            @ApiResponse(responseCode = "400", description = "Invalid information", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/by-type")
+    public ResponseEntity<PaginationResponse<List<ReportResponse>>> getReportListByType(
+            @RequestParam(required = false, defaultValue = "ALL") ReportType status,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(reportService.getListReportResponseByStatus(status, page, size, field, sortType));
     }
 
 }

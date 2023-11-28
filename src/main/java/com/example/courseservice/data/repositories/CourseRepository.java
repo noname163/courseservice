@@ -275,6 +275,32 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "GROUP BY c.id, c.level.name")
     CourseDetailResponseInterface getCourseDetailsByCourseIdAndStatusNot(@Param("id") Long id,
             @Param("status") CommonStatus commonStatus);
+    @Query("SELECT " +
+            "c.id AS id, " +
+            "COUNT(DISTINCT sec.studentEmail) AS totalStudent, " +
+            "c.description AS description, " +
+            "c.thumbnial AS thumbnail, " +
+            "c.teacherName AS teacherName, " +
+            "c.teacherEmail AS teacherEmail, " +
+            "c.teacherId AS teacherId, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.name AS name, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "LEFT JOIN c.videos v " +
+            "LEFT JOIN c.studentEnrolledCourses sec ON sec.course.id = c.id " +
+            "WHERE c.id = :id " +
+            "GROUP BY c.id, c.level.name")
+    CourseDetailResponseInterface getCourseDetailsByCourseIdIgnoreStatus(@Param("id") Long id);
 
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +

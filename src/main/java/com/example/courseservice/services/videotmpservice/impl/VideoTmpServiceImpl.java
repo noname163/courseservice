@@ -352,4 +352,16 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         videoTemporaryRepository.delete(videoTemporary);
     }
 
+    @Override
+    public void deletedTemporaryVideoByCourseId(Long id) {
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(id).orElseThrow(()-> new BadRequestException("Not exist course temporary with id " + id));
+        Long teacherId = securityContextService.getCurrentUser().getId();
+        if(courseTemporary.getTeacherId()!=teacherId){
+            throw new BadRequestException("Owner permission require");
+        }
+        List<VideoTemporary> videoTemporaries = videoTemporaryRepository.findByCourseTemporaryId(id);
+
+        videoTemporaryRepository.deleteAll(videoTemporaries);
+    }
+
 }
