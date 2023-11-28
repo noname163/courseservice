@@ -93,8 +93,6 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         if (!course.getTeacherEmail().equals(currentUser.getEmail())) {
             throw new InValidAuthorizationException("Owner this course to create video");
         }
-        course.setCommonStatus(CommonStatus.UNAVAILABLE);
-        courseRepository.save(course);
 
         CourseTemporary courseTemporary = courseTmpService.createNewCourseTemporaryByCourse(course);
         

@@ -138,8 +138,6 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
             }
         }
-        course.setCommonStatus(CommonStatus.AVAILABLE);
-        courseRepository.save(course);
     }
 
     @Override
