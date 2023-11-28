@@ -150,8 +150,10 @@ public class CourseTemporaryMapper {
                 .status(courseResponseInterface.getStatus())
                 .subject(courseResponseInterface.getSubject())
                 .teacherName(courseResponseInterface.getTeacherName())
+                .teacherAvatar(courseResponseInterface.getTeacherAvatar())
                 .thumbnail(courseResponseInterface.getThumbnial())
                 .totalVideo(courseResponseInterface.getTotalVideo())
+                .teacherId(courseResponseInterface.getTeacherId())
                 .build();
     }
 
