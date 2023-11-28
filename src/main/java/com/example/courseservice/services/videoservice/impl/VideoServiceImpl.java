@@ -216,7 +216,7 @@ public class VideoServiceImpl implements VideoService {
             return null;
         }
         if (CommonStatus.ALL.equals(commonStatus)) {
-            Page<Video> videos = videoRepository.findByCourseIn(courses, pageable);
+            Page<Video> videos = videoRepository.findByCourseInAndStatusNot(courses, CommonStatus.DELETED,pageable);
             return PaginationResponse.<List<VideoAdminResponse>>builder()
                     .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                     .totalPage(videos.getTotalPages())
