@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 @Data
 public class ReportResponse {
-    private Long reportId;
+    private Long id;
     private Long objectId;
     private String userEmail;
     private String userName;

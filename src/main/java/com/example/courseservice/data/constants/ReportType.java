@@ -1,5 +1,5 @@
 package com.example.courseservice.data.constants;
 
 public enum ReportType {
-    TECHNICAL, ETHICAL, POLICY
+    ALL, TECHNICAL, INTEGRITY, ACADEMIC, OPINION, OTHERS
 }
