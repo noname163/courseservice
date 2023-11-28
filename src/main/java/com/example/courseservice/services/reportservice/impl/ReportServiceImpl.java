@@ -19,21 +19,15 @@ import com.example.courseservice.data.dto.request.ReportRequest;
 import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
-import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.NotificationResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.ReportResponse;
-import com.example.courseservice.data.entities.Comment;
 import com.example.courseservice.data.entities.Course;
-import com.example.courseservice.data.entities.ReplyComment;
 import com.example.courseservice.data.entities.Report;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.NotificationContent;
 import com.example.courseservice.data.object.ReportResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
-import com.example.courseservice.data.repositories.CommentRepository;
-import com.example.courseservice.data.repositories.CourseRepository;
-import com.example.courseservice.data.repositories.ReplyCommentRepository;
 import com.example.courseservice.data.repositories.ReportRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
@@ -165,6 +159,25 @@ public class ReportServiceImpl implements ReportService {
                         .userId(report.getUserId())
                         .type(NotificationType.SYSTEM)
                         .build());
+    }
+
+    @Override
+    public PaginationResponse<List<ReportResponse>> getListReportResponseByStatus(ReportType reportType, Integer page,
+            Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Page<ReportResponseInterface> reportResponseInterfaces;
+        if (reportType.equals(ReportType.ALL)) {
+            reportResponseInterfaces = reportRepository
+                    .getReportResponsesForVideos(pageable);
+        } else {
+            reportResponseInterfaces = reportRepository.getReportResponsesForVideosByStatus(reportType, pageable);
+        }
+
+        return PaginationResponse.<List<ReportResponse>>builder()
+                .data(reportMapper.mapToReportResponseList(reportResponseInterfaces.getContent()))
+                .totalPage(reportResponseInterfaces.getTotalPages())
+                .totalRow(reportResponseInterfaces.getTotalElements())
+                .build();
     }
 
 }
