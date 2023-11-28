@@ -196,6 +196,28 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<CourseResponseInterface> getCourseByEmailAndStatus(@Param("email") String email,
             @Param("status") CommonStatus commonStatus, Pageable pageable);
 
+    @Query("SELECT c.id AS id, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.name AS courseName, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "WHERE c.teacherEmail = :email " +
+            "AND c.commonStatus <> :status " +
+            "GROUP BY c.id, c.level.name")
+    Page<CourseResponseInterface> getCourseByEmailAndStatusNot(@Param("email") String email,
+            @Param("status") CommonStatus commonStatus, Pageable pageable);
+
     @Query("SELECT " +
             "c.id AS id, " +
             "COUNT(DISTINCT sec.studentEmail) AS totalStudent, " +

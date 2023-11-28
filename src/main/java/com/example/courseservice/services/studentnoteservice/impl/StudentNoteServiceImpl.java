@@ -38,12 +38,10 @@ public class StudentNoteServiceImpl implements StudentNoteService {
                 () -> new BadRequestException("Not found video with Id " + studentNoteRequest.getVideoId()));
         String[] time = studentNoteRequest.getDuration().split(":");
         int timeInSecond = Integer.parseInt(time[0])*60 + Integer.parseInt(time[1])*60 + Integer.parseInt(time[2]);
-        float videoDuration = video.getDuration();
-        System.out.println(videoDuration);
         if (video.getDuration() < timeInSecond) {
             throw new BadRequestException("Time of note must smaller than video duration");
         }
-        List<StudentNote> studentNotes = studentNoteRepository.findByStudentIdAndVideoId(userId,
+        List<StudentNote> studentNotes = studentNoteRepository.findByStudentIdAndVideoIdOrderByDurationAsc(userId,
                 studentNoteRequest.getVideoId());
         if (studentNotes.size() > 5) {
             throw new BadRequestException("Only 5 note exist in 1 video");
@@ -63,7 +61,7 @@ public class StudentNoteServiceImpl implements StudentNoteService {
     @Override
     public List<StudentNoteResponse> getNoteByVideoId(Long videoId) {
         Long userId = securityContextService.getCurrentUser().getId();
-        List<StudentNote> studentNotes = studentNoteRepository.findByStudentIdAndVideoId(userId, videoId);
+        List<StudentNote> studentNotes = studentNoteRepository.findByStudentIdAndVideoIdOrderByDurationAsc(userId, videoId);
         return studentNoteMapper.mapToStudentNoteResponseList(studentNotes);
     }
 
