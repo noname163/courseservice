@@ -372,4 +372,14 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         return courseTemporary;
     }
 
+    @Override
+    public void deleteDraftCourse(Long id) {
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(id).orElseThrow(()-> new BadRequestException("Not exist course draft with id " + id));
+        Long teacherId = securityContextService.getCurrentUser().getId();
+        if(courseTemporary.getTeacherId()!= teacherId){
+            throw new InValidAuthorizationException("Owner permission require");
+        }
+        courseTemporaryRepository.delete(courseTemporary);
+    }
+
 }

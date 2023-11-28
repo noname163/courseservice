@@ -33,4 +33,5 @@ public interface CourseTmpService {
     public void requestVerifyCourses(List<Long> courseIds);
     public void rejectCourse(VerifyRequest actionRequest);
     public CourseTemporary createNewCourseTemporaryByCourse(Course course);
+    public void deleteDraftCourse(Long id);
 }
