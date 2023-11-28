@@ -26,6 +26,9 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +
             "ct.teacherName AS teacherName, " +
+            "ct.teacherEmail AS teacherEmail, "+
+            "ct.teacherAvatar AS teacherAvatar, "+
+            "ct.teacherId AS teacherId, "+
             "ct.name AS courseName, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
             "ct.subject AS subject, " +

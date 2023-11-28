@@ -118,7 +118,9 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             CourseTemporary courseTemporary = courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
             courseTemporary.setTeacherEmail(currentUser.getEmail());
+            courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
             courseTemporary.setTeacherId(currentUser.getId());
+            courseTemporary.setSubject(course.getSubject());
             courseTemporary.setTeacherName(currentUser.getFullname());
             courseTemporaryRepository.save(courseTemporary);
         } else {
@@ -127,13 +129,17 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
             courseTemporary.setStatus(CommonStatus.DRAFT);
             courseTemporary.setTeacherEmail(currentUser.getEmail());
+            courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
             courseTemporary.setTeacherId(currentUser.getId());
+            courseTemporary.setSubject(course.getSubject());
             courseTemporary.setTeacherName(currentUser.getFullname());
             courseTemporaryRepository.save(courseTemporary);
             if (courseUpdateRequest.getVideoOrders() != null && !courseUpdateRequest.getVideoOrders().isEmpty()) {
                 videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
             }
         }
+        course.setCommonStatus(CommonStatus.AVAILABLE);
+        courseRepository.save(course);
     }
 
     @Override
