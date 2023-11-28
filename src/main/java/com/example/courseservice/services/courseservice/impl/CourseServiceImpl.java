@@ -93,7 +93,8 @@ public class CourseServiceImpl implements CourseService {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmail(currentUser.getEmail(), pageable);
+        Page<CourseResponseInterface> listSubject = courseRepository
+                .getCourseByEmailAndStatusNot(currentUser.getEmail(), CommonStatus.DELETED, pageable);
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
                 .totalPage(listSubject.getTotalPages())
@@ -108,7 +109,7 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())&&securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
             PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(
                     securityContextService.getCurrentUser().getEmail(), page, size, field,
                     sortType);
