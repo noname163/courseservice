@@ -149,6 +149,7 @@ public class CourseController {
                 status.add(CommonStatus.DRAFT);
                 status.add(CommonStatus.REJECT);
                 status.add(CommonStatus.DELETED);
+                status.add(CommonStatus.UPDATING);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseTmpService.getCourseTmpAndStatusNot(status, page, size, field,
