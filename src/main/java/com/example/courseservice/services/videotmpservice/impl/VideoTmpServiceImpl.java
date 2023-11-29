@@ -351,7 +351,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     }
 
     @Override
-    public void deletedTemporaryVideoByCourseId(Long id) {
+    public void deletedTemporaryVideoByCourseTmpId(Long id) {
         CourseTemporary courseTemporary = courseTemporaryRepository.findById(id).orElseThrow(()-> new BadRequestException("Not exist course temporary with id " + id));
         Long teacherId = securityContextService.getCurrentUser().getId();
         if(courseTemporary.getTeacherId()!=teacherId){

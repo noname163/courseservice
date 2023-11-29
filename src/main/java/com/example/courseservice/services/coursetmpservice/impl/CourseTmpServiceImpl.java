@@ -383,6 +383,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         if(courseTemporary.getTeacherId()!= teacherId){
             throw new InValidAuthorizationException("Owner permission require");
         }
+        videoTmpService.deletedTemporaryVideoByCourseTmpId(id);
+        courseTopicService.removeTopicByCourseTmp(courseTemporary);
         courseTemporaryRepository.delete(courseTemporary);
     }
 

@@ -100,7 +100,7 @@ public class CourseTopicServiceImpl implements CourseTopicService {
     @Override
     public void updateCourseTopicByCourseTemporary(CourseTemporary courseTemporary, Course course) {
         List<CourseTopic> courseTopics = courseTopicRepository.findByCourseTemporary(courseTemporary);
-        if(courseTopics.isEmpty()){
+        if (courseTopics.isEmpty()) {
             throw new BadRequestException("Cannot verify course without topic");
         }
         List<CourseTopic> editCourseTopic = new ArrayList<>();
@@ -224,6 +224,16 @@ public class CourseTopicServiceImpl implements CourseTopicService {
             }
             courseTopicRepository.saveAll(updateData);
         }
+    }
+
+    @Override
+    public void removeTopicByCourseTmp(CourseTemporary courseTemporary) {
+        Long id = securityContextService.getCurrentUser().getId();
+        List<CourseTopic> courseTopics = courseTopicRepository.findByCourseTemporary(courseTemporary);
+        if(!courseTemporary.getTeacherId().equals(id)){
+            new InValidAuthorizationException("Need owner permisstion to add topic");
+        }
+        courseTopicRepository.deleteAll(courseTopics);
     }
 
 }
