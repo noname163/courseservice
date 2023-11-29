@@ -53,9 +53,9 @@ public class TeacherIncomeMapper {
     public CourseRevenueByMonth mapToCourseRevenueByMonth(CourseRevenueByMonthInterface courseRevenueByMonth) {
         return CourseRevenueByMonth
                 .builder()
+                .id(courseRevenueByMonth.getId())
                 .revenue(courseRevenueByMonth.getRevenue())
                 .month(courseRevenueByMonth.getMonth())
-                .year(courseRevenueByMonth.getYear())
                 .build();
     }
 

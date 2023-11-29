@@ -26,4 +26,5 @@ public class CourseResponse {
     private CommonStatus status;
     private Boolean isAccess;
     private Long teacherId;
+    private Float progress;
 }

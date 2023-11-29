@@ -6,7 +6,7 @@ import lombok.Data;
 @Builder
 @Data
 public class CourseRevenueByMonth {
+    private Long id;
     private Double revenue;
-    private Integer month;
-    private Integer year;
+    private String month;
 }

@@ -16,5 +16,6 @@ public interface SecurityContextService {
     public UserInformation isLogin();
 
     public Boolean getLoginStatus();
+
     public void setLoginStatus(Boolean status);
 }

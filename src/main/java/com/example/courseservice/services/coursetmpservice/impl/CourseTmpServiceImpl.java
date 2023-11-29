@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -23,6 +24,7 @@ import com.example.courseservice.data.dto.request.CourseTemporaryUpdateRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
 import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
+import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
@@ -102,43 +104,57 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
+    @Transactional
     public void updateRealCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thumbnail) {
-
         UserInformation currentUser = securityContextService.getCurrentUser();
         Course course = courseService.getCourseByIdAndEmail(courseUpdateRequest.getCourseId(),
                 currentUser.getEmail());
-        CloudinaryUrl thumbnial = null;
-        if (thumbnail != null) {
-            FileResponse fileResponse = fileService.fileStorage(thumbnail);
-            thumbnial = uploadService.uploadMedia(fileResponse);
-        }
-        Optional<CourseTemporary> existCourseTemporaryOtp = courseTemporaryRepository
+        CloudinaryUrl thumbnailUrl = processThumbnail(thumbnail);
+        Optional<CourseTemporary> existingCourseTemporary = courseTemporaryRepository
                 .findByCourseId(courseUpdateRequest.getCourseId());
-        if (existCourseTemporaryOtp.isEmpty()) {
-            CourseTemporary courseTemporary = courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
-            courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
-            courseTemporary.setTeacherEmail(currentUser.getEmail());
-            courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
-            courseTemporary.setTeacherId(currentUser.getId());
-            courseTemporary.setSubject(course.getSubject());
-            courseTemporary.setTeacherName(currentUser.getFullname());
-            courseTemporary = courseTemporaryRepository.save(courseTemporary);
-            courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
-        } else {
-            CourseTemporary courseTemporary = existCourseTemporaryOtp.get();
-            courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
-            courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
-            courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
-            courseTemporary.setStatus(CommonStatus.DRAFT);
-            courseTemporary.setTeacherEmail(currentUser.getEmail());
-            courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
-            courseTemporary.setTeacherId(currentUser.getId());
-            courseTemporary.setSubject(course.getSubject());
-            courseTemporary.setTeacherName(currentUser.getFullname());
-            courseTemporaryRepository.save(courseTemporary);
-            if (courseUpdateRequest.getVideoOrders() != null && !courseUpdateRequest.getVideoOrders().isEmpty()) {
-                videoService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
-            }
+
+        CourseTemporary courseTemporary = createOrUpdateCourseTemporary(existingCourseTemporary.orElse(null),
+                courseUpdateRequest, course, thumbnailUrl, currentUser);
+
+        courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
+
+        updateVideoOrders(courseUpdateRequest.getVideoOrders(), course, courseTemporary);
+    }
+
+    private CloudinaryUrl processThumbnail(MultipartFile thumbnail) {
+        return (thumbnail != null) ? uploadService.uploadMedia(fileService.fileStorage(thumbnail)) : null;
+    }
+
+    private CourseTemporary createOrUpdateCourseTemporary(CourseTemporary existingCourseTemporary,
+            CourseUpdateRequest courseUpdateRequest, Course course,
+            CloudinaryUrl thumbnailUrl, UserInformation currentUser) {
+        CourseTemporary courseTemporary = (existingCourseTemporary != null)
+                ? courseTemporaryMapper.mapCourseTemporary(existingCourseTemporary, courseUpdateRequest, course)
+                : courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
+
+        courseTemporary.setThumbnial(thumbnailUrl != null ? thumbnailUrl.getUrl() : course.getThumbnial());
+        courseTemporary.setStatus(CommonStatus.DRAFT);
+        courseTemporary.setTeacherEmail(currentUser.getEmail());
+        courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
+        courseTemporary.setTeacherId(currentUser.getId());
+        courseTemporary.setSubject(course.getSubject());
+        courseTemporary.setTeacherName(currentUser.getFullname());
+
+        return courseTemporaryRepository.save(courseTemporary);
+    }
+
+    private void updateVideoOrders(List<VideoOrder> videoOrders, Course course, CourseTemporary courseTemporary) {
+        if (videoOrders != null && !videoOrders.isEmpty()) {
+            List<VideoOrder> videoOrdersTemporary = videoOrders.stream()
+                    .filter(VideoOrder::getIsDraft)
+                    .collect(Collectors.toList());
+
+            List<VideoOrder> videoOrdersReal = videoOrders.stream()
+                    .filter(videoOrder -> !videoOrder.getIsDraft())
+                    .collect(Collectors.toList());
+
+            videoService.updateVideoOrder(videoOrdersReal, course.getId());
+            videoTmpService.updateVideoOrder(videoOrdersTemporary, courseTemporary.getId());
         }
     }
 
@@ -217,12 +233,20 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 .orElseThrow(
                         () -> new BadRequestException("Cannot found level with id " + courseTemporary.getLevelId()
                                 + " in function insertCourseTmpToReal"));
-        List<CourseVideoResponse> courseVideoResponse = videoTmpService.getCourseVideoResponseById(id);
+
+        List<CourseVideoResponse> courseVideoTemporaryResponse = videoTmpService.getCourseVideoResponseById(id);
+        Course course = courseTemporary.getCourse();
+        if (course != null) {
+            Long courseId = course.getId();
+            List<CourseVideoResponse> courseVideoResponse = videoService.getVideoByCourseIdAndCommonStatus(courseId,
+                    CommonStatus.AVAILABLE);
+            courseVideoTemporaryResponse.addAll(courseVideoResponse);
+        }
         CourseDetailResponse courseDetailResponse = courseTemporaryMapper.mapCourseDetailResponse(courseTemporary);
         List<String> topics = courseTopicService.getTopicsByCourseTmpId(id);
         courseDetailResponse.setTopics(topics);
         courseDetailResponse.setLevel(level.getName());
-        courseDetailResponse.setCourseVideoResponses(courseVideoResponse);
+        courseDetailResponse.setCourseVideoResponses(courseVideoTemporaryResponse);
 
         return courseDetailResponse;
     }
@@ -250,7 +274,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         } else {
             course = courseTemporary.getCourse();
             course.setCommonStatus(CommonStatus.AVAILABLE);
-            course.setDescription(Optional.ofNullable(courseTemporary.getDescription()).orElse(course.getDescription()));
+            course.setDescription(
+                    Optional.ofNullable(courseTemporary.getDescription()).orElse(course.getDescription()));
             course.setName(Optional.ofNullable(courseTemporary.getName()).orElse(course.getName()));
             course.setPrice(Optional.ofNullable(courseTemporary.getPrice()).orElse(course.getPrice()));
             course.setUpdateTime(LocalDateTime.now());
@@ -343,11 +368,13 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> searchTemporaryCourseForTeacher(String searchTerm, Integer page, Integer size,
+    public PaginationResponse<List<CourseResponse>> searchTemporaryCourseForTeacher(String searchTerm, Integer page,
+            Integer size,
             String field, SortType sortType) {
         Long teacherId = securityContextService.getCurrentUser().getId();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<CourseTemporary> courseTemporaries = courseTemporaryRepository.searchCourseTemporariesByTeacher(searchTerm,teacherId,
+        Page<CourseTemporary> courseTemporaries = courseTemporaryRepository.searchCourseTemporariesByTeacher(searchTerm,
+                teacherId,
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
@@ -384,9 +411,10 @@ public class CourseTmpServiceImpl implements CourseTmpService {
 
     @Override
     public void deleteDraftCourse(Long id) {
-        CourseTemporary courseTemporary = courseTemporaryRepository.findById(id).orElseThrow(()-> new BadRequestException("Not exist course draft with id " + id));
+        CourseTemporary courseTemporary = courseTemporaryRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Not exist course draft with id " + id));
         Long teacherId = securityContextService.getCurrentUser().getId();
-        if(courseTemporary.getTeacherId()!= teacherId){
+        if (courseTemporary.getTeacherId() != teacherId) {
             throw new InValidAuthorizationException("Owner permission require");
         }
         videoTmpService.deletedTemporaryVideoByCourseTmpId(id);

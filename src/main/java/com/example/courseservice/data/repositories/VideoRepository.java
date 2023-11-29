@@ -55,6 +55,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             "COUNT(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.LIKE THEN 1 ELSE null END) AS totalLike, "
             +
             "COUNT(c.id) AS totalComment, " +
+            "FALSE AS isDraft, "+
             "v.ordinalNumber AS ordinalNumber " +
             "FROM Video v " +
             "LEFT JOIN v.reactVideos rv " +

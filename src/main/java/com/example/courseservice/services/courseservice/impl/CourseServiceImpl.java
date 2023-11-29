@@ -1,7 +1,9 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
+import com.example.courseservice.data.repositories.StudentVideoProgressRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.CourseMapper;
 import com.example.courseservice.mappers.CourseTemporaryMapper;
@@ -67,6 +70,8 @@ public class CourseServiceImpl implements CourseService {
     private SecurityContextService securityContextService;
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private StudentVideoProgressRepository studentVideoProgressRepository;
     @Autowired
     private CourseTemporaryRepository courseTemporaryRepository;
     @Autowired
@@ -109,7 +114,8 @@ public class CourseServiceImpl implements CourseService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())&&securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())
+                && securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
             PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(
                     securityContextService.getCurrentUser().getEmail(), page, size, field,
                     sortType);
@@ -139,9 +145,14 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus) {
         CourseDetailResponseInterface result;
+        Set<Long> isWatched = new HashSet<>();
         if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
             result = courseRepository
                     .getCourseDetailsByCourseIdAndStatusNot(id, CommonStatus.BANNED);
+            if (securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
+                isWatched = studentVideoProgressRepository
+                        .getCompletedVideoIdsByStudentAndCourse(securityContextService.getCurrentUser().getId(), id);
+            }
         } else {
             result = courseRepository
                     .getCourseDetailsByCourseId(id, commonStatus);
@@ -151,6 +162,14 @@ public class CourseServiceImpl implements CourseService {
         }
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(result);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, commonStatus);
+        if (!isWatched.isEmpty() && !videos.isEmpty()) {
+            for (CourseVideoResponse video : videos) {
+                if(isWatched.contains(video.getId())){
+                    video.setIsWatched(true);
+                }
+            }
+            courseDetailResponse.setTotalCompleted(isWatched.size());
+        }
         List<String> topics = courseTopicService.getTopicsByCourseId(id);
         courseDetailResponse.setCourseVideoResponses(videos);
         courseDetailResponse.setTopics(topics);

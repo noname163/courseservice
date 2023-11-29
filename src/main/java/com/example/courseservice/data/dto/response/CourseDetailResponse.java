@@ -18,7 +18,6 @@ public class CourseDetailResponse{
     private String description;
     private String name;
     private String thumbnail;
-    private int ordinalNumber;
     private String teacherName;
     private String teacherAvatar;
     private String teacherEmail;
@@ -32,6 +31,7 @@ public class CourseDetailResponse{
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;
     private CommonStatus status;
+    private Integer totalCompleted;
     private List<String> topics;
     private List<CourseVideoResponse> courseVideoResponses;
 }

@@ -82,7 +82,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
             "WHERE c.commonStatus = :status " +
-            "GROUP BY c.id, c.level.name")
+            "GROUP BY c.id, c.level.name "+
+            "ORDER BY averageRating DESC")
     Page<CourseResponseInterface> getByCommonStatusJPQL(@Param("status") CommonStatus status, Pageable pageable);
 
     @Query("SELECT c.id AS id, " +
@@ -101,7 +102,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.commonStatus AS status " +
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
-            "GROUP BY c.id, c.level.name")
+            "GROUP BY c.id, c.level.name "+
+            "ORDER BY averageRating DESC")
     Page<CourseResponseInterface> findByAllCommonStatus(Pageable pageable);
 
     @Query("SELECT c.id AS id, " +
@@ -122,7 +124,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "LEFT JOIN c.ratings r " +
             "WHERE c.commonStatus <> :status " +
             "AND c.id NOT IN :excludedIds " +
-            "GROUP BY c.id, c.level.name")
+            "GROUP BY c.id, c.level.name "+
+            "ORDER BY averageRating DESC")
     Page<CourseResponseInterface> getAvailableCoursesByCommonStatusNotAndNotInList(
             @Param("status") CommonStatus status,
             @Param("excludedIds") List<Long> excludedIds,

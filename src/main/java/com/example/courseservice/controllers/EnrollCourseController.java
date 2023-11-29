@@ -16,6 +16,7 @@ import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
+import com.example.courseservice.services.studentprogressservice.StudentProgressService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +29,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 public class EnrollCourseController {
     @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
+    @Autowired
+    private StudentProgressService studentProgressService;
 
     @Operation(summary = "Get student courses")
     @ApiResponses(value = {
@@ -46,6 +49,6 @@ public class EnrollCourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(studentEnrollCourseService.getListCourse(page, size, field, sortType));
+                .body(studentProgressService.getCourseOfCurrentUser(page, size, field, sortType));
     }
 }
