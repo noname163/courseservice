@@ -69,10 +69,12 @@ public class VideoMapper {
                 .videoStatus(video.getVideoStatus())
                 .duration(video.getDuration())
                 .thumbnail(video.getUrlThumbnail())
+                .videoUrl(video.getVideoStatus().equals(VideoStatus.PUBLIC) ? video.getUrlVideo() : null)
                 .createDate(video.getCreateDate())
                 .like(video.getReaction(ReactStatus.LIKE))
                 .material(video.getUrlMaterial())
                 .name(video.getName())
+                .isWatched(false)
                 .build();
     }
 
@@ -139,6 +141,7 @@ public class VideoMapper {
                 .totalLike(courseVideoResponseInterface.getTotalLike())
                 .totalComment(courseVideoResponseInterface.getTotalComment())
                 .videoStatus(courseVideoResponseInterface.getVideoStatus())
+                .isWatched(false)
                 .ordinalNumber(Optional.ofNullable(courseVideoResponseInterface.getOrdinalNumber()).orElse(0))
                 .build();
     }

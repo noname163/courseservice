@@ -49,6 +49,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if (isUriWhitelisted(request)) {
             if (request.getRequestURI().contentEquals("/api/courses/user")
+                    || request.getRequestURI().contentEquals("/api/courses/detail")
                     || request.getRequestURI().contentEquals("/api/courses/user/find-by-email")
                     || request.getRequestURI().contains("/api/videos/user")
                     || (request.getRequestURI().contentEquals("/api/videos") && request.getMethod().equals("GET"))) {
@@ -97,30 +98,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             }
         } else {
             throw new ForbiddenException("JWT Access Token does not start with 'Bearer '.");
-        }
-    }
-
-    private void processAuthenticationForCookies(String token, HttpServletRequest request, HttpServletResponse response,
-            FilterChain filterChain) {
-        try {
-            log.info("Start decode token " + token);
-            String accessToken = token;
-            Jws<Claims> jwtClaims = jwtTokenUtil.getJwsClaims(accessToken);
-            Claims claims = jwtClaims.getBody();
-            UserInformation userInformation = UserInformation
-                    .builder()
-                    .id(Long.parseLong(claims.get("id").toString()))
-                    .avatar(claims.get("avatar").toString())
-                    .email(claims.get("email").toString())
-                    .role(claims.get("role").toString())
-                    .fullname(claims.get("fullName").toString())
-                    .build();
-            securityContextService.setSecurityContext(userInformation);
-            log.info("Authentication success");
-            filterChain.doFilter(request, response);
-        } catch (Exception ex) {
-            log.error("Authentication fail " + ex.getMessage());
-            throw new BadRequestException(ex.getMessage(), ex);
         }
     }
 

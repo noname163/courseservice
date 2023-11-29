@@ -90,6 +90,9 @@ public class Course {
     private List<Video> videos;
 
     @OneToMany(mappedBy = "course")
+    private List<StudentVideoProgress> studentVideoProgresses;
+
+    @OneToMany(mappedBy = "course")
     private List<TeacherIncome> teacherIncomes;
 
     @Transient 

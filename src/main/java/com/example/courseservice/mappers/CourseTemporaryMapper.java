@@ -116,6 +116,9 @@ public class CourseTemporaryMapper {
                 .price(courseTemporary.getPrice())
                 .subject(courseTemporary.getSubject())
                 .teacherName(courseTemporary.getTeacherName())
+                .teacherAvatar(courseTemporary.getTeacherAvatar())
+                .teacherId(courseTemporary.getTeacherId())
+                .teacherEmail(courseTemporary.getTeacherEmail())
                 .thumbnail(courseTemporary.getThumbnial())
                 .description(courseTemporary.getDescription())
                 .build();

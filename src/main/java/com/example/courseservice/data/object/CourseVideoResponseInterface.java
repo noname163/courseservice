@@ -11,4 +11,5 @@ public interface CourseVideoResponseInterface {
     Integer getTotalComment();
     Integer getOrdinalNumber();
     VideoStatus getVideoStatus();
+    Boolean getIsWatched();
 }
