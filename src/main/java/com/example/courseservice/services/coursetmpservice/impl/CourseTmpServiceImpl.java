@@ -116,14 +116,14 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 .findByCourseId(courseUpdateRequest.getCourseId());
         if (existCourseTemporaryOtp.isEmpty()) {
             CourseTemporary courseTemporary = courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
-            courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
             courseTemporary.setThumbnial(thumbnial != null ? thumbnial.getUrl() : course.getThumbnial());
             courseTemporary.setTeacherEmail(currentUser.getEmail());
             courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
             courseTemporary.setTeacherId(currentUser.getId());
             courseTemporary.setSubject(course.getSubject());
             courseTemporary.setTeacherName(currentUser.getFullname());
-            courseTemporaryRepository.save(courseTemporary);
+            courseTemporary = courseTemporaryRepository.save(courseTemporary);
+            courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
         } else {
             CourseTemporary courseTemporary = existCourseTemporaryOtp.get();
             courseTemporary = courseTemporaryMapper.mapCourseTemporary(courseTemporary, courseUpdateRequest, course);
