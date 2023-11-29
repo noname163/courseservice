@@ -16,5 +16,6 @@ public class CourseVideoResponse {
     private int totalComment;
     private int ordinalNumber;
     private Boolean isWatched;
+    private Boolean isDraft;
     private VideoStatus videoStatus;
 }

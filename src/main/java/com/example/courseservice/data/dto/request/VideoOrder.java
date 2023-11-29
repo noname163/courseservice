@@ -10,4 +10,5 @@ import lombok.Setter;
 public class VideoOrder {
     private Long videoId;
     private Integer videoOrder;
+    private Boolean isDraft;
 }

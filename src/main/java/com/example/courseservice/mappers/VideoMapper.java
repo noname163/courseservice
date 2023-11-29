@@ -142,6 +142,7 @@ public class VideoMapper {
                 .totalComment(courseVideoResponseInterface.getTotalComment())
                 .videoStatus(courseVideoResponseInterface.getVideoStatus())
                 .isWatched(false)
+                .isDraft(courseVideoResponseInterface.getIsDraft())
                 .ordinalNumber(Optional.ofNullable(courseVideoResponseInterface.getOrdinalNumber()).orElse(0))
                 .build();
     }
