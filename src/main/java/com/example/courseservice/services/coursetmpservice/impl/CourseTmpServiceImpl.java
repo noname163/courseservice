@@ -250,6 +250,10 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         } else {
             course = courseTemporary.getCourse();
             course.setCommonStatus(CommonStatus.AVAILABLE);
+            course.setDescription(Optional.ofNullable(courseTemporary.getDescription()).orElse(course.getDescription()));
+            course.setName(Optional.ofNullable(courseTemporary.getName()).orElse(course.getName()));
+            course.setPrice(Optional.ofNullable(courseTemporary.getPrice()).orElse(course.getPrice()));
+            course.setUpdateTime(LocalDateTime.now());
             course = courseRepository.save(course);
             courseTopicService.updateCourseTopicByCourseTemporary(courseTemporary, course);
         }
