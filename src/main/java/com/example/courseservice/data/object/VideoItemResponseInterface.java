@@ -11,4 +11,5 @@ public interface VideoItemResponseInterface {
     VideoStatus getVideoStatus();
     LocalDateTime getCreateDate();
     Boolean getIsAccess();
+    Boolean getIsWatched();
 }

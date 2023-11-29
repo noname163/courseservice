@@ -108,9 +108,11 @@ public class CourseMapper {
                 .subject(courseResponseInterface.getSubject())
                 .teacherName(courseResponseInterface.getTeacherName())
                 .teacherAvatar(courseResponseInterface.getTeacherAvatar())
+                .teacherId(courseResponseInterface.getTeacherId())
                 .thumbnail(courseResponseInterface.getThumbnial())
                 .totalVideo(courseResponseInterface.getTotalVideo())
                 .isAccess(courseResponseInterface.getIsAccess())
+                .progress(courseResponseInterface.getProgress())
                 .build();
     }
 

@@ -22,4 +22,5 @@ public class VideoItemResponse {
     private LocalDateTime createDate;
     private VideoStatus videoStatus;
     private Boolean isAccess;
+    private Boolean isWatched;
 }

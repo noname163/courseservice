@@ -39,14 +39,15 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             @Param("userId") Long userId,
             @Param("courseId") Long courseId);
 
-    @Query("SELECT ti.month AS month, " +
-            "ti.year AS year, " +
+    @Query("SELECT " +
+            "CONCAT(ti.month, '/', ti.year) AS month, " +
+            "ti.id AS id, " +
             "SUM(ti.money) AS revenue " +
             "FROM TeacherIncome ti " +
             "WHERE ti.userId = :userId " +
             "AND ti.year = EXTRACT(YEAR FROM CURRENT_DATE) " +
             "AND ti.month BETWEEN EXTRACT(MONTH FROM CURRENT_DATE) - 9 AND EXTRACT(MONTH FROM CURRENT_DATE) " +
-            "GROUP BY ti.month, ti.year")
+            "GROUP BY ti.month, ti.id")
     List<CourseRevenueByMonthInterface> getTeacherRevenueByMonth(@Param("userId") Long userId);
 
 }

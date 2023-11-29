@@ -130,6 +130,7 @@ public class VideoTemporaryMapper {
                 .videoStatus(videoTemporary.getVideoStatus())
                 .ordinalNumber(Optional.ofNullable(videoTemporary.getOrdinalNumber()).orElse(0))
                 .duration(videoTemporary.getDuration())
+                .isDraft(false)
                 .build();
     }
 

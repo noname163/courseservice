@@ -2,6 +2,7 @@ package com.example.courseservice.services.videoservice.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +39,7 @@ import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
+import com.example.courseservice.data.repositories.StudentVideoProgressRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
@@ -70,7 +72,7 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
-    private CommentService commentService;
+    private StudentVideoProgressRepository studentVideoProgressRepository;
     @Autowired
     private ReactVideoService reactVideoService;
 
@@ -141,9 +143,9 @@ public class VideoServiceImpl implements VideoService {
 
         List<Video> videos = videoRepository.findByCourseAndStatus(course, commonStatus);
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
-
+        Set<Long> isWatched = new HashSet<>();
         // Set access status for each video item response
-        videoItemResponses = setVideoAccessStatus(videoItemResponses, course.getId());
+        videoItemResponses = setVideoAccessStatus(isWatched, videoItemResponses, course.getId());
 
         VideoDetailResponse videoResponse = videoMapper.mapEntityToDto(video);
         videoResponse.setVideoItemResponses(videoItemResponses);
@@ -155,10 +157,13 @@ public class VideoServiceImpl implements VideoService {
     public PaginationResponse<List<VideoItemResponse>> getListVideoAvailableByCourse(Long courseId, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Set<Long> isWatched = new HashSet<>();
         Course course;
         if (securityContextService.isLogin() != null) {
             course = courseRepository.findByIdAndCommonStatusNot(courseId, CommonStatus.BANNED)
                     .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
+            isWatched = studentVideoProgressRepository
+                    .getCompletedVideoIdsByStudentAndCourse(securityContextService.getCurrentUser().getId(), courseId);
         } else {
             course = courseRepository
                     .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
@@ -167,7 +172,7 @@ public class VideoServiceImpl implements VideoService {
         Page<Video> videos = videoRepository.findByCourseAndStatus(course, CommonStatus.AVAILABLE, pageable);
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
         if (securityContextService.isLogin() != null) {
-            setVideoAccessStatus(videoItemResponses, courseId);
+            setVideoAccessStatus(isWatched, videoItemResponses, courseId);
         } else {
             for (VideoItemResponse videoItemResponse : videoItemResponses) {
                 if (videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE)) {
@@ -216,7 +221,7 @@ public class VideoServiceImpl implements VideoService {
             return null;
         }
         if (CommonStatus.ALL.equals(commonStatus)) {
-            Page<Video> videos = videoRepository.findByCourseInAndStatusNot(courses, CommonStatus.DELETED,pageable);
+            Page<Video> videos = videoRepository.findByCourseInAndStatusNot(courses, CommonStatus.DELETED, pageable);
             return PaginationResponse.<List<VideoAdminResponse>>builder()
                     .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                     .totalPage(videos.getTotalPages())
@@ -348,7 +353,8 @@ public class VideoServiceImpl implements VideoService {
         return studentEnrollCourseService.isStudentEnrolled(studentEmail, courseId);
     }
 
-    private List<VideoItemResponse> setVideoAccessStatus(List<VideoItemResponse> videoItemResponses, Long courseId) {
+    private List<VideoItemResponse> setVideoAccessStatus(Set<Long> isWatched,
+            List<VideoItemResponse> videoItemResponses, Long courseId) {
         boolean isUserLoggedIn = false;
         if (securityContextService.isLogin() != null && securityContextService.isLogin().getRole().equals("STUDENT")) {
             isUserLoggedIn = true;
@@ -356,7 +362,6 @@ public class VideoServiceImpl implements VideoService {
         List<VideoItemResponse> result = new ArrayList<>();
         for (VideoItemResponse videoItemResponse : videoItemResponses) {
             boolean isVideoPrivate = videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE);
-
             if (!isUserLoggedIn && isVideoPrivate) {
                 videoItemResponse.setIsAccess(false);
             }
@@ -367,6 +372,9 @@ public class VideoServiceImpl implements VideoService {
             if (isUserLoggedIn) {
                 boolean isEnrolled = isStudentEnrolled(courseId);
                 videoItemResponse.setIsAccess(isEnrolled || !isVideoPrivate);
+                if (!isWatched.isEmpty() && isWatched.contains(videoItemResponse.getId())) {
+                    videoItemResponse.setIsWatched(true);
+                }
             }
             result.add(videoItemResponse);
         }

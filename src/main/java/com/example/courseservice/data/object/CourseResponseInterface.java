@@ -37,4 +37,6 @@ public interface CourseResponseInterface {
     CommonStatus getStatus();
 
     Boolean getIsAccess();
+
+    Float getProgress();
 }

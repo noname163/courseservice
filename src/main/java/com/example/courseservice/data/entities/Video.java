@@ -45,12 +45,12 @@ public class Video {
 
     @Column(columnDefinition = "TEXT")
     private String urlVideo;
-    
+
     @Column(columnDefinition = "TEXT")
     private String urlThumbnail;
 
     @Column(columnDefinition = "TEXT")
-    private String urlMaterial ;
+    private String urlMaterial;
 
     private LocalDateTime createDate;
 
@@ -60,7 +60,7 @@ public class Video {
 
     @Enumerated(EnumType.STRING)
     private CommonStatus status;
-    
+
     @Enumerated(EnumType.STRING)
     private VideoStatus videoStatus;
 
@@ -86,6 +86,10 @@ public class Video {
 
     @OneToMany(mappedBy = "video")
     private List<Material> materials;
+
+
+    @OneToMany(mappedBy = "video")
+    private List<StudentVideoProgress> studentVideoProgressList;
 
     @Transient
     public long getReaction(ReactStatus reactStatus) {
