@@ -1,6 +1,7 @@
 package com.example.courseservice.mappers;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +114,7 @@ public class CourseMapper {
                 .totalVideo(courseResponseInterface.getTotalVideo())
                 .isAccess(courseResponseInterface.getIsAccess())
                 .progress(courseResponseInterface.getProgress())
-                .totalCompletedVideo(courseResponseInterface.getTotalCompletedVideo())
+                .totalCompletedVideo(Optional.ofNullable(courseResponseInterface.getTotalCompletedVideo()).orElse(0))
                 .build();
     }
 

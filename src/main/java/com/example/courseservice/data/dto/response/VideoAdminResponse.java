@@ -27,4 +27,5 @@ public class VideoAdminResponse {
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;
     private VideoStatus videoStatus;
+    private Integer ordinalNumber;
 }
