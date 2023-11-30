@@ -24,7 +24,7 @@ public class VideoAdminResponse {
     private long dislike;
     private float duration;
     private CommonStatus status;
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
     private LocalDateTime updateDate;
     private VideoStatus videoStatus;
 }

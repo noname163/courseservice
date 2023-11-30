@@ -98,7 +98,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         course.setThumbnial(thumbinial.getUrl());
         course.setLevelId(courseRequest.getLevelId());
         course.setStatus(CommonStatus.DRAFT);
-        course.setCreateDate(LocalDateTime.now());
+        course.setCreatedDate(LocalDateTime.now());
         course = courseTemporaryRepository.save(course);
         courseTopicService.createCourseTopics(courseRequest.getTopic(), course);
     }
@@ -180,10 +180,12 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         courseTemporary = courseTemporaryMapper.mapUpdateTemporaryToCourseTemporary(courseUpdateRequest,
                 courseTemporary);
         courseTemporary.setStatus(CommonStatus.DRAFT);
-        courseTemporaryRepository.save(courseTemporary);
-
-        if (courseUpdateRequest.getVideoOrders() != null && !courseUpdateRequest.getVideoOrders().isEmpty()) {
-            videoTmpService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseUpdateRequest.getCourseId());
+        courseTemporary= courseTemporaryRepository.save(courseTemporary);
+        Course course = courseTemporary.getCourse();
+        if(course!=null){
+                updateVideoOrders(courseUpdateRequest.getVideoOrders(), course, courseTemporary);
+        }else{
+                videoTmpService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseTemporary.getId());
         }
 
     }

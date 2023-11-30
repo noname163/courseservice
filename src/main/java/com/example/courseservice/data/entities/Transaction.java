@@ -31,7 +31,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "bank_transaction_sequence")
     private long id;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime paymentDate;
 

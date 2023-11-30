@@ -16,7 +16,7 @@ public class TransactionMapper {
         return TransactionResponse
                 .builder()
                 .paymentDate(transaction.getPaymentDate())
-                .createdDate(transaction.getCreateDate())
+                .createdDate(transaction.getCreatedDate())
                 .courseId(transaction.getCourse().getId())
                 .amount(transaction.getCourse().getPrice())
                 .transactionStatus(transaction.getStatus())

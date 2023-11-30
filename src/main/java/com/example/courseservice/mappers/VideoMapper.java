@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VideoRequest;
@@ -70,7 +71,8 @@ public class VideoMapper {
                 .duration(video.getDuration())
                 .thumbnail(video.getUrlThumbnail())
                 .videoUrl(video.getVideoStatus().equals(VideoStatus.PUBLIC) ? video.getUrlVideo() : null)
-                .createDate(video.getCreateDate())
+                .createdDate(video.getCreatedDate())
+                .videoUrl(video.getVideoStatus().equals(VideoStatus.PUBLIC) ? video.getUrlVideo() : "")
                 .like(video.getReaction(ReactStatus.LIKE))
                 .material(video.getUrlMaterial())
                 .name(video.getName())
@@ -89,7 +91,7 @@ public class VideoMapper {
                 .teacherName(video.getCourse().getTeacherName())
                 .subject(video.getCourse().getSubject())
                 .duration(video.getDuration())
-                .createDate(video.getCreateDate())
+                .createdDate(video.getCreatedDate())
                 .updateDate(video.getUpdateTime())
                 .dislike(video.getReaction(ReactStatus.DISLIKE))
                 .like(video.getReaction(ReactStatus.LIKE))

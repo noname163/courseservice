@@ -32,7 +32,7 @@ public class Rating {
 
     private Integer rate;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

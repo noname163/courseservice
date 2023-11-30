@@ -19,7 +19,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "v.name AS objectName, " +
             "r.message AS reportContent, " +
             "r.reportType AS reportType, " +
-            "r.createDate AS createDate, " +
+            "r.createdDate AS createdDate, " +
             "r.isProcessed AS isProcessed, "+
             "r.objectId AS objectId "+
             "FROM Report r " +
@@ -35,7 +35,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "v.name AS objectName, " +
             "r.message AS reportContent, " +
             "r.reportType AS reportType, " +
-            "r.createDate AS createDate, " +
+            "r.createdDate AS createdDate, " +
             "r.isProcessed AS isProcessed, "+
             "r.objectId AS objectId "+
             "FROM Report r " +

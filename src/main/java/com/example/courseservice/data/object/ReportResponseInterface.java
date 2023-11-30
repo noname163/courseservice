@@ -21,7 +21,7 @@ public interface ReportResponseInterface {
 
     ReportType getReportType();
 
-    LocalDateTime getCreateDate();
+    LocalDateTime getcreatedDate();
 
     Boolean getIsProcessed();
 }

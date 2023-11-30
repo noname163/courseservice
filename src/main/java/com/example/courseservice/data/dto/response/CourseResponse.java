@@ -18,6 +18,7 @@ public class CourseResponse {
     private float rating;
     private int numberOfRate;
     private int totalVideo;
+    private int totalCompletedVideo;
     private String subject;
     private String level;
     private double price;

@@ -53,7 +53,7 @@ public class RatingServiceImpl implements RatingService {
             ratingRepository.save(Rating
                     .builder()
                     .comment(ratingRequest.getContent())
-                    .createDate(LocalDateTime.now())
+                    .createdDate(LocalDateTime.now())
                     .userAvatar(currentUser.getAvatar())
                     .rate(ratingRequest.getRating())
                     .studentId(currentUser.getId())

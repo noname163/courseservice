@@ -169,6 +169,7 @@ public class CourseServiceImpl implements CourseService {
                 }
             }
             courseDetailResponse.setTotalCompleted(isWatched.size());
+            courseDetailResponse.setProgress((float) isWatched.size() / videos.size() * 100);
         }
         List<String> topics = courseTopicService.getTopicsByCourseId(id);
         courseDetailResponse.setCourseVideoResponses(videos);
