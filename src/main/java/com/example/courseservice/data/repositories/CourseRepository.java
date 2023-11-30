@@ -335,11 +335,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             @Param("searchTerm") String searchTerm,
             Pageable pageable);
 
-    @Query("SELECT " +
+            @Query("SELECT " +
             "c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
             "c.teacherAvatar AS teacherAvatar, " +
+            "c.teacherId AS teacherId, "+
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -353,17 +354,18 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
             "LEFT JOIN c.courseTopics ct " +
-            "WHERE (:subjectList IS NULL OR c.subject IN :subjectList) " +
+            "WHERE ((:subjectIdList )IS NULL OR c.subjectId IN (:subjectIdList)) " +
             "AND (:minPrice IS NULL OR c.price >= :minPrice) " +
             "AND (:maxPrice IS NULL OR c.price <= :maxPrice) " +
-            "AND (:minRate IS NULL OR COALESCE(AVG(r.rate), 0) >= :minRate) " +
-            "AND (:maxRate IS NULL OR COALESCE(AVG(r.rate), 0) <= :maxRate) " +
-            "AND (:levelList IS NULL OR c.level.id IN :levelList) " +
-            "AND (:topicList IS NULL OR ct.topicId IN :topicList) " +
+            "AND ((:levelList )IS NULL OR c.level.id IN (:levelList)) " +
+            "AND ((:topicList) IS NULL OR ct.topicId IN (:topicList)) " +
             "GROUP BY c.id, c.level.name " +
+            "HAVING " +
+            "(:minRate IS NULL OR COALESCE(AVG(r.rate), 0) >= :minRate) " +
+            "AND (:maxRate IS NULL OR COALESCE(AVG(r.rate), 0) <= :maxRate) " +
             "ORDER BY averageRating DESC, createdDate DESC")
     Page<CourseResponseInterface> filterCourses(
-            @Param("subjectList") List<String> subjectList,
+            @Param("subjectIdList") List<Long> subjectIdList,
             @Param("minPrice") Double minPrice,
             @Param("maxPrice") Double maxPrice,
             @Param("minRate") Double minRate,
@@ -371,5 +373,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             @Param("levelList") List<Long> levelList,
             @Param("topicList") List<Long> topicList,
             Pageable pageable);
+    
 
 }

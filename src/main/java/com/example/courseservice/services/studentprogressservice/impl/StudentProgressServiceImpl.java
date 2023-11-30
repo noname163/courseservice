@@ -2,6 +2,8 @@ package com.example.courseservice.services.studentprogressservice.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.StudentVideoProgress;
 import com.example.courseservice.data.entities.Video;
+import com.example.courseservice.data.object.CourseProgressInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.StudentEnrolledCoursesRepository;
@@ -63,7 +66,8 @@ public class StudentProgressServiceImpl implements StudentProgressService {
 
         UserInformation currentUser = securityContextService.getCurrentUser();
 
-        if (Boolean.TRUE.equals(studentVideoProgressRepository.existsByStudentIdAndVideo(currentUser.getId(), video))) {
+        if (Boolean.TRUE.equals(
+                studentVideoProgressRepository.existsByStudentIdAndVideo(currentUser.getId(), video))) {
             throw new BadRequestException("Video with id " + videoId + " have been finished");
         }
 
@@ -81,6 +85,29 @@ public class StudentProgressServiceImpl implements StudentProgressService {
                 .isCompleted(true)
                 .completionDate(LocalDateTime.now())
                 .build());
+    }
+
+    @Override
+    public List<CourseResponse> setStudentProgressForListCourseResponse(List<CourseResponse> courseResponses) {
+        Long userId = securityContextService.getCurrentUser().getId();
+        List<CourseProgressInterface> courseProgressInterfaces = studentVideoProgressRepository
+                .getCourseProgressByStudentId(userId);
+
+        if (!courseProgressInterfaces.isEmpty()) {
+            Map<Long, Float> courseIdToProgressMap = courseProgressInterfaces.stream()
+                    .collect(Collectors.toMap(CourseProgressInterface::getCourseId,
+                            CourseProgressInterface::getProgress));
+            for (CourseResponse courseResponse : courseResponses) {
+                Float progress = courseIdToProgressMap.get(courseResponse.getId());
+                if (progress != null) {
+                    courseResponse.setProgress(progress);
+                    courseResponse.setIsAccess(true);
+                }
+            }
+        }
+
+        return courseResponses;
+
     }
 
 }
