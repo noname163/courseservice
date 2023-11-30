@@ -20,11 +20,11 @@ public interface CourseResponseInterface {
 
     Float getAverageRating();
 
-    int getNumberOfRate();
+    Integer getNumberOfRate();
 
-    int getTotalVideo();
+    Integer getTotalVideo();
 
-    int getTotalCompletedVideo();
+    Integer getTotalCompletedVideo();
 
     String getSubject();
 
