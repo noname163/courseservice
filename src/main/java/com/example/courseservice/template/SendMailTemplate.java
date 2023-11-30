@@ -66,4 +66,33 @@ public class SendMailTemplate {
                 "</body></html>";
     }
 
+    public static String recivedRefundRequestEmail(String name, String courseName, String transactionId) {
+        return "<html><body>" +
+                "<p>Cảm ơn bạn, " + name + ", </p>" +
+                "<p>Chúng tôi đã nhận được yêu cầu hoàn tiền khóa học " + courseName + " của bạn</p>" +
+                "<p>Với mã giao dịch là "+transactionId+"</p>" +
+                "<p>Chúng tôi sẽ xử lý trong thời gian 1 tuần</p>"+
+                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>"+
+                "</body></html>";
+    }
+    public static String rejectRefundEmail(String name, String courseName, String transactionId, String reason) {
+        return "<html><body>" +
+                "<p>Cảm ơn bạn, " + name + ", </p>" +
+                "<p>Chúng tôi đã nhận được yêu cầu hoàn tiền khóa học " + courseName + " của bạn</p>" +
+                "<p>Với mã giao dịch là "+transactionId+"</p>" +
+                "<p>Tuy nhiên yêu cầu của bạn không được chấp nhận với lý do: </p>"+
+                "<p>"+reason+"</p>"+
+                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>"+
+                "</body></html>";
+    }
+    public static String acceptedRefundEmail(String name, String courseName, String transactionId) {
+        return "<html><body>" +
+                "<p>Cảm ơn bạn, " + name + ", </p>" +
+                "<p>Chúng tôi đã nhận được yêu cầu hoàn tiền khóa học " + courseName + " của bạn</p>" +
+                "<p>Với mã giao dịch là "+transactionId+"</p>" +
+                "<p>Chúng tôi đã hoàn lại tiền cho bạn. Vui lòng kiểm tra số tài khoản của bạn</p>"+
+                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>"+
+                "</body></html>";
+    }
+
 }

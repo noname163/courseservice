@@ -15,6 +15,7 @@ import lombok.Setter;
 @Setter
 @JsonSerialize
 public class TransactionResponse implements Serializable {
+    private Long id;
     private LocalDateTime createdDate;
     private LocalDateTime paymentDate;
     private TransactionStatus transactionStatus;

@@ -10,11 +10,14 @@ import org.springframework.data.domain.Pageable;
 
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TransactionStatus;
+import com.example.courseservice.data.dto.request.AdminRefundAction;
 import com.example.courseservice.data.dto.request.PaymentRequest;
+import com.example.courseservice.data.dto.request.StudentRefundRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.TransactionResponse;
 import com.example.courseservice.data.dto.response.UserTransactionResponse;
+import com.example.courseservice.data.entities.Transaction;
 
 public interface TransactionService {
     public PaymentResponse createdPayment(PaymentRequest paymentRequest, HttpServletRequest request)
@@ -25,7 +28,12 @@ public interface TransactionService {
 
     public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(Integer page,
             Integer size, String field, SortType sortType);
-    
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(TransactionStatus transactionStatus, Integer page,
+
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(TransactionStatus transactionStatus,
+            Integer page,
             Integer size, String field, SortType sortType);
+
+    public void requestRefund(StudentRefundRequest studentRefundRequest);
+
+    public PaymentResponse adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)throws UnsupportedEncodingException;
 }

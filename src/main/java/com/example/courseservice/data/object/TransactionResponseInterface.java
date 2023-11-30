@@ -5,8 +5,12 @@ import java.time.LocalDateTime;
 import com.example.courseservice.data.constants.TransactionStatus;
 
 public interface TransactionResponseInterface {
+    Long getId();
+    String getTransactionCode();
     LocalDateTime getCreatedDate();
     LocalDateTime getPaymentDate();
+    String getSubject();
+    String getTeacherName();
     TransactionStatus getTransactionStatus();
     Double getAmount();
     Long getCourseId();

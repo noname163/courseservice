@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,10 +30,13 @@ import com.example.courseservice.data.constants.NotificationType;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TransactionStatus;
 import com.example.courseservice.data.constants.Validation;
+import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.constants.VnPayConstants;
+import com.example.courseservice.data.dto.request.AdminRefundAction;
 import com.example.courseservice.data.dto.request.PaymentRequest;
 import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.StudentEnrollRequest;
+import com.example.courseservice.data.dto.request.StudentRefundRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.TransactionResponse;
@@ -47,6 +51,7 @@ import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.TransactionRepository;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.TeacherIncomeMapper;
 import com.example.courseservice.mappers.TransactionMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
@@ -256,7 +261,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(Integer page, Integer size, String field,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(Integer page, Integer size,
+            String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Long userId = securityContextService.getCurrentUser().getId();
@@ -270,16 +276,137 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(TransactionStatus transactionStatus,Integer page, Integer size, String field,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(TransactionStatus transactionStatus,
+            Integer page, Integer size, String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<TransactionResponseInterface> userTransaction = transactionRepository.findTransactionsByStatus(transactionStatus, pageable);
+        Page<TransactionResponseInterface> userTransaction = transactionRepository
+                .findTransactionsByStatus(transactionStatus, pageable);
         return PaginationResponse.<List<UserTransactionResponse>>builder()
                 .data(transactionMapper.mapToTransactionResponseList(userTransaction.getContent()))
                 .totalPage(userTransaction.getTotalPages())
                 .totalRow(userTransaction.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public void requestRefund(StudentRefundRequest studentRefundRequest) {
+        Transaction transaction = transactionRepository.findById(studentRefundRequest.getId()).orElseThrow(
+                () -> new BadRequestException("Not found transaction with id " + studentRefundRequest.getId()));
+        Course course = transaction.getCourse();
+        UserInformation userInformation = securityContextService.getCurrentUser();
+        if (transaction.getUserId() != userInformation.getId()) {
+            throw new InValidAuthorizationException("Require owner permisson");
+        }
+        if (ChronoUnit.DAYS.between(transaction.getPaymentDate(), LocalDateTime.now()) > 3) {
+            throw new BadRequestException("Request not accepted because it over 3 date");
+        }
+        transaction.setStatus(TransactionStatus.REFUND);
+        transaction.setStudentNote(studentRefundRequest.getReason());
+        transactionRepository.save(transaction);
+
+        notificationService
+                .sendNotification(notificationService.createNotificationForCurrentUser(NotificationContent
+                        .builder()
+                        .course(course.getName())
+                        .price(course.getPrice())
+                        .email(transaction.getUserEmail())
+                        .userId(transaction.getUserId())
+                        .type(NotificationType.TRANSACTION)
+                        .date(LocalDateTime.now())
+                        .build()));
+        sendEmailService.sendMailService(SendMailRequest
+                .builder().subject("Gửi Yêu Cầu Thành Công")
+                .mailTemplate(SendMailTemplate.recivedRefundRequestEmail(userInformation.getFullname(), course.getName(),
+                        transaction.getVnpTxnRef()))
+                .userEmail(transaction.getUserEmail()).build());
+    }
+
+    @Override
+    public PaymentResponse adminHandleRefund(AdminRefundAction adminRefundAction,HttpServletRequest request) throws UnsupportedEncodingException {
+        Transaction transaction = transactionRepository.findById(adminRefundAction.getId()).orElseThrow(
+                () -> new BadRequestException("Cannot found transaction with id " + adminRefundAction.getId()));
+        PaymentResponse paymentResponse;
+        if(adminRefundAction.getVerifyStatus().equals(VerifyStatus.ACCEPTED)){
+            paymentResponse = refundPayment(transaction, request);
+        }
+        else{
+            paymentResponse = null;
+        }
+        return paymentResponse;
+    }
+
+    private PaymentResponse refundPayment(Transaction transaction, HttpServletRequest request)
+            throws UnsupportedEncodingException {
+
+
+        String vnp_Reuqest_id = VNPayConfig.getRandomNumber(8);
+        String vnp_TmnCode = environmentVariable.getVnpayTmnCode();
+
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", VnPayConstants.VNP_VERSION);
+        vnp_Params.put("vnp_Command", VnPayConstants.VNP_REFUND_COMMAND);
+        vnp_Params.put("vnp_TransactionType", VnPayConstants.VNP_TRANSACTION_TYPE);
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_RequestId", vnp_Reuqest_id);
+        vnp_Params.put("vnp_Amount", String.valueOf(transaction.getAmount()));
+        vnp_Params.put("vnp_CurrCode", "VND");
+
+        vnp_Params.put("vnp_TxnRef", transaction.getVnpTxnRef());
+        vnp_Params.put("vnp_OrderInfo", "Hoàn trả don hang:" + transaction.getVnpTxnRef());
+
+        String vnp_IpAddr = getIpAddress.getClientIpAddress(request);
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+        LocalDateTime currentTime = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+
+        DateTimeFormatter localDateFormat = DateTimeFormatter.ofPattern(Validation.DATE_TIME_FORMAT);
+
+        String vnp_createdDate = currentTime.format(localDateFormat);
+        vnp_Params.put("vnp_createdDate", vnp_createdDate);
+
+        String vnp_ExpireDate = currentTime.plusMinutes(15l).format(localDateFormat);
+        vnp_Params.put("vnp_TransactionDate", vnp_createdDate);
+
+        List<String> fieldNames = new ArrayList(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        Iterator<String> itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = itr.next();
+            String fieldValue = vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                // Build hash data
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                // Build query
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                if (itr.hasNext()) {
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        }
+        String queryUrl = query.toString();
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(environmentVariable.getVnPayHashSecret(), hashData.toString());
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        String paymentUrl = VnPayConstants.VNP_PAYURL + "?" + queryUrl;
+        // set transaction
+        LocalDateTime createdDate = convertStringToLocalDateTime.convertStringToLocalDateTime(vnp_createdDate);
+        LocalDateTime expireDate = convertStringToLocalDateTime.convertStringToLocalDateTime(vnp_ExpireDate);
+
+
+        PaymentResponse paymentResponse = PaymentResponse
+                .builder()
+                .code("200")
+                .message("success")
+                .data(paymentUrl)
+                .build();
+        return paymentResponse;
     }
 
 }
