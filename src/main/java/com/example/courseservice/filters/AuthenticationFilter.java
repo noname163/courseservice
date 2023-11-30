@@ -50,6 +50,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (isUriWhitelisted(request)) {
             if (request.getRequestURI().contentEquals("/api/courses/user")
                     || request.getRequestURI().contentEquals("/api/courses/detail")
+                    || request.getRequestURI().contains("/api/courses/user/filter")
                     || request.getRequestURI().contentEquals("/api/courses/user/find-by-email")
                     || request.getRequestURI().contains("/api/videos/user")
                     || (request.getRequestURI().contentEquals("/api/videos") && request.getMethod().equals("GET"))) {

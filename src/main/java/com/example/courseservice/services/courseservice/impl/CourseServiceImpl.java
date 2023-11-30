@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.levelservice.LevelService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
+import com.example.courseservice.services.studentprogressservice.StudentProgressService;
 import com.example.courseservice.services.uploadservice.UploadService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
@@ -72,6 +74,9 @@ public class CourseServiceImpl implements CourseService {
     private VideoService videoService;
     @Autowired
     private StudentVideoProgressRepository studentVideoProgressRepository;
+    @Autowired
+    @Lazy
+    private StudentProgressService studentProgressService;
     @Autowired
     private CourseTemporaryRepository courseTemporaryRepository;
     @Autowired
@@ -164,7 +169,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, commonStatus);
         if (!isWatched.isEmpty() && !videos.isEmpty()) {
             for (CourseVideoResponse video : videos) {
-                if(isWatched.contains(video.getId())){
+                if (isWatched.contains(video.getId())) {
                     video.setIsWatched(true);
                 }
             }
@@ -399,6 +404,28 @@ public class CourseServiceImpl implements CourseService {
                 .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
                 .totalPage(listSubject.getTotalPages())
                 .totalRow(listSubject.getTotalElements())
+                .build();
+    }
+
+    @Override
+    public PaginationResponse<List<CourseResponse>> filterCourseByMultiple(List<Long> subjectList, Double minPrice,
+            Double maxPrice, Double minRate, Double maxRate, List<Long> levelList, List<Long> topicList, Integer page,
+            Integer size, String field,
+            SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+
+        Page<CourseResponseInterface> courseResponseInterface = courseRepository.filterCourses(subjectList, minPrice,
+                maxPrice, minRate, maxRate, levelList, topicList, pageable);
+        List<CourseResponse> courseResponses = courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent());
+
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())
+                && securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
+            courseResponses = studentProgressService.setStudentProgressForListCourseResponse(courseResponses);
+        }
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseResponses)
+                .totalPage(courseResponseInterface.getTotalPages())
+                .totalRow(courseResponseInterface.getTotalElements())
                 .build();
     }
 

@@ -145,11 +145,11 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-                List<CommonStatus> status = new ArrayList<>();
-                status.add(CommonStatus.DRAFT);
-                status.add(CommonStatus.REJECT);
-                status.add(CommonStatus.DELETED);
-                status.add(CommonStatus.UPDATING);
+        List<CommonStatus> status = new ArrayList<>();
+        status.add(CommonStatus.DRAFT);
+        status.add(CommonStatus.REJECT);
+        status.add(CommonStatus.DELETED);
+        status.add(CommonStatus.UPDATING);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(courseTmpService.getCourseTmpAndStatusNot(status, page, size, field,
@@ -408,6 +408,34 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.searchTemporaryCourseForTeacher(searchTerm, page, size, field, sortType));
+                .body(courseTmpService.searchTemporaryCourseForTeacher(searchTerm, page, size, field,
+                        sortType));
     }
+
+    @Operation(summary = "Search temporary courses for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @GetMapping("/user/filter")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> filterCourse(
+            @RequestParam(required = false) List<Long> subjectList,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Double minRate,
+            @RequestParam(required = false) Double maxRate,
+            @RequestParam(required = false) List<Long> levelList,
+            @RequestParam(required = false) List<Long> topicList,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseService.filterCourseByMultiple(subjectList, minPrice, maxPrice, minRate, maxRate, levelList, topicList, page, size, field, sortType));
+    }
+
 }

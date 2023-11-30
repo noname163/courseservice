@@ -128,7 +128,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Video getVideoByIdAndCommonStatus(Long videoId, CommonStatus commonStatus) {
         return videoRepository
-                .findByIdAndStatus(videoId, commonStatus)
+                .findByIdAndStatusOrderByOrdinalNumberAsc(videoId, commonStatus)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoId));
     }
 
@@ -141,7 +141,7 @@ public class VideoServiceImpl implements VideoService {
             throw new InValidAuthorizationException("Buy course to view this video");
         }
 
-        List<Video> videos = videoRepository.findByCourseAndStatus(course, commonStatus);
+        List<Video> videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course, commonStatus);
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
         Set<Long> isWatched = new HashSet<>();
         // Set access status for each video item response
@@ -202,7 +202,7 @@ public class VideoServiceImpl implements VideoService {
                     .totalRow(videos.getTotalElements())
                     .build();
         }
-        Page<Video> videos = videoRepository.findByStatus(commonStatus, pageable);
+        Page<Video> videos = videoRepository.findByStatusOrderByOrdinalNumberAsc(commonStatus, pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
                 .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                 .totalPage(videos.getTotalPages())
@@ -221,14 +221,14 @@ public class VideoServiceImpl implements VideoService {
             return null;
         }
         if (CommonStatus.ALL.equals(commonStatus)) {
-            Page<Video> videos = videoRepository.findByCourseInAndStatusNot(courses, CommonStatus.DELETED, pageable);
+            Page<Video> videos = videoRepository.findByCourseInAndStatusNotOrderByOrdinalNumberAsc(courses, CommonStatus.DELETED, pageable);
             return PaginationResponse.<List<VideoAdminResponse>>builder()
                     .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                     .totalPage(videos.getTotalPages())
                     .totalRow(videos.getTotalElements())
                     .build();
         }
-        Page<Video> videos = videoRepository.findByStatusAndCourseIn(commonStatus, courses, pageable);
+        Page<Video> videos = videoRepository.findByStatusAndCourseInOrderByOrdinalNumberAsc(commonStatus, courses, pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
                 .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                 .totalPage(videos.getTotalPages())
@@ -238,10 +238,10 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public VideoDetailResponse getVideoDetailByIdExcept(Long videoId, CommonStatus commonStatus) {
-        Video video = videoRepository.findByIdAndStatusNot(videoId, commonStatus)
+        Video video = videoRepository.findByIdAndStatusNotOrderByOrdinalNumberAsc(videoId, commonStatus)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id: " + videoId));
 
-        List<Video> videos = videoRepository.findByCourseAndStatusNot(video.getCourse(), commonStatus);
+        List<Video> videos = videoRepository.findByCourseAndStatusNotOrderByOrdinalNumberAsc(video.getCourse(), commonStatus);
 
         List<VideoItemResponse> videoItemResponses = new ArrayList<>();
         if (videos != null && !videos.isEmpty()) {
@@ -260,7 +260,7 @@ public class VideoServiceImpl implements VideoService {
                 .map(VideoOrder::getVideoId)
                 .collect(Collectors.toSet());
 
-        List<Video> videosToUpdate = videoRepository.findByCourseIdAndIdIn(courseId, videoIds);
+        List<Video> videosToUpdate = videoRepository.findByCourseIdAndIdInOrderByOrdinalNumberAsc(courseId, videoIds);
 
         Map<Long, Video> videoMap = videosToUpdate.stream()
                 .collect(Collectors.toMap(Video::getId, Function.identity()));
@@ -285,7 +285,7 @@ public class VideoServiceImpl implements VideoService {
         if (courses.isEmpty()) {
             return null;
         }
-        Page<Video> videos = videoRepository.findByStatusAndCourseIn(CommonStatus.AVAILABLE, courses, pageable);
+        Page<Video> videos = videoRepository.findByStatusAndCourseInOrderByOrdinalNumberAsc(CommonStatus.AVAILABLE, courses, pageable);
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
         videoItemResponses = setIsAccess(videoItemResponses, courses);
         return PaginationResponse.<List<VideoItemResponse>>builder()
@@ -297,7 +297,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Video getVideoByIdAndCommonStatusNot(Long videoId, CommonStatus commonStatus) {
-        Optional<Video> video = videoRepository.findByIdAndStatusNot(videoId, commonStatus);
+        Optional<Video> video = videoRepository.findByIdAndStatusNotOrderByOrdinalNumberAsc(videoId, commonStatus);
         if (video.isEmpty()) {
             throw new BadRequestException(
                     "Cannot found video with id " + videoId + " in function getVideoByIdAndCommonStatusNot");
@@ -461,7 +461,7 @@ public class VideoServiceImpl implements VideoService {
     public PaginationResponse<List<VideoAdminResponse>> getVideoByCourseId(Long courseId, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<Video> videos = videoRepository.findByCourseId(courseId, pageable);
+        Page<Video> videos = videoRepository.findByCourseIdOrderByOrdinalNumberAsc(courseId, pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
                 .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
                 .totalPage(videos.getTotalPages())
