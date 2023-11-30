@@ -35,7 +35,7 @@ public class VideoUrl {
 
     private Integer endTime;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

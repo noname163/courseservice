@@ -49,7 +49,7 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
             "vt.urlThumbnail AS thumbnail, "+
             "vt.urlMaterial AS material, "+
             "vt.status AS status, " +
-            "vt.createDate AS createDate, " +
+            "vt.createdDate AS createdDate, " +
             "vt.updateTime AS updateDate, " +
             "vt.videoStatus AS videoStatus " +
             "FROM VideoTemporary vt " +

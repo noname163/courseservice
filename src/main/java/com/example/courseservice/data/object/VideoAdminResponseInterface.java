@@ -19,7 +19,7 @@ public interface VideoAdminResponseInterface {
     Long getDislike();
     Float getDuration();
     CommonStatus getStatus();
-    LocalDateTime getCreateDate();
+    LocalDateTime getcreatedDate();
     LocalDateTime getUpdateDate();
     VideoStatus getVideoStatus();
 }

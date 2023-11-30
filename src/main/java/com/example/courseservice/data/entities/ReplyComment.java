@@ -30,7 +30,7 @@ public class ReplyComment {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "reply_sequence")
     private long id;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

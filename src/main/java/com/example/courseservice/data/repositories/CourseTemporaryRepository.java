@@ -34,7 +34,7 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "ct.subject AS subject, " +
             "l.name AS level, " +
             "ct.price AS price, " +
-            "ct.createDate AS createdDate, " +
+            "ct.createdDate AS createdDate, " +
             "ct.updateTime AS updateDate, " +
             "ct.status AS status " +
             "FROM CourseTemporary ct " +
@@ -54,7 +54,7 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "ct.subject AS subject, " +
             "l.name AS level, " +
             "ct.price AS price, " +
-            "ct.createDate AS createdDate, " +
+            "ct.createdDate AS createdDate, " +
             "ct.updateTime AS updateDate, " +
             "ct.status AS status " +
             "FROM CourseTemporary ct " +

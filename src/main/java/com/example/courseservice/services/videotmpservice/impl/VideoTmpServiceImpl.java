@@ -105,7 +105,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
                         .description(videoUpdateRequest.getDescription())
                         .videoStatus(videoUpdateRequest.getVideoStatus())
                         .courseTemporary(courseTemporary)
-                        .createDate(LocalDateTime.now())
+                        .createdDate(LocalDateTime.now())
                         .status(CommonStatus.DRAFT)
                         .videoStatus(videoUpdateRequest.getVideoStatus())
                         .ordinalNumber(ordinalNumber)
@@ -141,7 +141,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
                         "Cannot found Video temporary with id " + videoUpdate.getVideoId()));
         video.setUrlVideo(videoUpdate.getVideoUrl());
         video.setDuration(videoUpdate.getDuration());
-        video.setCreateDate(LocalDateTime.now());
+        video.setCreatedDate(LocalDateTime.now());
         video.setUrlThumbnail(videoUpdate.getThumbnailUrl());
         if (videoUpdate.getMaterial() != null) {
             video.setUrlMaterial(videoUpdate.getMaterial());

@@ -37,7 +37,7 @@ public class ReactVideo {
     @Column(name = "student_id")
     private Long studentId;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

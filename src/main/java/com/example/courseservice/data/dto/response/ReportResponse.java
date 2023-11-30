@@ -20,5 +20,5 @@ public class ReportResponse {
     private String reportContent;
     private ReportType reportType;
     private Boolean isProcessed;
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 }

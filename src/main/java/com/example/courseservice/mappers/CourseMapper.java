@@ -79,7 +79,7 @@ public class CourseMapper {
                 .builder()
                 .id(course.getId())
                 .price(course.getPrice())
-                .createdDate(course.getCreateDate())
+                .createdDate(course.getCreatedDate())
                 .updateDate(course.getUpdateTime())
                 .status(course.getCommonStatus())
                 .level(course.getLevel().getName())
@@ -113,6 +113,7 @@ public class CourseMapper {
                 .totalVideo(courseResponseInterface.getTotalVideo())
                 .isAccess(courseResponseInterface.getIsAccess())
                 .progress(courseResponseInterface.getProgress())
+                .totalCompletedVideo(courseResponseInterface.getTotalCompletedVideo())
                 .build();
     }
 

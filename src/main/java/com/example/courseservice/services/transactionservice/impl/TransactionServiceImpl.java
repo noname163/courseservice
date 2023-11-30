@@ -136,8 +136,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         DateTimeFormatter localDateFormat = DateTimeFormatter.ofPattern(Validation.DATE_TIME_FORMAT);
 
-        String vnp_CreateDate = currentTime.format(localDateFormat);
-        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+        String vnp_createdDate = currentTime.format(localDateFormat);
+        vnp_Params.put("vnp_createdDate", vnp_createdDate);
 
         String vnp_ExpireDate = currentTime.plusMinutes(15l).format(localDateFormat);
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
@@ -170,12 +170,12 @@ public class TransactionServiceImpl implements TransactionService {
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayConstants.VNP_PAYURL + "?" + queryUrl;
         // set transaction
-        LocalDateTime createdDate = convertStringToLocalDateTime.convertStringToLocalDateTime(vnp_CreateDate);
+        LocalDateTime createdDate = convertStringToLocalDateTime.convertStringToLocalDateTime(vnp_createdDate);
         LocalDateTime expireDate = convertStringToLocalDateTime.convertStringToLocalDateTime(vnp_ExpireDate);
 
         Transaction transaction = Transaction
                 .builder()
-                .createDate(createdDate)
+                .createdDate(createdDate)
                 .userEmail(user.getEmail())
                 .course(course)
                 .amount(amount)

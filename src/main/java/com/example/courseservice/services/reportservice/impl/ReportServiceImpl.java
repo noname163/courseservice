@@ -75,7 +75,7 @@ public class ReportServiceImpl implements ReportService {
                 .userEmail(currentUser.getEmail())
                 .userId(currentUser.getId())
                 .isProcessed(false)
-                .createDate(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
                 .message(reportRequest.getContent())
                 .reportType(reportRequest.getReportType())
                 .objectId(reportRequest.getObjectId())

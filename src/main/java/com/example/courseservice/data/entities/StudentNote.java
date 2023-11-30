@@ -33,7 +33,7 @@ public class StudentNote {
     @Column(columnDefinition = "TEXT")
     private String note;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

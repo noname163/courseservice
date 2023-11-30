@@ -57,7 +57,7 @@ public class VideoTemporary {
 
     private LocalDateTime updateTime;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     @Enumerated(EnumType.STRING)
     private VideoStatus videoStatus;

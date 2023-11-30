@@ -24,6 +24,8 @@ public interface CourseResponseInterface {
 
     int getTotalVideo();
 
+    int getTotalCompletedVideo();
+
     String getSubject();
 
     String getLevel();

@@ -11,5 +11,5 @@ public class StudentNoteResponse {
     private Long id;
     private String note;
     private String duration;
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 }

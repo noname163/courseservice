@@ -48,7 +48,7 @@ public class StudentNoteServiceImpl implements StudentNoteService {
         }
         StudentNote studentNote = studentNoteRepository.save(StudentNote
                 .builder()
-                .createDate(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
                 .duration(studentNoteRequest.getDuration())
                 .note(studentNoteRequest.getNote())
                 .video(video)

@@ -16,7 +16,7 @@ public class RatingMapper {
                 .id(rating.getId())
                 .content(rating.getComment())
                 .rate(rating.getRate())
-                .crateDate(rating.getCreateDate())
+                .crateDate(rating.getCreatedDate())
                 .upDateTime(rating.getUpdateTime())
                 .avatar(rating.getUserAvatar())
                 .fullName(rating.getStudentName())

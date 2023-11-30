@@ -86,7 +86,7 @@ public class VideoTemporaryMapper {
                 .urlMaterial(videoTemporary.getUrlMaterial())
                 .urlVideo(videoTemporary.getUrlVideo())
                 .videoStatus(videoTemporary.getVideoStatus())
-                .createDate(videoTemporary.getCreateDate())
+                .createdDate(videoTemporary.getCreatedDate())
                 .updateTime(videoTemporary.getUpdateTime())
                 .status(CommonStatus.AVAILABLE)
                 .build();
@@ -107,7 +107,7 @@ public class VideoTemporaryMapper {
                 .material(videoTemporary.getUrlMaterial())
                 .duration(videoTemporary.getDuration())
                 .thumbnail(videoTemporary.getUrlThumbnail())
-                .createDate(videoTemporary.getCreateDate())
+                .createdDate(videoTemporary.getCreatedDate())
                 .videoUrl(videoTemporary.getUrlVideo())
                 .videoStatus(videoTemporary.getVideoStatus())
                 .build();
@@ -158,7 +158,7 @@ public class VideoTemporaryMapper {
                 .courseName(videoAdminResponseInterface.getCourseName())
                 .duration(videoAdminResponseInterface.getDuration())
                 .status(videoAdminResponseInterface.getStatus())
-                .createDate(videoAdminResponseInterface.getCreateDate())
+                .createdDate(videoAdminResponseInterface.getcreatedDate())
                 .updateDate(videoAdminResponseInterface.getUpdateDate())
                 .videoStatus(videoAdminResponseInterface.getVideoStatus())
                 .build();
