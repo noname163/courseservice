@@ -23,4 +23,5 @@ public class VideoItemResponse {
     private VideoStatus videoStatus;
     private Boolean isAccess;
     private Boolean isWatched;
+    private Integer ordinalNumber;
 }

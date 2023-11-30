@@ -12,4 +12,5 @@ public interface VideoItemResponseInterface {
     LocalDateTime getcreatedDate();
     Boolean getIsAccess();
     Boolean getIsWatched();
+    Integer getOrdinalNumber();
 }

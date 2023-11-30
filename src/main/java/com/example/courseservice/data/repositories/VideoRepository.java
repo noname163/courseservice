@@ -16,7 +16,7 @@ import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.CourseVideoResponseInterface;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
-    Page<Video> findByCourseAndStatus(Course course, CommonStatus status, Pageable pageable);
+    Page<Video> findByCourseAndStatusOrderByOrdinalNumberAsc(Course course, CommonStatus status, Pageable pageable);
 
     Page<Video> findByStatus(CommonStatus status, Pageable pageable);
 
