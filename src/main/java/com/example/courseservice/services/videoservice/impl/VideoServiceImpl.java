@@ -169,7 +169,7 @@ public class VideoServiceImpl implements VideoService {
                     .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
                     .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
         }
-        Page<Video> videos = videoRepository.findByCourseAndStatus(course, CommonStatus.AVAILABLE, pageable);
+        Page<Video> videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course, CommonStatus.AVAILABLE, pageable);
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
         if (securityContextService.isLogin() != null) {
             setVideoAccessStatus(isWatched, videoItemResponses, courseId);

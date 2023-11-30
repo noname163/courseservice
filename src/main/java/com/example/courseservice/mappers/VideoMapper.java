@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.ReactStatus;
 import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VideoRequest;
@@ -31,6 +30,7 @@ public class VideoMapper {
                 .duration(videoItemResponseInterface.getDuration())
                 .videoStatus(videoItemResponseInterface.getVideoStatus())
                 .isAccess(videoItemResponseInterface.getIsAccess())
+                .ordinalNumber(videoItemResponseInterface.getOrdinalNumber())
                 .build();
     }
 
@@ -77,6 +77,7 @@ public class VideoMapper {
                 .material(video.getUrlMaterial())
                 .name(video.getName())
                 .isWatched(false)
+                .ordinalNumber(video.getOrdinalNumber())
                 .build();
     }
 
@@ -97,6 +98,7 @@ public class VideoMapper {
                 .like(video.getReaction(ReactStatus.LIKE))
                 .status(video.getStatus())
                 .videoStatus(video.getVideoStatus())
+                .ordinalNumber(video.getOrdinalNumber())
                 .build();
     }
 
@@ -122,6 +124,8 @@ public class VideoMapper {
                 .isAccess(videoItemResponseInterface.getIsAccess())
                 .videoStatus(videoItemResponseInterface.getVideoStatus())
                 .name(videoItemResponseInterface.getName())
+                .ordinalNumber(videoItemResponseInterface.getOrdinalNumber())
+                .createdDate(videoItemResponseInterface.getcreatedDate())
                 .build();
     }
 
