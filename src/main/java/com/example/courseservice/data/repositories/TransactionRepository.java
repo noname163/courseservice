@@ -12,27 +12,32 @@ import com.example.courseservice.data.constants.TransactionStatus;
 import com.example.courseservice.data.entities.Transaction;
 import com.example.courseservice.data.object.TransactionResponseInterface;
 
-
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     Optional<Transaction> findByVnpTxnRef(String vnpTxnRef);
 
-     @Query("SELECT t.createdDate AS createdDate, t.paymentDate AS paymentDate, " +
-           "t.status AS transactionStatus, t.amount AS amount, " +
-           "t.course.id AS courseId, t.course.name AS courseName " +
-           "FROM Transaction t " +
-           "WHERE t.userId = :userId")
+    @Query("SELECT t.createdDate AS createdDate, t.paymentDate AS paymentDate, " +
+            "t.id AS id, " +
+            "t.status AS transactionStatus, t.amount AS amount, " +
+            "t.course.id AS courseId, t.course.name AS courseName, " +
+            "t.course.teacherName AS teacherName, "+
+            "t.course.subject AS subject, "+
+            "t.vnpTxnRef AS transactionCode "+
+            "FROM Transaction t " +
+            "WHERE t.userId = :userId")
     Page<TransactionResponseInterface> findTransactionsByUserId(
             @Param("userId") Long userId,
-            Pageable pageable
-    );
+            Pageable pageable);
 
     @Query("SELECT t.createdDate AS createdDate, t.paymentDate AS paymentDate, " +
-           "t.status AS transactionStatus, t.amount AS amount, " +
-           "t.course.id AS courseId, t.course.name AS courseName " +
-           "FROM Transaction t " +
-           "WHERE (:status IS NULL OR t.status = :status)")
+            "t.id AS id, " +
+            "t.status AS transactionStatus, t.amount AS amount, " +
+            "t.course.id AS courseId, t.course.name AS courseName, " +
+            "t.course.teacherName AS teacherName, "+
+            "t.course.subject AS subject, "+
+            "t.vnpTxnRef AS transactionCode "+
+            "FROM Transaction t " +
+            "WHERE (:status IS NULL OR t.status = :status)")
     Page<TransactionResponseInterface> findTransactionsByStatus(
             @Param("status") TransactionStatus status,
-            Pageable pageable
-    );
+            Pageable pageable);
 }

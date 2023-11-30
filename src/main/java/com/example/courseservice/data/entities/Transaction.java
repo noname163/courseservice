@@ -2,6 +2,7 @@ package com.example.courseservice.data.entities;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -33,6 +34,8 @@ public class Transaction {
 
     private LocalDateTime createdDate;
 
+    private LocalDateTime updatedDate;
+
     private LocalDateTime paymentDate;
 
     private LocalDateTime expriedDate;
@@ -47,6 +50,15 @@ public class Transaction {
     private String userEmail;
 
     private Long userId;
+
+    @Column(columnDefinition = "TEXT")
+    private String refundEvidence;
+
+    @Column(columnDefinition = "TEXT")
+    private String adminNote;
+
+    @Column(columnDefinition = "TEXT")
+    private String studentNote;
 
     @ManyToOne
     private Course course;

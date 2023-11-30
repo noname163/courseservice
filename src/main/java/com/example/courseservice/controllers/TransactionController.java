@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TransactionStatus;
+import com.example.courseservice.data.dto.request.AdminRefundAction;
 import com.example.courseservice.data.dto.request.PaymentRequest;
+import com.example.courseservice.data.dto.request.StudentRefundRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.data.dto.response.UserTransactionResponse;
@@ -93,5 +95,34 @@ public class TransactionController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(transactionService.getTransactionForAdmin(status, page, size, field, sortType));
+    }
+
+    @Operation(summary = "Admin Refund")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get transaction successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PostMapping("/admin/refund")
+    public ResponseEntity<PaymentResponse> createRefund(@RequestBody AdminRefundAction adminRefundAction,
+            HttpServletRequest request) throws UnsupportedEncodingException {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(transactionService.adminHandleRefund(adminRefundAction, request));
+    }
+
+    @Operation(summary = "Student Request Refund")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get transaction successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PostMapping("/student/request")
+    public ResponseEntity<Void> studentRequestRefund(@RequestBody StudentRefundRequest studentRefundRequest) {
+        transactionService.requestRefund(studentRefundRequest);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

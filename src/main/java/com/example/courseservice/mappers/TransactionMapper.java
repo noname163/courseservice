@@ -15,6 +15,7 @@ public class TransactionMapper {
     public TransactionResponse mapEntityToDto(Transaction transaction) {
         return TransactionResponse
                 .builder()
+                .id(transaction.getId())
                 .paymentDate(transaction.getPaymentDate())
                 .createdDate(transaction.getCreatedDate())
                 .courseId(transaction.getCourse().getId())
@@ -23,12 +24,15 @@ public class TransactionMapper {
                 .build();
     }
 
-     public UserTransactionResponse mapToTransactionResponse(TransactionResponseInterface transactionResponseInterface) {
+    public UserTransactionResponse mapToTransactionResponse(TransactionResponseInterface transactionResponseInterface) {
         if (transactionResponseInterface == null) {
             return null;
         }
 
         return UserTransactionResponse.builder()
+                .id(transactionResponseInterface.getId())
+                .subject(transactionResponseInterface.getSubject())
+                .teacherName(transactionResponseInterface.getTeacherName())
                 .createdDate(transactionResponseInterface.getCreatedDate())
                 .paymentDate(transactionResponseInterface.getPaymentDate())
                 .transactionStatus(transactionResponseInterface.getTransactionStatus())
@@ -38,7 +42,8 @@ public class TransactionMapper {
                 .build();
     }
 
-    public List<UserTransactionResponse> mapToTransactionResponseList(List<TransactionResponseInterface> transactionResponseInterfaces) {
+    public List<UserTransactionResponse> mapToTransactionResponseList(
+            List<TransactionResponseInterface> transactionResponseInterfaces) {
         return transactionResponseInterfaces.stream()
                 .map(this::mapToTransactionResponse)
                 .collect(Collectors.toList());
