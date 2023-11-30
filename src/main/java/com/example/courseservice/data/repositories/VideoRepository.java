@@ -18,29 +18,31 @@ import com.example.courseservice.data.object.CourseVideoResponseInterface;
 public interface VideoRepository extends JpaRepository<Video, Long> {
     Page<Video> findByCourseAndStatusOrderByOrdinalNumberAsc(Course course, CommonStatus status, Pageable pageable);
 
-    Page<Video> findByStatus(CommonStatus status, Pageable pageable);
+    Page<Video> findByStatusOrderByOrdinalNumberAsc(CommonStatus status, Pageable pageable);
 
-    Page<Video> findByStatusAndCourseIn(CommonStatus status, List<Course> courses, Pageable pageable);
+    Page<Video> findByStatusAndCourseInOrderByOrdinalNumberAsc(CommonStatus status, List<Course> courses,
+            Pageable pageable);
 
-    Page<Video> findByCourseId(Long courseId, Pageable pageable);
+    Page<Video> findByCourseIdOrderByOrdinalNumberAsc(Long courseId, Pageable pageable);
 
-    Page<Video> findByCourseIn(List<Course> courses, Pageable pageable);
+    Page<Video> findByCourseInOrderByOrdinalNumberAsc(List<Course> courses, Pageable pageable);
 
-    Page<Video> findByCourseInAndStatusNot(List<Course> courses,CommonStatus commonStatus, Pageable pageable);
+    Page<Video> findByCourseInAndStatusNotOrderByOrdinalNumberAsc(List<Course> courses, CommonStatus commonStatus,
+            Pageable pageable);
 
-    List<Video> findByCourseAndStatus(Course course, CommonStatus status);
+    List<Video> findByCourseAndStatusOrderByOrdinalNumberAsc(Course course, CommonStatus status);
 
-    List<Video> findByCourseIdAndStatus(Long courseId, CommonStatus status);
+    List<Video> findByCourseIdAndStatusOrderByOrdinalNumberAsc(Long courseId, CommonStatus status);
 
-    List<Video> findByCourseIdAndStatusNot(Long courseId, CommonStatus status);
+    List<Video> findByCourseIdAndStatusNotOrderByOrdinalNumberAsc(Long courseId, CommonStatus status);
 
-    List<Video> findByCourseAndStatusNot(Course course, CommonStatus status);
+    List<Video> findByCourseAndStatusNotOrderByOrdinalNumberAsc(Course course, CommonStatus status);
 
-    List<Video> findByCourseIdAndIdIn(Long courseId, Set<Long> ids);
+    List<Video> findByCourseIdAndIdInOrderByOrdinalNumberAsc(Long courseId, Set<Long> ids);
 
-    Optional<Video> findByIdAndStatus(Long id, CommonStatus status);
+    Optional<Video> findByIdAndStatusOrderByOrdinalNumberAsc(Long id, CommonStatus status);
 
-    Optional<Video> findByIdAndStatusNot(Long id, CommonStatus status);
+    Optional<Video> findByIdAndStatusNotOrderByOrdinalNumberAsc(Long id, CommonStatus status);
 
     @Query("SELECT MAX(v.ordinalNumber) FROM Video v WHERE v.course = :course")
     Integer findMaxOrdinalNumberByCourse(@Param("course") Course course);
@@ -51,18 +53,19 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             "v.urlThumbnail AS thumbnail, " +
             "v.status AS status, " +
             "v.duration AS duration, " +
-            "v.videoStatus AS videoStatus, "+
+            "v.videoStatus AS videoStatus, " +
             "COUNT(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.LIKE THEN 1 ELSE null END) AS totalLike, "
             +
             "COUNT(c.id) AS totalComment, " +
-            "FALSE AS isDraft, "+
+            "FALSE AS isDraft, " +
             "v.ordinalNumber AS ordinalNumber " +
             "FROM Video v " +
             "LEFT JOIN v.reactVideos rv " +
             "LEFT JOIN v.comments c " +
             "WHERE v.course.id = :courseId " +
             "AND v.status = :status " +
-            "GROUP BY v.id, v.name, v.urlThumbnail, v.duration, v.ordinalNumber")
+            "GROUP BY v.id, v.name, v.urlThumbnail, v.duration, v.ordinalNumber " +
+            "ORDER BY v.ordinalNumber ASC")
     List<CourseVideoResponseInterface> getCourseVideosByCourseIdAndCommonStatus(@Param("courseId") Long courseId,
             @Param("status") CommonStatus commonStatus);
 
@@ -76,13 +79,14 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             +
             "COUNT(c.id) AS totalComment, " +
             "v.ordinalNumber AS ordinalNumber, " +
-            "v.videoStatus AS videoStatus "+
+            "v.videoStatus AS videoStatus " +
             "FROM Video v " +
             "LEFT JOIN v.reactVideos rv " +
             "LEFT JOIN v.comments c " +
             "WHERE v.course.id = :courseId " +
             "AND v.status <> :status " +
-            "GROUP BY v.id, v.name, v.urlThumbnail, v.duration, v.ordinalNumber")
+            "GROUP BY v.id, v.name, v.urlThumbnail, v.duration, v.ordinalNumber "+
+            "ORDER BY v.ordinalNumber ASC")
     List<CourseVideoResponseInterface> getCourseVideosByCourseIdAndCommonStatusNot(@Param("courseId") Long courseId,
             @Param("status") CommonStatus commonStatus);
 }
