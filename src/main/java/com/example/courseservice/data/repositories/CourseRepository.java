@@ -82,7 +82,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
             "WHERE c.commonStatus = :status " +
-            "GROUP BY c.id, c.level.name "+
+            "GROUP BY c.id, c.level.name " +
             "ORDER BY averageRating DESC")
     Page<CourseResponseInterface> getByCommonStatusJPQL(@Param("status") CommonStatus status, Pageable pageable);
 
@@ -102,7 +102,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.commonStatus AS status " +
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
-            "GROUP BY c.id, c.level.name "+
+            "GROUP BY c.id, c.level.name " +
             "ORDER BY averageRating DESC")
     Page<CourseResponseInterface> findByAllCommonStatus(Pageable pageable);
 
@@ -124,7 +124,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "LEFT JOIN c.ratings r " +
             "WHERE c.commonStatus <> :status " +
             "AND c.id NOT IN :excludedIds " +
-            "GROUP BY c.id, c.level.name "+
+            "GROUP BY c.id, c.level.name " +
             "ORDER BY averageRating DESC")
     Page<CourseResponseInterface> getAvailableCoursesByCommonStatusNotAndNotInList(
             @Param("status") CommonStatus status,
@@ -278,6 +278,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "GROUP BY c.id, c.level.name")
     CourseDetailResponseInterface getCourseDetailsByCourseIdAndStatusNot(@Param("id") Long id,
             @Param("status") CommonStatus commonStatus);
+
     @Query("SELECT " +
             "c.id AS id, " +
             "COUNT(DISTINCT sec.studentEmail) AS totalStudent, " +
@@ -333,4 +334,45 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<CourseResponseInterface> searchCourses(
             @Param("searchTerm") String searchTerm,
             Pageable pageable);
+
+            @Query("SELECT " +
+            "c.id AS id, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.teacherId AS teacherId, "+
+            "c.name AS courseName, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createdDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "LEFT JOIN c.courseTopics ct " +
+            "WHERE ((:subjectIdList )IS NULL OR c.subjectId IN (:subjectIdList)) " +
+            "AND (:minPrice IS NULL OR c.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR c.price <= :maxPrice) " +
+            "AND ((:levelList )IS NULL OR c.level.id IN (:levelList)) " +
+            "AND ((:topicList) IS NULL OR ct.topicId IN (:topicList)) " +
+            "GROUP BY c.id, c.level.name " +
+            "HAVING " +
+            "(:minRate IS NULL OR COALESCE(AVG(r.rate), 0) >= :minRate) " +
+            "AND (:maxRate IS NULL OR COALESCE(AVG(r.rate), 0) <= :maxRate) " +
+            "ORDER BY averageRating DESC, createdDate DESC")
+    Page<CourseResponseInterface> filterCourses(
+            @Param("subjectIdList") List<Long> subjectIdList,
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            @Param("minRate") Double minRate,
+            @Param("maxRate") Double maxRate,
+            @Param("levelList") List<Long> levelList,
+            @Param("topicList") List<Long> topicList,
+            Pageable pageable);
+    
+
 }

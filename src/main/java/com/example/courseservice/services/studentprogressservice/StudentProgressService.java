@@ -11,4 +11,6 @@ public interface StudentProgressService {
             Integer size, String field, SortType sortType);
 
     public void createStudentProgressByVideoId(Long videoId);
+
+    public List<CourseResponse> setStudentProgressForListCourseResponse(List<CourseResponse> courseResponses);
 }
