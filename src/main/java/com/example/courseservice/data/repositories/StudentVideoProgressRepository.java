@@ -23,12 +23,13 @@ public interface StudentVideoProgressRepository extends JpaRepository<StudentVid
             "SIZE(c.ratings) AS numberOfRate, " +
             "SIZE(c.videos) AS totalVideo, " +
             "c.subject AS subject, " +
+            "TRUE AS isAccess, "+
             "c.level.name AS level, " +
             "c.price AS price, " +
             "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status, " +
-            "CASE WHEN COUNT(sp) > 0 THEN TRUE ELSE FALSE END AS isAccess, " +
+            "COUNT(sp) AS totalCompletedVideo, "+
             "(COUNT(sp) / CAST(SIZE(c.videos) AS float)) * 100 AS progress " +
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +

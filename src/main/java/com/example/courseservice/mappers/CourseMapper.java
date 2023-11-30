@@ -113,6 +113,7 @@ public class CourseMapper {
                 .totalVideo(courseResponseInterface.getTotalVideo())
                 .isAccess(courseResponseInterface.getIsAccess())
                 .progress(courseResponseInterface.getProgress())
+                .totalCompletedVideo(courseResponseInterface.getTotalCompletedVideo())
                 .build();
     }
 
