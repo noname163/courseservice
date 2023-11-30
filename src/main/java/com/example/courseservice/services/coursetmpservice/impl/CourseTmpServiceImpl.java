@@ -98,7 +98,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         course.setThumbnial(thumbinial.getUrl());
         course.setLevelId(courseRequest.getLevelId());
         course.setStatus(CommonStatus.DRAFT);
-        course.setCreateDate(LocalDateTime.now());
+        course.setCreatedDate(LocalDateTime.now());
         course = courseTemporaryRepository.save(course);
         courseTopicService.createCourseTopics(courseRequest.getTopic(), course);
     }

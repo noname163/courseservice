@@ -30,7 +30,7 @@ public class CourseTopic {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "course_topic_sequence")
     private long id;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
     

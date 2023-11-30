@@ -24,7 +24,7 @@ public class CommentMapper {
                 .email(comment.getStudentEmail())
                 .avatar(comment.getUserAvatar())
                 .useName(comment.getUserName())
-                .createDate(comment.getCreateDate().toLocalDate())
+                .createdDate(comment.getCreatedDate().toLocalDate())
                 .upDateTime(comment.getUpdateTime())
                 .comment(comment.getCommented())
                 .build();

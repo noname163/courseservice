@@ -59,7 +59,7 @@ public class CourseTemporary {
 
     private LocalDateTime updateTime;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private Double price;
 

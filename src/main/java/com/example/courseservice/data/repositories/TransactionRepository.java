@@ -16,7 +16,7 @@ import com.example.courseservice.data.object.TransactionResponseInterface;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     Optional<Transaction> findByVnpTxnRef(String vnpTxnRef);
 
-     @Query("SELECT t.createDate AS createdDate, t.paymentDate AS paymentDate, " +
+     @Query("SELECT t.createdDate AS createdDate, t.paymentDate AS paymentDate, " +
            "t.status AS transactionStatus, t.amount AS amount, " +
            "t.course.id AS courseId, t.course.name AS courseName " +
            "FROM Transaction t " +
@@ -26,7 +26,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             Pageable pageable
     );
 
-    @Query("SELECT t.createDate AS createdDate, t.paymentDate AS paymentDate, " +
+    @Query("SELECT t.createdDate AS createdDate, t.paymentDate AS paymentDate, " +
            "t.status AS transactionStatus, t.amount AS amount, " +
            "t.course.id AS courseId, t.course.name AS courseName " +
            "FROM Transaction t " +

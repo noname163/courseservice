@@ -19,7 +19,7 @@ public class StudentNoteMapper {
                 .id(studentNote.getId())
                 .note(studentNote.getNote())
                 .duration(studentNote.getDuration())
-                .createDate(studentNote.getCreateDate())
+                .createdDate(studentNote.getCreatedDate())
                 .build();
     }
 

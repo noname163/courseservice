@@ -34,7 +34,7 @@ public class StudentEnrolledCourses {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "student_enrolled_courses_sequence")
     private long id;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

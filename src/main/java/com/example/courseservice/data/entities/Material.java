@@ -31,7 +31,7 @@ public class Material {
 
     private String url;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

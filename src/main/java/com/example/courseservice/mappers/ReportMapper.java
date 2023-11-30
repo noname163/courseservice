@@ -24,7 +24,7 @@ public class ReportMapper {
                 .reportContent(reportResponseInterface.getReportContent())
                 .reportType(reportResponseInterface.getReportType())
                 .isProcessed(reportResponseInterface.getIsProcessed())
-                .createDate(reportResponseInterface.getCreateDate())
+                .createdDate(reportResponseInterface.getcreatedDate())
                 .objectId(reportResponseInterface.getObjectId())
                 .build();
     }

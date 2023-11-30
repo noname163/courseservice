@@ -32,7 +32,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "comment_sequence")
     private long id;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

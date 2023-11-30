@@ -25,7 +25,7 @@ public interface StudentVideoProgressRepository extends JpaRepository<StudentVid
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status, " +
             "CASE WHEN COUNT(sp) > 0 THEN TRUE ELSE FALSE END AS isAccess, " +

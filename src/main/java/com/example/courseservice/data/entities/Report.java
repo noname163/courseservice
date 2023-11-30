@@ -51,7 +51,7 @@ public class Report {
 
     private Boolean isProcessed;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 }

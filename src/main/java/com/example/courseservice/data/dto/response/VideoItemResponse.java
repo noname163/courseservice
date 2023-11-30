@@ -19,7 +19,7 @@ public class VideoItemResponse {
     private String material;
     private String name;
     private float duration;
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
     private VideoStatus videoStatus;
     private Boolean isAccess;
     private Boolean isWatched;

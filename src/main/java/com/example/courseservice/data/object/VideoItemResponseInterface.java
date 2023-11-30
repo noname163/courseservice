@@ -9,7 +9,7 @@ public interface VideoItemResponseInterface {
     String getName();
     Float getDuration();
     VideoStatus getVideoStatus();
-    LocalDateTime getCreateDate();
+    LocalDateTime getcreatedDate();
     Boolean getIsAccess();
     Boolean getIsWatched();
 }

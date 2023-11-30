@@ -55,7 +55,7 @@ public class Course {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
 

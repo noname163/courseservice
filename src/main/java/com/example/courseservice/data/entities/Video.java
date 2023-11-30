@@ -52,7 +52,7 @@ public class Video {
     @Column(columnDefinition = "TEXT")
     private String urlMaterial;
 
-    private LocalDateTime createDate;
+    private LocalDateTime createdDate;
 
     private float duration;
 

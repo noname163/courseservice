@@ -76,7 +76,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -97,7 +97,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -117,7 +117,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -142,7 +142,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -162,7 +162,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status, " +
             "CASE WHEN c.id IN :enrolledIds THEN true ELSE false END AS isAccess " +
@@ -188,7 +188,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -210,7 +210,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -237,7 +237,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.teacherEmail AS teacherEmail, " +
             "c.teacherId AS teacherId, " +
             "c.teacherAvatar AS teacherAvatar, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -266,7 +266,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -294,7 +294,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -316,7 +316,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             "c.subject AS subject, " +
             "c.level.name AS level, " +
             "c.price AS price, " +
-            "c.createDate AS createdDate, " +
+            "c.createdDate AS createdDate, " +
             "c.updateTime AS updateDate, " +
             "c.commonStatus AS status " +
             "FROM Course c " +
@@ -329,7 +329,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             +
             "   OR LOWER(c.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
             "AND c.commonStatus = 'AVAILABLE' " +
-            "GROUP BY c.id, c.thumbnial, c.teacherName, c.name, c.subject, c.level.name, c.price, c.createDate, c.updateTime, c.commonStatus")
+            "GROUP BY c.id, c.thumbnial, c.teacherName, c.name, c.subject, c.level.name, c.price, c.createdDate, c.updateTime, c.commonStatus")
     Page<CourseResponseInterface> searchCourses(
             @Param("searchTerm") String searchTerm,
             Pageable pageable);

@@ -206,7 +206,7 @@ public class CourseTopicServiceImpl implements CourseTopicService {
                         .course(course)
                         .id(topic.getId())
                         .topicName(topic.getName())
-                        .createDate(LocalDateTime.now())
+                        .createdDate(LocalDateTime.now())
                         .build());
             }
             courseTopicRepository.saveAll(courseTopics);
