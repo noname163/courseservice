@@ -95,7 +95,7 @@ public class TeacherIncomeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(teacherIncomeService.getTeacherIncomeForTeacher(status, page, size, field, sortType));
     }
-    @Operation(summary = "Get current teacher income in 10 month of all course")
+    @Operation(summary = "Get teacher income for admin")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get revenue successfull.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = TeacherIncomeForAdmin.class)) }),
