@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
 import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
+import com.example.courseservice.data.dto.response.TeacherIncomeForAdmin;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.entities.Transaction;
@@ -62,6 +63,30 @@ public class TeacherIncomeMapper {
     public List<CourseRevenueByMonth> mapToCourseRevenueByMonths(
             List<CourseRevenueByMonthInterface> courseRevenueByMonthInterfaces) {
         return courseRevenueByMonthInterfaces.stream().map(this::mapToCourseRevenueByMonth)
+                .collect(Collectors.toList());
+    }
+
+    public TeacherIncomeForAdmin mapToTeacherIncomeForAdmin(CourseReportInterface teacherIncomeForAdminInterface) {
+        if (teacherIncomeForAdminInterface == null) {
+            return null;
+        }
+
+        return TeacherIncomeForAdmin
+                .builder()
+                .revenue(teacherIncomeForAdminInterface.getRevenue())
+                .courseId(teacherIncomeForAdminInterface.getCourseId())
+                .paymentDate(teacherIncomeForAdminInterface.getPaymentDate())
+                .receivedMoney(teacherIncomeForAdminInterface.getReceivedMoney())
+                .courseName(teacherIncomeForAdminInterface.getCourseName())
+                .monthOfYear(teacherIncomeForAdminInterface.getMonthOfYear())
+                .teacherIncomeStatus(teacherIncomeForAdminInterface.getTeacherIncomeStatus())
+                .build();
+    }
+
+    public List<TeacherIncomeForAdmin> mapToTeacherIncomeForAdminList(
+            List<CourseReportInterface> teacherIncomeForAdminInterfaces) {
+        return teacherIncomeForAdminInterfaces.stream()
+                .map(this::mapToTeacherIncomeForAdmin)
                 .collect(Collectors.toList());
     }
 }

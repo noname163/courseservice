@@ -28,7 +28,7 @@ public interface CourseTmpService {
             Integer size, String field, SortType sortType);
     public boolean isUpdate(Long courseId);
     public void insertUpdateCourseTmpToReal(Long courseId);
-    public void insertCourseTmpToReal(VerifyRequest courseTeporaryId);
+    public Long insertCourseTmpToReal(VerifyRequest courseTeporaryId);
     public CourseDetailResponse getCourseDetail(Long id);
     public void requestVerifyCourses(List<Long> courseIds);
     public void rejectCourse(VerifyRequest actionRequest);

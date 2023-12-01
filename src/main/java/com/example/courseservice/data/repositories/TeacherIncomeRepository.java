@@ -3,10 +3,13 @@ package com.example.courseservice.data.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.courseservice.data.constants.TeacherIncomeStatus;
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.object.CourseReportInterface;
 import com.example.courseservice.data.object.CourseRevenueByMonthInterface;
@@ -46,8 +49,71 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "FROM TeacherIncome ti " +
             "WHERE ti.userId = :userId " +
             "AND ti.year = EXTRACT(YEAR FROM CURRENT_DATE) " +
-            "AND ti.month BETWEEN EXTRACT(MONTH FROM CURRENT_DATE) - 9 AND EXTRACT(MONTH FROM CURRENT_DATE) " +
+            "AND ti.month BETWEEN EXTRACT(MONTH FROM CURRENT_DATE) - 9 AND EXTRACT(MONTH FROM CURRENT_DATE) "
+            +
             "GROUP BY ti.month, ti.id")
     List<CourseRevenueByMonthInterface> getTeacherRevenueByMonth(@Param("userId") Long userId);
+
+    @Query("SELECT " +
+            "c.id AS courseId, " +
+            "c.name AS courseName, " +
+            "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
+            "t.money AS revenue, " +
+            "t.receivedMoney AS receivedMoney, "+
+            "t.paymentDate AS paymentDate, "+
+            "t.status AS teacherIncomeStatus " +
+            "FROM TeacherIncome t " +
+            "JOIN t.course c " +
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month " +
+            "ORDER BY t.year DESC, t.month DESC")
+    Page<CourseReportInterface> getCourseReportsOrderByMonthAndYear(Pageable pageable);
+
+    @Query("SELECT " +
+            "c.id AS courseId, " +
+            "c.name AS courseName, " +
+            "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
+            "t.money AS revenue, " +
+            "t.receivedMoney AS receivedMoney, "+
+            "t.paymentDate AS paymentDate, "+
+            "t.status AS teacherIncomeStatus " +
+            "FROM TeacherIncome t " +
+            "JOIN t.course c " +
+            "WHERE t.status = :status " +
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month  " +
+            "ORDER BY t.year DESC, t.month DESC")
+    Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearByStatus(@Param("status")TeacherIncomeStatus status,
+            Pageable pageable);
+
+    @Query("SELECT " +
+            "c.id AS courseId, " +
+            "c.name AS courseName, " +
+            "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
+            "t.money AS revenue, " +
+            "t.status AS teacherIncomeStatus, " +
+            "t.paymentDate AS paymentDate, "+
+            "t.receivedMoney AS receivedMoney "+
+            "FROM TeacherIncome t " +
+            "JOIN t.course c " +
+            "WHERE t.status = :status " +
+            "AND t.userId = :teacherId "+
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month  " +
+            "ORDER BY t.year DESC, t.month DESC")
+    Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearByStatusForTeacher(
+            @Param("teacherId") Long teacherId, @Param("status")TeacherIncomeStatus status, Pageable pageable);
+    @Query("SELECT " +
+            "c.id AS courseId, " +
+            "c.name AS courseName, " +
+            "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
+            "t.money AS revenue, " +
+            "t.status AS teacherIncomeStatus, " +
+            "t.paymentDate AS paymentDate, "+
+            "t.receivedMoney AS receivedMoney "+
+            "FROM TeacherIncome t " +
+            "JOIN t.course c " +
+            "WHERE t.userId = :teacherId "+
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status, t.paymentDate,t.receivedMoney, t.year, t.month  " +
+            "ORDER BY t.year DESC, t.month DESC")
+    Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearForTeacher(
+            @Param("teacherId") Long teacherId, Pageable pageable);
 
 }
