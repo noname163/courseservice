@@ -66,7 +66,7 @@ public class TeacherIncomeController {
     @Operation(summary = "Get current teacher income in 10 month of all course")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get revenue successfull.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = TeacherIncomeResponse.class)) }),
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = CourseRevenueByMonth.class)) }),
             @ApiResponse(responseCode = "400", description = "Invalid data.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
@@ -80,7 +80,7 @@ public class TeacherIncomeController {
     @Operation(summary = "Get current teacher income in 10 month of all course")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get revenue successfull.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = TeacherIncomeResponse.class)) }),
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = TeacherIncomeForAdmin.class)) }),
             @ApiResponse(responseCode = "400", description = "Invalid data.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })

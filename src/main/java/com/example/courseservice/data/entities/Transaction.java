@@ -49,6 +49,11 @@ public class Transaction {
 
     private String userEmail;
 
+    private String userName;
+
+    @Column(columnDefinition = "TEXT")
+    private String userAvatar;
+
     private Long userId;
 
     @Column(columnDefinition = "TEXT")

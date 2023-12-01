@@ -187,6 +187,8 @@ public class TransactionServiceImpl implements TransactionService {
                 .builder()
                 .createdDate(createdDate)
                 .userEmail(user.getEmail())
+                .userName(user.getFullname())
+                .userAvatar(user.getAvatar())
                 .course(course)
                 .amount(amount)
                 .userId(user.getId())
@@ -432,5 +434,19 @@ public class TransactionServiceImpl implements TransactionService {
                 .data(paymentUrl)
                 .build();
         return paymentResponse;
+    }
+
+    @Override
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUserForTeacher(Integer page,
+            Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Long userId = securityContextService.getCurrentUser().getId();
+        Page<TransactionResponseInterface> userTransaction = transactionRepository.getTransactionsByTeacherId(userId,
+                pageable);
+        return PaginationResponse.<List<UserTransactionResponse>>builder()
+                .data(transactionMapper.mapToTransactionResponseList(userTransaction.getContent()))
+                .totalPage(userTransaction.getTotalPages())
+                .totalRow(userTransaction.getTotalElements())
+                .build();
     }
 }
