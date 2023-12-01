@@ -14,7 +14,10 @@ public class UserTransactionResponse {
     private LocalDateTime createdDate;
     private LocalDateTime paymentDate;
     private TransactionStatus transactionStatus;
+    private String userName;
+    private String userAvatar;
     private String teacherName;
+    private String teacherAvatar;
     private String subject;
     private Double amount;
     private Long courseId;
