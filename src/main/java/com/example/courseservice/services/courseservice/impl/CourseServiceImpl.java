@@ -270,11 +270,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void verifyCourse(VerifyRequest verifyRequest) {
+    public Long verifyCourse(VerifyRequest verifyRequest) {
         if (verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
-            courseTmpService.insertCourseTmpToReal(verifyRequest);
+            return courseTmpService.insertCourseTmpToReal(verifyRequest);
         } else {
             courseTmpService.rejectCourse(verifyRequest);
+            return 0l;
         }
     }
 
