@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
-import com.example.courseservice.data.dto.request.AdminRefundAction;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.CourseTemporaryUpdateRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
@@ -31,7 +30,6 @@ import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
-import com.example.courseservice.data.dto.response.PaymentResponse;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetmpservice.CourseTmpService;
@@ -87,9 +85,8 @@ public class CourseController {
     })
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/admin/verify-course")
-    public ResponseEntity<Void> verifyCourse(@Valid @RequestBody VerifyRequest verifyRequest) {
-        courseService.verifyCourse(verifyRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Long> verifyCourse(@Valid @RequestBody VerifyRequest verifyRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(courseService.verifyCourse(verifyRequest));
     }
 
     @Operation(summary = "Get courses for user")

@@ -1,5 +1,7 @@
 package com.example.courseservice.data.entities;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -34,6 +36,8 @@ public class TeacherIncome {
 
     private Long money;
 
+    private Long receivedMoney;
+
     private Integer month;
 
     private Integer year;
@@ -42,6 +46,10 @@ public class TeacherIncome {
     private Long userId;
 
     private String BankCode;
+
+    private LocalDateTime paymentDate;
+
+    private String transactionCode;
 
     @Enumerated(EnumType.STRING)
     private TeacherIncomeStatus status;

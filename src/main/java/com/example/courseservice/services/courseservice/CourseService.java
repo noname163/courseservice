@@ -35,7 +35,7 @@ public interface CourseService {
     public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size,
             String field, SortType sortType);
 
-    public void verifyCourse(VerifyRequest verifyRequest);
+    public Long verifyCourse(VerifyRequest verifyRequest);
 
     public Course getCourseByIdAndEmail(Long id, String email);
 

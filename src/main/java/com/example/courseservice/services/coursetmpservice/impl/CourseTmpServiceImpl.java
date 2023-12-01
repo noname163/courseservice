@@ -129,7 +129,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             CourseUpdateRequest courseUpdateRequest, Course course,
             CloudinaryUrl thumbnailUrl, UserInformation currentUser) {
         CourseTemporary courseTemporary = (existingCourseTemporary != null)
-                ? courseTemporaryMapper.mapCourseTemporary(existingCourseTemporary, courseUpdateRequest, course)
+                ? courseTemporaryMapper.mapCourseTemporary(existingCourseTemporary, courseUpdateRequest,
+                        course)
                 : courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
 
         courseTemporary.setThumbnial(thumbnailUrl != null ? thumbnailUrl.getUrl() : course.getThumbnial());
@@ -164,7 +165,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         UserInformation currentUser = securityContextService.getCurrentUser();
         CourseTemporary courseTemporary = courseTemporaryRepository
                 .findByTeacherIdAndId(currentUser.getId(), courseUpdateRequest.getCourseId())
-                .orElseThrow(() -> new InValidAuthorizationException("Require permission to edit this course"));
+                .orElseThrow(() -> new InValidAuthorizationException(
+                        "Require permission to edit this course"));
         if (courseTemporary.getStatus().equals(CommonStatus.WAITING)
                 && courseTemporary.getStatus().equals(CommonStatus.UPDATING)
                 && courseTemporary.getStatus().equals(CommonStatus.BANNED)) {
@@ -180,23 +182,28 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         courseTemporary = courseTemporaryMapper.mapUpdateTemporaryToCourseTemporary(courseUpdateRequest,
                 courseTemporary);
         courseTemporary.setStatus(CommonStatus.DRAFT);
-        courseTemporary= courseTemporaryRepository.save(courseTemporary);
+        courseTemporary = courseTemporaryRepository.save(courseTemporary);
         Course course = courseTemporary.getCourse();
-        if(course!=null){
-                updateVideoOrders(courseUpdateRequest.getVideoOrders(), course, courseTemporary);
-        }else{
-                videoTmpService.updateVideoOrder(courseUpdateRequest.getVideoOrders(), courseTemporary.getId());
+        if (course != null) {
+            updateVideoOrders(courseUpdateRequest.getVideoOrders(), course, courseTemporary);
+        } else {
+            if (courseUpdateRequest.getVideoOrders() != null) {
+                videoTmpService.updateVideoOrder(courseUpdateRequest.getVideoOrders(),
+                        courseTemporary.getId());
+            }
         }
 
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status, Integer page,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status,
+            Integer page,
             Integer size, String field,
             SortType sortType) {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByStatusNot(status, pageable);
+        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByStatusNot(status,
+                pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseTemporaryMapper.mapInterfacesToDtos(courseTemporary.getContent()))
@@ -220,7 +227,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         Course course = courseService.getCourseById(courseId);
         CourseTemporary courseTemporary = courseTemporaryRepository
                 .findByCourseId(courseId)
-                .orElseThrow(() -> new BadRequestException("Cannot found course update with id " + courseId));
+                .orElseThrow(() -> new BadRequestException(
+                        "Cannot found course update with id " + courseId));
         course = courseTemporaryMapper.mapCoursetmpToCourse(course, courseTemporary);
         courseRepository.save(course);
         courseTemporaryRepository.delete(courseTemporary);
@@ -230,21 +238,25 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     public CourseDetailResponse getCourseDetail(Long id) {
         CourseTemporary courseTemporary = courseTemporaryRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(
-                        "Not found course temporary with id " + id + " in getCourseDetail temporary function"));
+                        "Not found course temporary with id " + id
+                                + " in getCourseDetail temporary function"));
         Level level = levelRepository.findById(courseTemporary.getLevelId())
                 .orElseThrow(
-                        () -> new BadRequestException("Cannot found level with id " + courseTemporary.getLevelId()
+                        () -> new BadRequestException("Cannot found level with id "
+                                + courseTemporary.getLevelId()
                                 + " in function insertCourseTmpToReal"));
 
         List<CourseVideoResponse> courseVideoTemporaryResponse = videoTmpService.getCourseVideoResponseById(id);
         Course course = courseTemporary.getCourse();
         if (course != null) {
             Long courseId = course.getId();
-            List<CourseVideoResponse> courseVideoResponse = videoService.getVideoByCourseIdAndCommonStatus(courseId,
+            List<CourseVideoResponse> courseVideoResponse = videoService.getVideoByCourseIdAndCommonStatus(
+                    courseId,
                     CommonStatus.AVAILABLE);
             courseVideoTemporaryResponse.addAll(courseVideoResponse);
         }
-        CourseDetailResponse courseDetailResponse = courseTemporaryMapper.mapCourseDetailResponse(courseTemporary);
+        CourseDetailResponse courseDetailResponse = courseTemporaryMapper
+                .mapCourseDetailResponse(courseTemporary);
         List<String> topics = courseTopicService.getTopicsByCourseTmpId(id);
         courseDetailResponse.setTopics(topics);
         courseDetailResponse.setLevel(level.getName());
@@ -255,16 +267,18 @@ public class CourseTmpServiceImpl implements CourseTmpService {
 
     @Override
     @Transactional
-    public void insertCourseTmpToReal(VerifyRequest verifyRequest) {
+    public Long insertCourseTmpToReal(VerifyRequest verifyRequest) {
         CourseTemporary courseTemporary = courseTemporaryRepository.findById(verifyRequest.getId())
                 .orElseThrow(
-                        () -> new BadRequestException("Cannot found course temporary with id " + verifyRequest.getId()
+                        () -> new BadRequestException("Cannot found course temporary with id "
+                                + verifyRequest.getId()
                                 + " in function insertCourseTmpToReal"));
         Course course = null;
         if (courseTemporary.getCourse() == null) {
             Level level = levelRepository.findById(courseTemporary.getLevelId())
                     .orElseThrow(
-                            () -> new BadRequestException("Cannot found level with id " + courseTemporary.getLevelId()
+                            () -> new BadRequestException("Cannot found level with id "
+                                    + courseTemporary.getLevelId()
                                     + " in function insertCourseTmpToReal"));
 
             course = courseTemporaryMapper.mapToCourse(courseTemporary);
@@ -277,7 +291,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             course = courseTemporary.getCourse();
             course.setCommonStatus(CommonStatus.AVAILABLE);
             course.setDescription(
-                    Optional.ofNullable(courseTemporary.getDescription()).orElse(course.getDescription()));
+                    Optional.ofNullable(courseTemporary.getDescription())
+                            .orElse(course.getDescription()));
             course.setName(Optional.ofNullable(courseTemporary.getName()).orElse(course.getName()));
             course.setPrice(Optional.ofNullable(courseTemporary.getPrice()).orElse(course.getPrice()));
             course.setUpdateTime(LocalDateTime.now());
@@ -303,21 +318,25 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 .email(courseTemporary.getTeacherEmail())
                 .userId(courseTemporary.getTeacherId())
                 .build());
+        return course.getId();
     }
 
     @Override
     public void rejectCourse(VerifyRequest actionRequest) {
         CourseTemporary courseTemporary = courseTemporaryRepository.findById(actionRequest.getId())
                 .orElseThrow(
-                        () -> new BadRequestException("Cannot found course temporary with id " + actionRequest.getId()
+                        () -> new BadRequestException("Cannot found course temporary with id "
+                                + actionRequest.getId()
                                 + " in function rejectCourse"));
         if (courseTemporary.getStatus().equals(CommonStatus.REJECT)) {
-            throw new BadRequestException("Course with id " + actionRequest.getId() + " have been rejected.");
+            throw new BadRequestException(
+                    "Course with id " + actionRequest.getId() + " have been rejected.");
         }
         courseTemporary.setStatus(CommonStatus.REJECT);
         courseTemporaryRepository.save(courseTemporary);
 
-        String mailTemplate = SendMailTemplate.rejectEmail(courseTemporary.getTeacherName(), courseTemporary.getName(),
+        String mailTemplate = SendMailTemplate.rejectEmail(courseTemporary.getTeacherName(),
+                courseTemporary.getName(),
                 actionRequest.getReason());
         sendEmailService.sendMailService(SendMailRequest
                 .builder()
@@ -340,7 +359,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             Integer page, Integer size, String field, SortType sortType) {
         String email = securityContextService.getCurrentUser().getEmail();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByEmailAndStatusNot(email, status,
+        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByEmailAndStatusNot(email,
+                status,
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
@@ -375,12 +395,14 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             String field, SortType sortType) {
         Long teacherId = securityContextService.getCurrentUser().getId();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<CourseTemporary> courseTemporaries = courseTemporaryRepository.searchCourseTemporariesByTeacher(searchTerm,
+        Page<CourseTemporary> courseTemporaries = courseTemporaryRepository.searchCourseTemporariesByTeacher(
+                searchTerm,
                 teacherId,
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseTemporaryMapper.mapCoursesTmpToCourseResponses(courseTemporaries.getContent()))
+                .data(courseTemporaryMapper
+                        .mapCoursesTmpToCourseResponses(courseTemporaries.getContent()))
                 .totalPage(courseTemporaries.getTotalPages())
                 .totalRow(courseTemporaries.getTotalElements())
                 .build();
