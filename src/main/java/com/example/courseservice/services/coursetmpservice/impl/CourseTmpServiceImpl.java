@@ -118,7 +118,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
 
         courseTopicService.addCourseTemporaryToTopic(course, courseTemporary);
 
-        updateVideoOrders(courseUpdateRequest.getVideoOrders(), course, courseTemporary);
+        updateVideoOrders(courseUpdateRequest.getVideoOrders(), course.getId(), courseTemporary.getId());
     }
 
     private CloudinaryUrl processThumbnail(MultipartFile thumbnail) {
@@ -144,7 +144,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         return courseTemporaryRepository.save(courseTemporary);
     }
 
-    private void updateVideoOrders(List<VideoOrder> videoOrders, Course course, CourseTemporary courseTemporary) {
+    @Override
+    public void updateVideoOrders(List<VideoOrder> videoOrders, Long courseId, Long courseTemporaryId) {
         if (videoOrders != null && !videoOrders.isEmpty()) {
             List<VideoOrder> videoOrdersTemporary = videoOrders.stream()
                     .filter(VideoOrder::getIsDraft)
@@ -154,8 +155,12 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                     .filter(videoOrder -> !videoOrder.getIsDraft())
                     .collect(Collectors.toList());
 
-            videoService.updateVideoOrder(videoOrdersReal, course.getId());
-            videoTmpService.updateVideoOrder(videoOrdersTemporary, courseTemporary.getId());
+            if (courseId != null) {
+                videoService.updateVideoOrder(videoOrdersReal, courseId);
+            }
+            if (courseTemporaryId != null) {
+                videoTmpService.updateVideoOrder(videoOrdersTemporary, courseTemporaryId);
+            }
         }
     }
 
@@ -185,7 +190,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         courseTemporary = courseTemporaryRepository.save(courseTemporary);
         Course course = courseTemporary.getCourse();
         if (course != null) {
-            updateVideoOrders(courseUpdateRequest.getVideoOrders(), course, courseTemporary);
+            updateVideoOrders(courseUpdateRequest.getVideoOrders(), course.getId(),
+                    courseTemporary.getId());
         } else {
             if (courseUpdateRequest.getVideoOrders() != null) {
                 videoTmpService.updateVideoOrder(courseUpdateRequest.getVideoOrders(),
