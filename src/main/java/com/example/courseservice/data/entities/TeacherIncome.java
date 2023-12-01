@@ -34,9 +34,9 @@ public class TeacherIncome {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "teacher_income_sequence")
     private long id;
 
-    private Long money;
+    private Double money;
 
-    private Long receivedMoney;
+    private Double receivedMoney;
 
     private Integer month;
 

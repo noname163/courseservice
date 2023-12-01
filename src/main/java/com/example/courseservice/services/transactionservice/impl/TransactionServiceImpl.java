@@ -1,5 +1,6 @@
 package com.example.courseservice.services.transactionservice.impl;
 
+import java.io.ObjectInputFilter.Config;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -66,7 +68,10 @@ import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.GetIpAddress;
 import com.example.courseservice.utils.PageableUtil;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
@@ -107,7 +112,7 @@ public class TransactionServiceImpl implements TransactionService {
         Course course = courseRepository.findById(paymentRequest.getCourseId())
                 .orElseThrow(() -> new BadRequestException("Not exist course with id " + paymentRequest.getCourseId()));
         String orderType = course.getName();
-        long amount = (long) (course.getPrice() * 100);
+        double amount = (double) (course.getPrice() * 100);
         String bankCode = paymentRequest.getBankCode();
 
         String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
@@ -408,5 +413,4 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
         return paymentResponse;
     }
-
 }
