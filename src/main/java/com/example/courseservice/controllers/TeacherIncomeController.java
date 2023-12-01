@@ -1,43 +1,27 @@
 package com.example.courseservice.controllers;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TeacherIncomeStatus;
-import com.example.courseservice.data.dto.request.VideoContentUpdate;
-import com.example.courseservice.data.dto.request.VideoRequest;
-import com.example.courseservice.data.dto.request.VideoTemporaryUpdateRequest;
-import com.example.courseservice.data.dto.request.VideoUpdateRequest;
+import com.example.courseservice.data.dto.request.AdminPaymentTeacherRequest;
 import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.TeacherIncomeForAdmin;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
-import com.example.courseservice.data.dto.response.VideoAdminResponse;
-import com.example.courseservice.data.dto.response.VideoDetailResponse;
-import com.example.courseservice.data.dto.response.VideoItemResponse;
-import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.teacherincomeservice.TeacherIncomeService;
-import com.example.courseservice.services.videoservice.VideoService;
-import com.example.courseservice.services.videotmpservice.VideoTmpService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -111,7 +95,7 @@ public class TeacherIncomeController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(teacherIncomeService.getTeacherIncomeForTeacher(status, page, size, field, sortType));
     }
-    @Operation(summary = "Get current teacher income in 10 month of all course")
+    @Operation(summary = "Get teacher income for admin")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get revenue successfull.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = TeacherIncomeForAdmin.class)) }),
@@ -128,5 +112,19 @@ public class TeacherIncomeController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(teacherIncomeService.getTeacherIncomeForAdmin(status, page, size, field, sortType));
+    }
+
+    
+    @Operation(summary = "Admmin payment for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get revenue successfull."),
+            @ApiResponse(responseCode = "400", description = "Invalid data.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/admin/payment")
+    public ResponseEntity<PaginationResponse<List<TeacherIncomeForAdmin>>> adminPaymentForTeacher(@RequestBody AdminPaymentTeacherRequest adminPaymentTeacherRequest) {
+        teacherIncomeService.adminPaymentForTeacher(adminPaymentTeacherRequest);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

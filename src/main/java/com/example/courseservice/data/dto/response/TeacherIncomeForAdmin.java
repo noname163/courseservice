@@ -12,6 +12,7 @@ import lombok.Setter;
 @Builder
 @Setter
 public class TeacherIncomeForAdmin {
+    private Long id;
     private String courseName;
     private Double revenue;
     private Double receivedMoney;

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.example.courseservice.data.constants.TeacherIncomeStatus;
 
 public interface CourseReportInterface {
+    Long getId();
     Long getCourseId();
     String getCourseName();
     String getMonthOfYear();

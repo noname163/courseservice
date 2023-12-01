@@ -10,5 +10,6 @@ import lombok.Setter;
 public class AdminRefundAction {
     private String reason;
     private Long id;
+    private String transactionCode;
     private VerifyStatus verifyStatus;
 }

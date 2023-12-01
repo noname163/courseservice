@@ -248,15 +248,16 @@ public class VideoController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @GetMapping("/admin/draft-list")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoUpdateForAdmin(
+            @RequestParam(required = false, defaultValue = "ALL") CommonStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(videoTmpService.getUpdateVideo(page, size, field,
+                .body(videoTmpService.getUpdateVideo(status,page, size, field,
                         sortType));
     }
 
@@ -271,13 +272,14 @@ public class VideoController {
     @GetMapping("/teacher/draft-list")
     @PreAuthorize("hasAnyAuthority('TEACHER')")
     public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoUpdateForTeacher(
+            @RequestParam(required = false, defaultValue = "ALL") CommonStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(videoTmpService.getUpdateVideoForCurrentUser(page, size, field,
+                .body(videoTmpService.getUpdateVideoForCurrentUser(status,page, size, field,
                         sortType));
     }
 

@@ -19,21 +19,38 @@ import com.example.courseservice.data.entities.CourseTemporary;
 
 public interface CourseTmpService {
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail);
+
     public void updateRealCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thumbnail);
+
     public void editTmpCourse(CourseTemporaryUpdateRequest courseUpdateRequest, MultipartFile thumbnail);
-    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status,Integer page,
+
+    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status, Integer page,
             Integer size, String field, SortType sortType);
-    public PaginationResponse<List<CourseResponse>> searchTemporaryCourseForTeacher(String searchTerm,Integer page,
+
+    public PaginationResponse<List<CourseResponse>> searchTemporaryCourseForTeacher(String searchTerm, Integer page,
             Integer size, String field, SortType sortType);
-    public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(CommonStatus status,Integer page,
+
+    public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(CommonStatus status, Integer page,
             Integer size, String field, SortType sortType);
+
+    public PaginationResponse<List<CourseResponse>> filterCourseTmpStatus(CommonStatus status, Integer page,
+            Integer size, String field, SortType sortType);
+
     public boolean isUpdate(Long courseId);
+
     public void insertUpdateCourseTmpToReal(Long courseId);
+
     public Long insertCourseTmpToReal(VerifyRequest courseTeporaryId);
+
     public CourseDetailResponse getCourseDetail(Long id);
+
     public void requestVerifyCourses(List<Long> courseIds);
+
     public void rejectCourse(VerifyRequest actionRequest);
+
     public CourseTemporary createNewCourseTemporaryByCourse(Course course);
+
     public void deleteDraftCourse(Long id);
+
     public void updateVideoOrders(List<VideoOrder> videoOrders, Long courseId, Long courseTemporaryId);
 }
