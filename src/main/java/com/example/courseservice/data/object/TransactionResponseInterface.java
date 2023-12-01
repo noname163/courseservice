@@ -11,6 +11,9 @@ public interface TransactionResponseInterface {
     LocalDateTime getPaymentDate();
     String getSubject();
     String getTeacherName();
+    String getTeacherAvatar();
+    String getUserName();
+    String getUserAvatar();
     TransactionStatus getTransactionStatus();
     Double getAmount();
     Long getCourseId();

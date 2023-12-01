@@ -19,9 +19,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "t.id AS id, " +
             "t.status AS transactionStatus, t.amount AS amount, " +
             "t.course.id AS courseId, t.course.name AS courseName, " +
-            "t.course.teacherName AS teacherName, "+
-            "t.course.subject AS subject, "+
-            "t.vnpTxnRef AS transactionCode "+
+            "t.course.teacherName AS teacherName, " +
+            "t.course.teacherAvatar AS teacherAvatar, " +
+            "t.course.subject AS subject, " +
+            "t.vnpTxnRef AS transactionCode " +
             "FROM Transaction t " +
             "WHERE t.userId = :userId")
     Page<TransactionResponseInterface> findTransactionsByUserId(
@@ -31,13 +32,38 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT t.createdDate AS createdDate, t.paymentDate AS paymentDate, " +
             "t.id AS id, " +
             "t.status AS transactionStatus, t.amount AS amount, " +
+            "t.userName AS userName, " +
+            "t.userAvatar AS userAvatar, " +
             "t.course.id AS courseId, t.course.name AS courseName, " +
-            "t.course.teacherName AS teacherName, "+
-            "t.course.subject AS subject, "+
-            "t.vnpTxnRef AS transactionCode "+
+            "t.course.teacherName AS teacherName, " +
+            "t.course.teacherAvatar AS teacherAvatar, " +
+            "t.course.subject AS subject, " +
+            "t.vnpTxnRef AS transactionCode " +
             "FROM Transaction t " +
             "WHERE (:status IS NULL OR t.status = :status)")
     Page<TransactionResponseInterface> findTransactionsByStatus(
             @Param("status") TransactionStatus status,
+            Pageable pageable);
+
+    @Query("SELECT " +
+            "t.id AS id, " +
+            "t.vnpTxnRef AS transactionCode, " +
+            "t.createdDate AS createdDate, " +
+            "t.paymentDate AS paymentDate, " +
+            "c.subject AS subject, " +
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "t.userName AS userName, " +
+            "t.userAvatar AS userAvatar, " +
+            "t.status AS transactionStatus, " +
+            "t.amount AS amount, " +
+            "c.id AS courseId, " +
+            "c.name AS courseName " +
+            "FROM Transaction t " +
+            "JOIN t.course c " +
+            "WHERE c.teacherId = :teacherId " +
+            "ORDER BY t.createdDate DESC")
+    Page<TransactionResponseInterface> getTransactionsByTeacherId(
+            @Param("teacherId") Long teacherId,
             Pageable pageable);
 }

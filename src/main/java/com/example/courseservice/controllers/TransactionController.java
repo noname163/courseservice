@@ -97,6 +97,27 @@ public class TransactionController {
                 .body(transactionService.getTransactionForAdmin(status, page, size, field, sortType));
     }
 
+    @Operation(summary = "Teacher get transaction")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get transaction successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = UserTransactionResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/teacher")
+    public ResponseEntity<PaginationResponse<List<UserTransactionResponse>>> teacherGetTransaction(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(transactionService.getTransactionOfCurrentUserForTeacher(page, size, field,
+                        sortType));
+    }
+
     @Operation(summary = "Admin Refund")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get transaction successfully.", content = {
@@ -108,7 +129,7 @@ public class TransactionController {
     @PostMapping("/admin/refund")
     public ResponseEntity<Void> createRefund(@RequestBody AdminRefundAction adminRefundAction,
             HttpServletRequest request) throws UnsupportedEncodingException {
-                transactionService.adminHandleRefund(adminRefundAction, request);
+        transactionService.adminHandleRefund(adminRefundAction, request);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
