@@ -106,10 +106,10 @@ public class TransactionController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
     @PostMapping("/admin/refund")
-    public ResponseEntity<PaymentResponse> createRefund(@RequestBody AdminRefundAction adminRefundAction,
+    public ResponseEntity<Void> createRefund(@RequestBody AdminRefundAction adminRefundAction,
             HttpServletRequest request) throws UnsupportedEncodingException {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(transactionService.adminHandleRefund(adminRefundAction, request));
+                transactionService.adminHandleRefund(adminRefundAction, request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Operation(summary = "Student Request Refund")

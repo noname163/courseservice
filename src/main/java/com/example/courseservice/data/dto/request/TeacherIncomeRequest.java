@@ -10,5 +10,5 @@ import lombok.Data;
 public class TeacherIncomeRequest {
     private Long userId;
     private Course course;
-    private Long amount;
+    private Double amount;
 }

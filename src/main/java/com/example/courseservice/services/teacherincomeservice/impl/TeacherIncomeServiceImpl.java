@@ -1,6 +1,7 @@
 package com.example.courseservice.services.teacherincomeservice.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -10,22 +11,30 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.courseservice.data.constants.NotificationType;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TeacherIncomeStatus;
+import com.example.courseservice.data.dto.request.AdminPaymentTeacherRequest;
+import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.TeacherIncomeForAdmin;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.object.CourseReportInterface;
 import com.example.courseservice.data.object.CourseRevenueByMonthInterface;
+import com.example.courseservice.data.object.NotificationContent;
 import com.example.courseservice.data.repositories.TeacherIncomeRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.TeacherIncomeMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
+import com.example.courseservice.services.notificationservice.NotificationService;
+import com.example.courseservice.services.sendmailservice.SendEmailService;
 import com.example.courseservice.services.teacherincomeservice.TeacherIncomeService;
+import com.example.courseservice.template.SendMailTemplate;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
@@ -36,6 +45,10 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
     private TeacherIncomeMapper teacherIncomeMapper;
     @Autowired
     private SecurityContextService securityContextService;
+    @Autowired
+    private SendEmailService sendEmailService;
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private PageableUtil pageableUtil;
 
@@ -96,11 +109,11 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
             Integer page, Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<CourseReportInterface> courseReportInterface;
-        if(status.equals(TeacherIncomeStatus.ALL)){
+        if (status.equals(TeacherIncomeStatus.ALL)) {
             courseReportInterface = teacherIncomeRepository.getCourseReportsOrderByMonthAndYear(pageable);
-        }
-        else{
-            courseReportInterface = teacherIncomeRepository.getCourseReportsOrderByMonthAndYearByStatus(status, pageable);
+        } else {
+            courseReportInterface = teacherIncomeRepository.getCourseReportsOrderByMonthAndYearByStatus(status,
+                    pageable);
         }
         return PaginationResponse.<List<TeacherIncomeForAdmin>>builder()
                 .data(teacherIncomeMapper.mapToTeacherIncomeForAdminList(courseReportInterface.getContent()))
@@ -115,17 +128,69 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<CourseReportInterface> courseReportInterface;
         Long teacherId = securityContextService.getCurrentUser().getId();
-        if(status.equals(TeacherIncomeStatus.ALL)){
-            courseReportInterface = teacherIncomeRepository.getCourseReportsOrderByMonthAndYearForTeacher(teacherId,pageable);
-        }
-        else{
-            courseReportInterface = teacherIncomeRepository.getCourseReportsOrderByMonthAndYearByStatusForTeacher(teacherId, status, pageable);
+        if (status.equals(TeacherIncomeStatus.ALL)) {
+            courseReportInterface = teacherIncomeRepository.getCourseReportsOrderByMonthAndYearForTeacher(teacherId,
+                    pageable);
+        } else {
+            courseReportInterface = teacherIncomeRepository
+                    .getCourseReportsOrderByMonthAndYearByStatusForTeacher(teacherId, status, pageable);
         }
         return PaginationResponse.<List<TeacherIncomeForAdmin>>builder()
                 .data(teacherIncomeMapper.mapToTeacherIncomeForAdminList(courseReportInterface.getContent()))
                 .totalPage(courseReportInterface.getTotalPages())
                 .totalRow(courseReportInterface.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public void adminPaymentForTeacher(AdminPaymentTeacherRequest adminPaymentTeacherRequest) {
+        TeacherIncome teacherIncome = teacherIncomeRepository.findById(adminPaymentTeacherRequest.getId())
+                .orElseThrow(() -> new BadRequestException(
+                        "Cannot found transaction with id " + adminPaymentTeacherRequest.getId()));
+        Course course = teacherIncome.getCourse();
+        if (teacherIncome.getMoney() < adminPaymentTeacherRequest.getAmount()) {
+            throw new BadRequestException("Amount cannot bigger than income of teacher");
+        }
+        if (teacherIncome.getReceivedMoney() != null && teacherIncome.getReceivedMoney() > 0) {
+            double recivedAmount = teacherIncome.getMoney() - teacherIncome.getReceivedMoney();
+            if (adminPaymentTeacherRequest.getAmount() > recivedAmount) {
+                throw new BadRequestException("Amount cannot bigger than income of teacher");
+            }
+            if (recivedAmount > adminPaymentTeacherRequest.getAmount()) {
+                recivedAmount = recivedAmount - adminPaymentTeacherRequest.getAmount();
+                teacherIncome.setReceivedMoney(recivedAmount);
+                teacherIncome.setStatus(TeacherIncomeStatus.PENDING);
+            } else {
+                teacherIncome.setReceivedMoney(adminPaymentTeacherRequest.getAmount());
+                teacherIncome.setStatus(TeacherIncomeStatus.RECEIVED);
+            }
+        }
+        if (teacherIncome.getMoney() > adminPaymentTeacherRequest.getAmount()) {
+            double recivedAmount = teacherIncome.getMoney() - adminPaymentTeacherRequest.getAmount();
+            teacherIncome.setReceivedMoney(recivedAmount);
+            teacherIncome.setStatus(TeacherIncomeStatus.PENDING);
+        } else {
+            teacherIncome.setReceivedMoney(adminPaymentTeacherRequest.getAmount());
+            teacherIncome.setStatus(TeacherIncomeStatus.RECEIVED);
+        }
+        teacherIncome.setPaymentDate(adminPaymentTeacherRequest.getPaymentDate());
+        teacherIncomeRepository.save(teacherIncome);
+        notificationService
+                .createNotification(NotificationContent
+                        .builder()
+                        .course(course.getName())
+                        .price(course.getPrice())
+                        .email(course.getTeacherEmail())
+                        .userId(course.getTeacherId())
+                        .type(NotificationType.TRANSACTION)
+                        .date(LocalDateTime.now())
+                        .build());
+        sendEmailService.sendMailService(SendMailRequest
+                .builder().subject("Gửi Yêu Cầu Thành Công")
+                .mailTemplate(SendMailTemplate.paymentTeacherEmail(course.getTeacherName(), course.getName(),
+                        adminPaymentTeacherRequest.getPaymentCode(),
+                        String.valueOf(adminPaymentTeacherRequest.getAmount())))
+                .userEmail(course.getTeacherEmail()).build());
     }
 
 }

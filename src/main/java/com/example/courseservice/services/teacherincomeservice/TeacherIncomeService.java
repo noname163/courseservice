@@ -5,6 +5,7 @@ import java.util.List;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TeacherIncomeStatus;
+import com.example.courseservice.data.dto.request.AdminPaymentTeacherRequest;
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
 import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -25,4 +26,5 @@ public interface TeacherIncomeService {
         
     public PaginationResponse<List<TeacherIncomeForAdmin>> getTeacherIncomeForTeacher(TeacherIncomeStatus status,Integer page,
             Integer size, String field, SortType sortType);
+    public void adminPaymentForTeacher(AdminPaymentTeacherRequest adminPaymentTeacherRequest);
 }

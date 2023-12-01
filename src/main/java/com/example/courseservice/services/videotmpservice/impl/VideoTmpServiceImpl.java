@@ -161,10 +161,17 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     }
 
     @Override
-    public PaginationResponse<List<VideoItemResponse>> getUpdateVideo(Integer page, Integer size, String field,
+    public PaginationResponse<List<VideoItemResponse>> getUpdateVideo(CommonStatus commonStatus, Integer page,
+            Integer size, String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<VideoTemporary> videotemp = videoTemporaryRepository.findAll(pageable);
+        Page<VideoTemporary> videotemp;
+        if (commonStatus.equals(CommonStatus.ALL)) {
+            videotemp = videoTemporaryRepository.findByStatusNot(CommonStatus.DRAFT,pageable);
+        } else {
+            videotemp = videoTemporaryRepository.findByStatus(commonStatus, pageable);
+        }
+
         return PaginationResponse.<List<VideoItemResponse>>builder()
                 .data(videoTemporaryMapper.mapVideoItemResponses(videotemp.getContent()))
                 .totalPage(videotemp.getTotalPages())
@@ -257,11 +264,17 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     }
 
     @Override
-    public PaginationResponse<List<VideoItemResponse>> getUpdateVideoForCurrentUser(Integer page, Integer size,
+    public PaginationResponse<List<VideoItemResponse>> getUpdateVideoForCurrentUser(CommonStatus status,Integer page, Integer size,
             String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Long teacherId = securityContextService.getCurrentUser().getId();
-        Page<VideoTemporary> videotemp = videoTemporaryRepository.findVideosByTeacherId(teacherId, pageable);
+        Page<VideoTemporary> videotemp;
+        if(status.equals(CommonStatus.ALL)){
+            videotemp = videoTemporaryRepository.findVideosByTeacherId(teacherId, pageable);
+        }
+        else{
+            videotemp = videoTemporaryRepository.findVideosByTeacherIdAndStatus(teacherId, status, pageable);
+        }
         return PaginationResponse.<List<VideoItemResponse>>builder()
                 .data(videoTemporaryMapper.mapVideoItemResponses(videotemp.getContent()))
                 .totalPage(videotemp.getTotalPages())
