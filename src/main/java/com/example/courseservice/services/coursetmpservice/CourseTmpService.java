@@ -10,6 +10,7 @@ import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.CourseTemporaryUpdateRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
+import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -34,4 +35,5 @@ public interface CourseTmpService {
     public void rejectCourse(VerifyRequest actionRequest);
     public CourseTemporary createNewCourseTemporaryByCourse(Course course);
     public void deleteDraftCourse(Long id);
+    public void updateVideoOrders(List<VideoOrder> videoOrders, Long courseId, Long courseTemporaryId);
 }

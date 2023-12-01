@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VideoContentUpdate;
+import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoTemporaryUpdateRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
@@ -31,6 +32,8 @@ import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.services.courseservice.CourseService;
+import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.services.videotmpservice.VideoTmpService;
 
@@ -49,6 +52,8 @@ public class VideoController {
     private EventPublisher eventPublisher;
     @Autowired
     private VideoTmpService videoTmpService;
+    @Autowired
+    private CourseTmpService courseService;
 
     @Operation(summary = "Create video for new course")
     @ApiResponses(value = {
@@ -351,13 +356,29 @@ public class VideoController {
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
-    @DeleteMapping("temporary-video")
+    @DeleteMapping("/temporary-video")
     @PreAuthorize("hasAuthority('TEACHER')")
     public ResponseEntity<Void> deleteTemporaryVideo(
             @RequestParam(required = true) Long videoId) {
         videoTmpService.deletedTemporaryVideo(videoId);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
+    @Operation(summary = "Update video order for teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Delete temporary video successfully."),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PutMapping("/order")
+    @PreAuthorize("hasAuthority('TEACHER')")
+    public ResponseEntity<Void> updateVideoOrder(@RequestBody List<VideoOrder> videoOrder,
+            @RequestParam(required = false) Long courseId, @RequestParam(required = false) Long courseTemporaryId) {
+        courseService.updateVideoOrders(videoOrder, courseId, courseTemporaryId);;
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .build();
     }
 
