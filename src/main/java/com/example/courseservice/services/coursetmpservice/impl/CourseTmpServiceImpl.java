@@ -452,4 +452,24 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         courseTemporaryRepository.delete(courseTemporary);
     }
 
+    @Override
+    public PaginationResponse<List<CourseResponse>> filterCourseTmpStatus(CommonStatus status, Integer page,
+            Integer size, String field, SortType sortType) {
+        UserInformation user = securityContextService.getCurrentUser();
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+        Page<CourseResponseInterface> courseTemporary;
+        if(user.getRole().equals("TEACHER")){
+            courseTemporary = courseTemporaryRepository.filterByEmailAndStatus(user.getEmail(), status, pageable);
+        }
+        else{
+            courseTemporary = courseTemporaryRepository.filterByStatus(status, pageable);
+        }
+
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseTemporaryMapper.mapInterfacesToDtos(courseTemporary.getContent()))
+                .totalPage(courseTemporary.getTotalPages())
+                .totalRow(courseTemporary.getTotalElements())
+                .build();
+    }
+
 }

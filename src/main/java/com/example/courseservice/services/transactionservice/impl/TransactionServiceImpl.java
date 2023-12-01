@@ -323,28 +323,49 @@ public class TransactionServiceImpl implements TransactionService {
                         .build()));
         sendEmailService.sendMailService(SendMailRequest
                 .builder().subject("Gửi Yêu Cầu Thành Công")
-                .mailTemplate(SendMailTemplate.recivedRefundRequestEmail(userInformation.getFullname(), course.getName(),
-                        transaction.getVnpTxnRef()))
+                .mailTemplate(
+                        SendMailTemplate.recivedRefundRequestEmail(userInformation.getFullname(), course.getName(),
+                                transaction.getVnpTxnRef()))
                 .userEmail(transaction.getUserEmail()).build());
     }
 
     @Override
-    public PaymentResponse adminHandleRefund(AdminRefundAction adminRefundAction,HttpServletRequest request) throws UnsupportedEncodingException {
+    public void adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)
+            throws UnsupportedEncodingException {
         Transaction transaction = transactionRepository.findById(adminRefundAction.getId()).orElseThrow(
                 () -> new BadRequestException("Cannot found transaction with id " + adminRefundAction.getId()));
-        PaymentResponse paymentResponse;
-        if(adminRefundAction.getVerifyStatus().equals(VerifyStatus.ACCEPTED)){
-            paymentResponse = refundPayment(transaction, request);
+        Course course = transaction.getCourse();
+        String sendMailTemplate = "";
+        if (adminRefundAction.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
+            transaction.setRefundEvidence(adminRefundAction.getTransactionCode());
+            transaction.setStatus(TransactionStatus.REFUND_SUCCES);
+            sendMailTemplate = SendMailTemplate.acceptedRefundEmail(transaction.getUserEmail(), course.getName(),
+                    adminRefundAction.getTransactionCode());
+        } else {
+            transaction.setAdminNote(adminRefundAction.getReason());
+            transaction.setStatus(TransactionStatus.REJECT_REFUND);
+            sendMailTemplate = SendMailTemplate.rejectRefundEmail(transaction.getUserEmail(), course.getName(),
+                    transaction.getVnpTxnRef(), adminRefundAction.getReason());
         }
-        else{
-            paymentResponse = null;
-        }
-        return paymentResponse;
+        transactionRepository.save(transaction);
+
+        notificationService.createNotification(NotificationContent
+                .builder()
+                .course(course.getName())
+                .price(course.getPrice())
+                .email(transaction.getUserEmail())
+                .userId(transaction.getUserId())
+                .type(NotificationType.TRANSACTION)
+                .date(LocalDateTime.now())
+                .build());
+        sendEmailService.sendMailService(SendMailRequest
+                .builder().subject("Thông báo trạng thái hoàn tiền")
+                .mailTemplate(sendMailTemplate)
+                .userEmail(transaction.getUserEmail()).build());
     }
 
     private PaymentResponse refundPayment(Transaction transaction, HttpServletRequest request)
             throws UnsupportedEncodingException {
-
 
         String vnp_Reuqest_id = VNPayConfig.getRandomNumber(8);
         String vnp_TmnCode = environmentVariable.getVnpayTmnCode();
@@ -403,7 +424,6 @@ public class TransactionServiceImpl implements TransactionService {
         // set transaction
         LocalDateTime createdDate = convertStringToLocalDateTime.convertStringToLocalDateTime(vnp_createdDate);
         LocalDateTime expireDate = convertStringToLocalDateTime.convertStringToLocalDateTime(vnp_ExpireDate);
-
 
         PaymentResponse paymentResponse = PaymentResponse
                 .builder()

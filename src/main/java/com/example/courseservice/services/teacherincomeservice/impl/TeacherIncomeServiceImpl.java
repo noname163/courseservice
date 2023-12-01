@@ -1,6 +1,7 @@
 package com.example.courseservice.services.teacherincomeservice.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -10,18 +11,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.courseservice.data.constants.NotificationType;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.TeacherIncomeStatus;
 import com.example.courseservice.data.dto.request.AdminPaymentTeacherRequest;
+import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.TeacherIncomeForAdmin;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.object.CourseReportInterface;
 import com.example.courseservice.data.object.CourseRevenueByMonthInterface;
+import com.example.courseservice.data.object.NotificationContent;
 import com.example.courseservice.data.repositories.TeacherIncomeRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.mappers.TeacherIncomeMapper;
@@ -29,6 +34,7 @@ import com.example.courseservice.services.authenticationservice.SecurityContextS
 import com.example.courseservice.services.notificationservice.NotificationService;
 import com.example.courseservice.services.sendmailservice.SendEmailService;
 import com.example.courseservice.services.teacherincomeservice.TeacherIncomeService;
+import com.example.courseservice.template.SendMailTemplate;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
@@ -141,6 +147,7 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         TeacherIncome teacherIncome = teacherIncomeRepository.findById(adminPaymentTeacherRequest.getId())
                 .orElseThrow(() -> new BadRequestException(
                         "Cannot found transaction with id " + adminPaymentTeacherRequest.getId()));
+        Course course = teacherIncome.getCourse();
         if (teacherIncome.getMoney() < adminPaymentTeacherRequest.getAmount()) {
             throw new BadRequestException("Amount cannot bigger than income of teacher");
         }
@@ -168,6 +175,22 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         }
         teacherIncome.setPaymentDate(adminPaymentTeacherRequest.getPaymentDate());
         teacherIncomeRepository.save(teacherIncome);
+        notificationService
+                .createNotification(NotificationContent
+                        .builder()
+                        .course(course.getName())
+                        .price(course.getPrice())
+                        .email(course.getTeacherEmail())
+                        .userId(course.getTeacherId())
+                        .type(NotificationType.TRANSACTION)
+                        .date(LocalDateTime.now())
+                        .build());
+        sendEmailService.sendMailService(SendMailRequest
+                .builder().subject("Gửi Yêu Cầu Thành Công")
+                .mailTemplate(SendMailTemplate.paymentTeacherEmail(course.getTeacherName(), course.getName(),
+                        adminPaymentTeacherRequest.getPaymentCode(),
+                        String.valueOf(adminPaymentTeacherRequest.getAmount())))
+                .userEmail(course.getTeacherEmail()).build());
     }
 
 }

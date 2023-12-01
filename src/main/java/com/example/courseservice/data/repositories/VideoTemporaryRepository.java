@@ -21,6 +21,10 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
     public List<VideoTemporary> findByCourseTemporaryIdAndIdIn(Long courseTemporaryId, Set<Long> ids);
 
     public List<VideoTemporary> findByCourseTemporaryIdAndStatus(Long courseTemporaryId, CommonStatus commonStatus);
+    
+    public Page<VideoTemporary> findByStatus(CommonStatus commonStatus, Pageable pageable);
+
+    public Page<VideoTemporary> findByStatusNot(CommonStatus commonStatus, Pageable pageable);
 
     public List<VideoTemporary> findByCourseTemporaryIdAndStatusNot(Long courseTemporaryId, CommonStatus commonStatus);
 
@@ -31,6 +35,12 @@ public interface VideoTemporaryRepository extends JpaRepository<VideoTemporary, 
             "(SELECT ct FROM CourseTemporary ct " +
             "WHERE ct.teacherId = :teacherId)")
     public Page<VideoTemporary> findVideosByTeacherId(@Param("teacherId") Long teacherId, Pageable pageable);
+    @Query("SELECT vt FROM VideoTemporary vt " +
+            "WHERE vt.courseTemporary IN " +
+            "(SELECT ct FROM CourseTemporary ct " +
+            "WHERE ct.teacherId = :teacherId) "+
+            "AND vt.status = :status")
+    public Page<VideoTemporary> findVideosByTeacherIdAndStatus(@Param("teacherId") Long teacherId, @Param("status") CommonStatus status,Pageable pageable);
 
     public Boolean existsByVideoId(Long videoId);
 

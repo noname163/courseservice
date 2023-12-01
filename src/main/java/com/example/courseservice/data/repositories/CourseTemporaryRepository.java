@@ -48,6 +48,28 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +
             "ct.teacherName AS teacherName, " +
+            "ct.teacherEmail AS teacherEmail, "+
+            "ct.teacherAvatar AS teacherAvatar, "+
+            "ct.teacherId AS teacherId, "+
+            "ct.name AS courseName, " +
+            "SIZE(ct.videoTemporaries) AS totalVideo, " +
+            "ct.subject AS subject, " +
+            "l.name AS level, " +
+            "ct.price AS price, " +
+            "ct.createdDate AS createdDate, " +
+            "ct.updateTime AS updateDate, " +
+            "ct.status AS status " +
+            "FROM CourseTemporary ct " +
+            "LEFT JOIN ct.videoTemporaries vt " +
+            "LEFT JOIN ct.courseTopics ctt " +
+            "LEFT JOIN Level l ON ct.levelId = l.id " +
+            "WHERE ct.status = :status " +
+            "GROUP BY ct.id, l.name")
+    Page<CourseResponseInterface> filterByStatus(@Param("status") CommonStatus status, Pageable pageable);
+
+    @Query("SELECT ct.id AS id, " +
+            "ct.thumbnial AS thumbnial, " +
+            "ct.teacherName AS teacherName, " +
             "ct.teacherAvatar AS teacherAvatar, "+
             "ct.name AS courseName, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
@@ -65,6 +87,28 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "AND ct.teacherEmail = :email " +
             "GROUP BY ct.id, l.name")
     Page<CourseResponseInterface> getByEmailAndStatusNot(@Param("email") String email,
+            @Param("status") CommonStatus status, Pageable pageable);
+
+    @Query("SELECT ct.id AS id, " +
+            "ct.thumbnial AS thumbnial, " +
+            "ct.teacherName AS teacherName, " +
+            "ct.teacherAvatar AS teacherAvatar, "+
+            "ct.name AS courseName, " +
+            "SIZE(ct.videoTemporaries) AS totalVideo, " +
+            "ct.subject AS subject, " +
+            "l.name AS level, " +
+            "ct.price AS price, " +
+            "ct.createdDate AS createdDate, " +
+            "ct.updateTime AS updateDate, " +
+            "ct.status AS status " +
+            "FROM CourseTemporary ct " +
+            "LEFT JOIN ct.videoTemporaries vt " +
+            "LEFT JOIN ct.courseTopics ctt " +
+            "LEFT JOIN Level l ON ct.levelId = l.id " +
+            "WHERE ct.status = :status " +
+            "AND ct.teacherEmail = :email " +
+            "GROUP BY ct.id, l.name")
+    Page<CourseResponseInterface> filterByEmailAndStatus(@Param("email") String email,
             @Param("status") CommonStatus status, Pageable pageable);
 
     @Query("SELECT ct FROM CourseTemporary ct " +

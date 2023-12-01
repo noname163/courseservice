@@ -155,6 +155,28 @@ public class CourseController {
                         sortType));
     }
 
+    @Operation(summary = "Filter course temporary for admin and teacher")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER')")
+    @GetMapping("/teacher/course-temporary/filter")
+    public ResponseEntity<PaginationResponse<List<CourseResponse>>> filterCoursesTemporaryForAdminAndTeacher(
+            @RequestParam(required = true) CommonStatus status,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            @RequestParam(required = false) String field,
+            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(courseTmpService.filterCourseTmpStatus(status, page, size, field,
+                        sortType));
+    }
+
     @Operation(summary = "Get courses waiting for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {

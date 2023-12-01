@@ -35,5 +35,5 @@ public interface TransactionService {
 
     public void requestRefund(StudentRefundRequest studentRefundRequest);
 
-    public PaymentResponse adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)throws UnsupportedEncodingException;
+    public void adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)throws UnsupportedEncodingException;
 }
