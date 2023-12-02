@@ -13,6 +13,9 @@ import lombok.Setter;
 @Setter
 public class TeacherIncomeForAdmin {
     private Long id;
+    private String teacherAvatar;
+    private String teacherName;
+    private String subject;
     private String courseName;
     private Double revenue;
     private Double receivedMoney;

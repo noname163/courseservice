@@ -7,6 +7,9 @@ import com.example.courseservice.data.constants.TeacherIncomeStatus;
 public interface CourseReportInterface {
     Long getId();
     Long getCourseId();
+    String getTeacherName();
+    String getTeacherAvatar();
+    String getSubject();
     String getCourseName();
     String getMonthOfYear();
     Double getRevenue();

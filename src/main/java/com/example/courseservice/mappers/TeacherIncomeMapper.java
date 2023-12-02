@@ -74,6 +74,9 @@ public class TeacherIncomeMapper {
         return TeacherIncomeForAdmin
                 .builder()
                 .id(teacherIncomeForAdminInterface.getId())
+                .teacherAvatar(teacherIncomeForAdminInterface.getTeacherAvatar())
+                .teacherName(teacherIncomeForAdminInterface.getTeacherName())
+                .subject(teacherIncomeForAdminInterface.getSubject())
                 .revenue(teacherIncomeForAdminInterface.getRevenue())
                 .courseId(teacherIncomeForAdminInterface.getCourseId())
                 .paymentDate(teacherIncomeForAdminInterface.getPaymentDate())
