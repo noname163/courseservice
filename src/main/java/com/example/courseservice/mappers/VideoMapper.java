@@ -148,7 +148,7 @@ public class VideoMapper {
                 .totalComment(courseVideoResponseInterface.getTotalComment())
                 .videoStatus(courseVideoResponseInterface.getVideoStatus())
                 .isWatched(false)
-                .isDraft(courseVideoResponseInterface.getIsDraft())
+                .isDraft(false)
                 .url(courseVideoResponseInterface.getVideoStatus().equals(VideoStatus.PUBLIC)
                         ? courseVideoResponseInterface.getUrl()
                         : "")
