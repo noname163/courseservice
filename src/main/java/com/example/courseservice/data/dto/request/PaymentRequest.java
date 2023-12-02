@@ -13,7 +13,6 @@ import lombok.Setter;
 @Setter
 public class PaymentRequest {
     @NotNull
-    @Size(min = 1)
     private Long courseId;
     @NotBlank
     @NotNull

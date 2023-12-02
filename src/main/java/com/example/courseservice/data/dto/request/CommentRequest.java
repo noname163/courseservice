@@ -15,6 +15,5 @@ public class CommentRequest {
     @Size(min = 50, message = "Comment content cannot smaller than 50 characters")
     private String commentContent;
     @NotNull
-    @Size(min = 1)
     private long videoId;
 }

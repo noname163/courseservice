@@ -6,7 +6,9 @@ import com.example.courseservice.data.constants.CommonStatus;
 
 public interface CourseResponseInterface {
 
-    long getId();
+    Long getId();
+
+    Long getCourseRealId();
 
     Long getTeacherId();
 
