@@ -148,29 +148,30 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
                 .orElseThrow(() -> new BadRequestException(
                         "Cannot found transaction with id " + adminPaymentTeacherRequest.getId()));
         Course course = teacherIncome.getCourse();
-        if (teacherIncome.getMoney() < adminPaymentTeacherRequest.getAmount()) {
+        double amount = adminPaymentTeacherRequest.getAmount()*100;
+        if (teacherIncome.getMoney() < amount) {
             throw new BadRequestException("Amount cannot bigger than income of teacher");
         }
         if (teacherIncome.getReceivedMoney() != null && teacherIncome.getReceivedMoney() > 0) {
             double recivedAmount = teacherIncome.getMoney() - teacherIncome.getReceivedMoney();
-            if (adminPaymentTeacherRequest.getAmount() > recivedAmount) {
+            if (amount > recivedAmount) {
                 throw new BadRequestException("Amount cannot bigger than income of teacher");
             }
-            if (recivedAmount > adminPaymentTeacherRequest.getAmount()) {
-                recivedAmount = recivedAmount - adminPaymentTeacherRequest.getAmount();
+            if (recivedAmount > amount) {
+                recivedAmount = recivedAmount - amount;
                 teacherIncome.setReceivedMoney(recivedAmount);
                 teacherIncome.setStatus(TeacherIncomeStatus.PENDING);
             } else {
-                teacherIncome.setReceivedMoney(adminPaymentTeacherRequest.getAmount());
+                teacherIncome.setReceivedMoney(amount);
                 teacherIncome.setStatus(TeacherIncomeStatus.RECEIVED);
             }
         }
-        if (teacherIncome.getMoney() > adminPaymentTeacherRequest.getAmount()) {
-            double recivedAmount = teacherIncome.getMoney() - adminPaymentTeacherRequest.getAmount();
+        if (teacherIncome.getMoney() > amount) {
+            double recivedAmount = teacherIncome.getMoney() - amount;
             teacherIncome.setReceivedMoney(recivedAmount);
             teacherIncome.setStatus(TeacherIncomeStatus.PENDING);
         } else {
-            teacherIncome.setReceivedMoney(adminPaymentTeacherRequest.getAmount());
+            teacherIncome.setReceivedMoney(amount);
             teacherIncome.setStatus(TeacherIncomeStatus.RECEIVED);
         }
         teacherIncome.setPaymentDate(adminPaymentTeacherRequest.getPaymentDate());
@@ -189,7 +190,7 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
                 .builder().subject("Gửi Yêu Cầu Thành Công")
                 .mailTemplate(SendMailTemplate.paymentTeacherEmail(course.getTeacherName(), course.getName(),
                         adminPaymentTeacherRequest.getPaymentCode(),
-                        String.valueOf(adminPaymentTeacherRequest.getAmount())))
+                        String.valueOf(amount)))
                 .userEmail(course.getTeacherEmail()).build());
     }
 
