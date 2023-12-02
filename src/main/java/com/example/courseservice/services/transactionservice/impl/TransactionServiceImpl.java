@@ -113,7 +113,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist course with id " + paymentRequest.getCourseId()));
         String orderType = course.getName();
-        double amount = (double) (course.getPrice() * 100);
+        Long amount = (long) (course.getPrice().doubleValue() * 100);
         String bankCode = paymentRequest.getBankCode();
 
         String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
@@ -192,7 +192,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .userName(user.getFullname())
                 .userAvatar(user.getAvatar())
                 .course(course)
-                .amount(amount)
+                .amount(Double.parseDouble(String.valueOf(amount)))
                 .userId(user.getId())
                 .vnpTxnRef(vnp_TxnRef)
                 .status(TransactionStatus.PENDING)
