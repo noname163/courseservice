@@ -58,6 +58,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
+            "c.teacherName AS teacherName, "+
+            "c.teacherAvatar AS teacherAvatar, "+
+            "c.subject AS subject, "+
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.receivedMoney AS receivedMoney, " +
@@ -65,7 +68,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.status AS teacherIncomeStatus " +
             "FROM TeacherIncome t " +
             "JOIN t.course c " +
-            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month, t.id "
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month, t.id, c.teacherName, c.teacherAvatar, c.subject "
             +
             "ORDER BY t.year DESC, t.month DESC")
     Page<CourseReportInterface> getCourseReportsOrderByMonthAndYear(Pageable pageable);
@@ -74,6 +77,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
+            "c.teacherName AS teacherName, "+
+            "c.teacherAvatar AS teacherAvatar, "+
+            "c.subject AS subject, "+
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.receivedMoney AS receivedMoney, " +
@@ -82,7 +88,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "FROM TeacherIncome t " +
             "JOIN t.course c " +
             "WHERE t.status = :status " +
-            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month, t.id  "
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month, t.id,c.teacherName, c.teacherAvatar, c.subject  "
             +
             "ORDER BY t.year DESC, t.month DESC")
     Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearByStatus(@Param("status") TeacherIncomeStatus status,
@@ -92,6 +98,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
+            "c.teacherName AS teacherName, "+
+            "c.teacherAvatar AS teacherAvatar, "+
+            "c.subject AS subject, "+
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.status AS teacherIncomeStatus, " +
@@ -101,7 +110,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "JOIN t.course c " +
             "WHERE t.status = :status " +
             "AND t.userId = :teacherId " +
-            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month,t.id "
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month,t.id, c.teacherName, c.teacherAvatar, c.subject "
             +
             "ORDER BY t.year DESC, t.month DESC")
     Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearByStatusForTeacher(
@@ -111,6 +120,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
+            "c.teacherName AS teacherName, "+
+            "c.teacherAvatar AS teacherAvatar, "+
+            "c.subject AS subject, "+
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.status AS teacherIncomeStatus, " +
@@ -119,7 +131,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "FROM TeacherIncome t " +
             "JOIN t.course c " +
             "WHERE t.userId = :teacherId " +
-            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status, t.paymentDate,t.receivedMoney, t.year, t.month, t.id "
+            "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status, t.paymentDate,t.receivedMoney, t.year, t.month, t.id,c.teacherName, c.teacherAvatar, c.subject "
             +
             "ORDER BY t.year DESC, t.month DESC")
     Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearForTeacher(

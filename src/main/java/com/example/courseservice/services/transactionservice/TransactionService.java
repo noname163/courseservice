@@ -22,17 +22,21 @@ public interface TransactionService {
     public TransactionResponse checkPaymentStatus(String orderId, String responseCode, String transactionNo,
             String transDate) throws Exception;
 
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(Integer page,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(
+            TransactionStatus transactionStatus, Integer page,
             Integer size, String field, SortType sortType);
 
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUserForTeacher(Integer page,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUserForTeacher(
+            TransactionStatus transactionStatus, Integer page,
             Integer size, String field, SortType sortType);
 
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(TransactionStatus transactionStatus,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(
+            TransactionStatus transactionStatus,
             Integer page,
             Integer size, String field, SortType sortType);
 
     public void requestRefund(StudentRefundRequest studentRefundRequest);
 
-    public void adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)throws UnsupportedEncodingException;
+    public void adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)
+            throws UnsupportedEncodingException;
 }

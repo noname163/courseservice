@@ -110,7 +110,8 @@ public class TransactionServiceImpl implements TransactionService {
             throw new BadRequestException("User have buy this course");
         }
         Course course = courseRepository.findById(paymentRequest.getCourseId())
-                .orElseThrow(() -> new BadRequestException("Not exist course with id " + paymentRequest.getCourseId()));
+                .orElseThrow(() -> new BadRequestException(
+                        "Not exist course with id " + paymentRequest.getCourseId()));
         String orderType = course.getName();
         double amount = (double) (course.getPrice() * 100);
         String bankCode = paymentRequest.getBankCode();
@@ -176,7 +177,8 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         String queryUrl = query.toString();
-        String vnp_SecureHash = VNPayConfig.hmacSHA512(environmentVariable.getVnPayHashSecret(), hashData.toString());
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(environmentVariable.getVnPayHashSecret(),
+                hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayConstants.VNP_PAYURL + "?" + queryUrl;
         // set transaction
@@ -214,7 +216,8 @@ public class TransactionServiceImpl implements TransactionService {
             String transDate) throws Exception {
 
         Transaction transaction = transactionRepository.findByVnpTxnRef(vnp_TxnRef)
-                .orElseThrow(() -> new BadRequestException("Not exist transaction with id " + vnp_TxnRef));
+                .orElseThrow(() -> new BadRequestException(
+                        "Not exist transaction with id " + vnp_TxnRef));
 
         String vnp_TransDate = transDate;
         TransactionStatus transactionStatus = TransactionStatus.SUCCESS;
@@ -243,38 +246,48 @@ public class TransactionServiceImpl implements TransactionService {
                     .studentId(transaction.getUserId())
                     .build());
             teacherIncomeService
-                    .createTeacherIncome(teacherIncomeMapper.mapTransactionToTeacherIncomeRequest(transaction));
+                    .createTeacherIncome(teacherIncomeMapper
+                            .mapTransactionToTeacherIncomeRequest(transaction));
 
             notificationService
-                    .sendNotification(notificationService.createNotificationForCurrentUser(NotificationContent
-                            .builder()
-                            .course(course.getName())
-                            .price(course.getPrice())
-                            .email(transaction.getUserEmail())
-                            .userId(transaction.getUserId())
-                            .type(NotificationType.TRANSACTION)
-                            .date(transLocalDate)
-                            .build()));
+                    .sendNotification(notificationService
+                            .createNotificationForCurrentUser(NotificationContent
+                                    .builder()
+                                    .course(course.getName())
+                                    .price(course.getPrice())
+                                    .email(transaction.getUserEmail())
+                                    .userId(transaction.getUserId())
+                                    .type(NotificationType.TRANSACTION)
+                                    .date(transLocalDate)
+                                    .build()));
         }
 
         sendEmailService.sendMailService(SendMailRequest
                 .builder()
                 .subject("Thanh Toán Thành Công")
                 .mailTemplate(SendMailTemplate
-                        .paymentSuccessEmail(transaction.getUserEmail(), course.getName(), course.getPrice()))
+                        .paymentSuccessEmail(transaction.getUserEmail(), course.getName(),
+                                course.getPrice()))
                 .userEmail(transaction.getUserEmail())
                 .build());
         return transactionMapper.mapEntityToDto(transaction);
     }
 
     @Override
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(Integer page, Integer size,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUser(
+            TransactionStatus transactionStatus, Integer page, Integer size,
             String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Long userId = securityContextService.getCurrentUser().getId();
-        Page<TransactionResponseInterface> userTransaction = transactionRepository.findTransactionsByUserId(userId,
-                pageable);
+        Page<TransactionResponseInterface> userTransaction;
+        if (transactionStatus.equals(TransactionStatus.ALL)) {
+            userTransaction = transactionRepository.findTransactionsByUserId(userId,
+                    pageable);
+        } else {
+            userTransaction = transactionRepository.findTransactionsByUserIdAndStatus(userId, transactionStatus,
+                    pageable);
+        }
         return PaginationResponse.<List<UserTransactionResponse>>builder()
                 .data(transactionMapper.mapToTransactionResponseList(userTransaction.getContent()))
                 .totalPage(userTransaction.getTotalPages())
@@ -283,7 +296,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(TransactionStatus transactionStatus,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionForAdmin(
+            TransactionStatus transactionStatus,
             Integer page, Integer size, String field,
             SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
@@ -300,7 +314,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void requestRefund(StudentRefundRequest studentRefundRequest) {
         Transaction transaction = transactionRepository.findById(studentRefundRequest.getId()).orElseThrow(
-                () -> new BadRequestException("Not found transaction with id " + studentRefundRequest.getId()));
+                () -> new BadRequestException(
+                        "Not found transaction with id " + studentRefundRequest.getId()));
         Course course = transaction.getCourse();
         UserInformation userInformation = securityContextService.getCurrentUser();
         if (transaction.getUserId() != userInformation.getId()) {
@@ -314,19 +329,21 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transaction);
 
         notificationService
-                .sendNotification(notificationService.createNotificationForCurrentUser(NotificationContent
-                        .builder()
-                        .course(course.getName())
-                        .price(course.getPrice())
-                        .email(transaction.getUserEmail())
-                        .userId(transaction.getUserId())
-                        .type(NotificationType.TRANSACTION)
-                        .date(LocalDateTime.now())
-                        .build()));
+                .sendNotification(
+                        notificationService.createNotificationForCurrentUser(NotificationContent
+                                .builder()
+                                .course(course.getName())
+                                .price(course.getPrice())
+                                .email(transaction.getUserEmail())
+                                .userId(transaction.getUserId())
+                                .type(NotificationType.TRANSACTION)
+                                .date(LocalDateTime.now())
+                                .build()));
         sendEmailService.sendMailService(SendMailRequest
                 .builder().subject("Gửi Yêu Cầu Thành Công")
                 .mailTemplate(
-                        SendMailTemplate.recivedRefundRequestEmail(userInformation.getFullname(), course.getName(),
+                        SendMailTemplate.recivedRefundRequestEmail(
+                                userInformation.getFullname(), course.getName(),
                                 transaction.getVnpTxnRef()))
                 .userEmail(transaction.getUserEmail()).build());
     }
@@ -335,18 +352,21 @@ public class TransactionServiceImpl implements TransactionService {
     public void adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)
             throws UnsupportedEncodingException {
         Transaction transaction = transactionRepository.findById(adminRefundAction.getId()).orElseThrow(
-                () -> new BadRequestException("Cannot found transaction with id " + adminRefundAction.getId()));
+                () -> new BadRequestException(
+                        "Cannot found transaction with id " + adminRefundAction.getId()));
         Course course = transaction.getCourse();
         String sendMailTemplate = "";
         if (adminRefundAction.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
             transaction.setRefundEvidence(adminRefundAction.getTransactionCode());
             transaction.setStatus(TransactionStatus.REFUND_SUCCES);
-            sendMailTemplate = SendMailTemplate.acceptedRefundEmail(transaction.getUserEmail(), course.getName(),
+            sendMailTemplate = SendMailTemplate.acceptedRefundEmail(transaction.getUserEmail(),
+                    course.getName(),
                     adminRefundAction.getTransactionCode());
         } else {
             transaction.setAdminNote(adminRefundAction.getReason());
             transaction.setStatus(TransactionStatus.REJECT_REFUND);
-            sendMailTemplate = SendMailTemplate.rejectRefundEmail(transaction.getUserEmail(), course.getName(),
+            sendMailTemplate = SendMailTemplate.rejectRefundEmail(transaction.getUserEmail(),
+                    course.getName(),
                     transaction.getVnpTxnRef(), adminRefundAction.getReason());
         }
         transactionRepository.save(transaction);
@@ -420,7 +440,8 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         String queryUrl = query.toString();
-        String vnp_SecureHash = VNPayConfig.hmacSHA512(environmentVariable.getVnPayHashSecret(), hashData.toString());
+        String vnp_SecureHash = VNPayConfig.hmacSHA512(environmentVariable.getVnPayHashSecret(),
+                hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = VnPayConstants.VNP_PAYURL + "?" + queryUrl;
         // set transaction
@@ -437,12 +458,18 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUserForTeacher(Integer page,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUserForTeacher(TransactionStatus status,Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Long userId = securityContextService.getCurrentUser().getId();
-        Page<TransactionResponseInterface> userTransaction = transactionRepository.getTransactionsByTeacherId(userId,
+        Page<TransactionResponseInterface> userTransaction;
+        if(status.equals(TransactionStatus.ALL)){
+            userTransaction = transactionRepository.getTransactionsByTeacherId(
+                userId,
                 pageable);
+        }else{
+            userTransaction = transactionRepository.getTransactionsByTeacherIdAndStatus(userId, status, pageable);
+        }
         return PaginationResponse.<List<UserTransactionResponse>>builder()
                 .data(transactionMapper.mapToTransactionResponseList(userTransaction.getContent()))
                 .totalPage(userTransaction.getTotalPages())
