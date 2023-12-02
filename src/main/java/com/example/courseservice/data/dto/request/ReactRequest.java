@@ -14,6 +14,5 @@ public class ReactRequest {
     @NotNull
     private ReactStatus status;
     @NotNull
-    @Size(min = 1)
     private Long videoId;
 }

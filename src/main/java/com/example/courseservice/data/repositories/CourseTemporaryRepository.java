@@ -28,6 +28,7 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "ct.teacherName AS teacherName, " +
             "ct.teacherEmail AS teacherEmail, "+
             "ct.teacherAvatar AS teacherAvatar, "+
+            "ct.course.id AS courseRealId, "+
             "ct.teacherId AS teacherId, "+
             "ct.name AS courseName, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
@@ -50,6 +51,7 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "ct.teacherName AS teacherName, " +
             "ct.teacherEmail AS teacherEmail, "+
             "ct.teacherAvatar AS teacherAvatar, "+
+            "ct.course.id AS courseRealId, "+
             "ct.teacherId AS teacherId, "+
             "ct.name AS courseName, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
@@ -72,6 +74,7 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "ct.teacherName AS teacherName, " +
             "ct.teacherAvatar AS teacherAvatar, "+
             "ct.name AS courseName, " +
+            "ct.course.id AS courseRealId, "+
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
             "ct.subject AS subject, " +
             "l.name AS level, " +

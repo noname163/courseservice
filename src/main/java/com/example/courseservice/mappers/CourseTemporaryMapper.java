@@ -145,6 +145,7 @@ public class CourseTemporaryMapper {
         return CourseResponse
                 .builder()
                 .id(courseResponseInterface.getId())
+                .courseRealId(courseResponseInterface.getCourseRealId())
                 .courseName(courseResponseInterface.getCourseName())
                 .createdDate(courseResponseInterface.getCreatedDate())
                 .updateDate(courseResponseInterface.getUpdateDate())

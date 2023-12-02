@@ -12,7 +12,6 @@ import lombok.Setter;
 @Setter
 public class AdminRefundAction {
     @NotNull
-    @Size(min = 1)
     private Long id;
     private String reason;
     private String transactionCode;

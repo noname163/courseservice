@@ -28,4 +28,5 @@ public class CourseResponse {
     private Boolean isAccess;
     private Long teacherId;
     private Float progress;
+    private Long courseRealId;
 }

@@ -10,10 +10,8 @@ import lombok.Data;
 @Data
 public class RatingRequest {
     @NotNull
-    @Size(min = 1)
     private Long courseId;
     @NotNull
-    @Size(min = 0)
     private Integer rating;
     private String content;
 }

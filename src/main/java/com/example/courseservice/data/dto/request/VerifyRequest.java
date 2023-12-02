@@ -17,6 +17,5 @@ public class VerifyRequest {
     private VerifyStatus verifyStatus;
     private String reason;
     @NotNull
-    @Size(min = 1)
     private Long id;
 }
