@@ -12,8 +12,10 @@ import com.example.courseservice.data.dto.request.PaymentRequest;
 import com.example.courseservice.data.dto.request.StudentRefundRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.PaymentResponse;
+import com.example.courseservice.data.dto.response.TransactionByMonth;
 import com.example.courseservice.data.dto.response.TransactionResponse;
 import com.example.courseservice.data.dto.response.UserTransactionResponse;
+import com.example.courseservice.data.object.TransactionByMonthInterface;
 
 public interface TransactionService {
     public PaymentResponse createdPayment(PaymentRequest paymentRequest, HttpServletRequest request)
@@ -39,4 +41,8 @@ public interface TransactionService {
 
     public void adminHandleRefund(AdminRefundAction adminRefundAction, HttpServletRequest request)
             throws UnsupportedEncodingException;
+
+    public Double getTotalInComeByMonth();
+
+    public List<TransactionByMonth> getTransactionByMonths(); 
 }

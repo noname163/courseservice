@@ -5,9 +5,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.example.courseservice.data.dto.response.TransactionByMonth;
 import com.example.courseservice.data.dto.response.TransactionResponse;
 import com.example.courseservice.data.dto.response.UserTransactionResponse;
 import com.example.courseservice.data.entities.Transaction;
+import com.example.courseservice.data.object.TransactionByMonthInterface;
 import com.example.courseservice.data.object.TransactionResponseInterface;
 
 @Component
@@ -50,5 +52,17 @@ public class TransactionMapper {
         return transactionResponseInterfaces.stream()
                 .map(this::mapToTransactionResponse)
                 .collect(Collectors.toList());
+    }
+
+    public TransactionByMonth mapTransactionByMonth(TransactionByMonthInterface transactionByMonthInterface) {
+        return TransactionByMonth.builder()
+                .amount(transactionByMonthInterface.getAmount())
+                .monthOfYear(transactionByMonthInterface.getMonthOfYear())
+                .build();
+    }
+
+    public List<TransactionByMonth> mapTransactionByMonths(
+            List<TransactionByMonthInterface> transactionByMonthInterfaces) {
+        return transactionByMonthInterfaces.stream().map(this::mapTransactionByMonth).collect(Collectors.toList());
     }
 }
