@@ -149,6 +149,9 @@ public class VideoMapper {
                 .videoStatus(courseVideoResponseInterface.getVideoStatus())
                 .isWatched(false)
                 .isDraft(courseVideoResponseInterface.getIsDraft())
+                .url(courseVideoResponseInterface.getVideoStatus().equals(VideoStatus.PUBLIC)
+                        ? courseVideoResponseInterface.getUrl()
+                        : "")
                 .ordinalNumber(Optional.ofNullable(courseVideoResponseInterface.getOrdinalNumber()).orElse(0))
                 .build();
     }

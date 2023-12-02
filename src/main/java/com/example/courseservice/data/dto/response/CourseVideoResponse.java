@@ -11,6 +11,7 @@ public class CourseVideoResponse {
     private long id;
     private String name;
     private String thumbnail;
+    private String url;
     private float duration;
     private long totalLike;
     private int totalComment;

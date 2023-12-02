@@ -52,6 +52,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             "v.name AS name, " +
             "v.urlThumbnail AS thumbnail, " +
             "v.status AS status, " +
+            "v.urlVideo AS url, "+
             "v.duration AS duration, " +
             "v.videoStatus AS videoStatus, " +
             "COUNT(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.LIKE THEN 1 ELSE null END) AS totalLike, "
@@ -74,6 +75,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             "v.name AS name, " +
             "v.urlThumbnail AS thumbnail, " +
             "v.status AS status, " +
+            "v.urlVideo AS url, "+
             "v.duration AS duration, " +
             "COUNT(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.LIKE THEN 1 ELSE null END) AS totalLike, "
             +
