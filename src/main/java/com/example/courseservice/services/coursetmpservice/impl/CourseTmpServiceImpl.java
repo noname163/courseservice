@@ -254,15 +254,17 @@ public class CourseTmpServiceImpl implements CourseTmpService {
 
         List<CourseVideoResponse> courseVideoTemporaryResponse = videoTmpService.getCourseVideoResponseById(id);
         Course course = courseTemporary.getCourse();
+        CourseDetailResponse courseDetailResponse = courseTemporaryMapper
+                .mapCourseDetailResponse(courseTemporary);
         if (course != null) {
             Long courseId = course.getId();
             List<CourseVideoResponse> courseVideoResponse = videoService.getVideoByCourseIdAndCommonStatus(
                     courseId,
                     CommonStatus.AVAILABLE);
+            courseDetailResponse.setCourseRealId(courseId);
             courseVideoTemporaryResponse.addAll(courseVideoResponse);
         }
-        CourseDetailResponse courseDetailResponse = courseTemporaryMapper
-                .mapCourseDetailResponse(courseTemporary);
+        
         List<String> topics = courseTopicService.getTopicsByCourseTmpId(id);
         courseDetailResponse.setTopics(topics);
         courseDetailResponse.setLevel(level.getName());
@@ -458,10 +460,9 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         UserInformation user = securityContextService.getCurrentUser();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<CourseResponseInterface> courseTemporary;
-        if(user.getRole().equals("TEACHER")){
+        if (user.getRole().equals("TEACHER")) {
             courseTemporary = courseTemporaryRepository.filterByEmailAndStatus(user.getEmail(), status, pageable);
-        }
-        else{
+        } else {
             courseTemporary = courseTemporaryRepository.filterByStatus(status, pageable);
         }
 
