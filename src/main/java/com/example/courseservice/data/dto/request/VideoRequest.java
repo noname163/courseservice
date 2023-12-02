@@ -1,7 +1,5 @@
 package com.example.courseservice.data.dto.request;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import com.example.courseservice.data.constants.VideoStatus;
 
 import lombok.Builder;

@@ -15,7 +15,6 @@ import lombok.Setter;
 @Setter
 public class AdminPaymentTeacherRequest {
     @NotNull
-    @Size(min = 1, message = "ID cannot smaller than 1")
     private Long id;
     @NotNull
     @NotBlank

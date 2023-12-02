@@ -29,7 +29,6 @@ public class CourseRequest {
     @NotBlank
     private Subject subject;
     @NotNull
-    @Size(min = 1)
     private long levelId;
     @NotEmpty
     @NotNull

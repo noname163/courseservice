@@ -12,7 +12,6 @@ import lombok.Setter;
 @Setter
 public class UpdateCommentRequest {
     @NotNull
-    @Size(min = 1)
     private Long id;
     private String commentContent;
 }
