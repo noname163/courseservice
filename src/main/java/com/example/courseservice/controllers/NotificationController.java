@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.courseservice.data.constants.NotificationType;
-import com.example.courseservice.data.dto.request.ListNotificationResponse;
+import com.example.courseservice.data.dto.response.ListNotificationResponse;
 import com.example.courseservice.data.entities.Notification;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.notificationservice.NotificationService;
