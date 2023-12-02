@@ -41,6 +41,7 @@ import com.example.courseservice.data.dto.request.StudentEnrollRequest;
 import com.example.courseservice.data.dto.request.StudentRefundRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.PaymentResponse;
+import com.example.courseservice.data.dto.response.TransactionByMonth;
 import com.example.courseservice.data.dto.response.TransactionResponse;
 import com.example.courseservice.data.dto.response.UserTransactionResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
@@ -48,6 +49,7 @@ import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Notification;
 import com.example.courseservice.data.entities.Transaction;
 import com.example.courseservice.data.object.NotificationContent;
+import com.example.courseservice.data.object.TransactionByMonthInterface;
 import com.example.courseservice.data.object.TransactionResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
@@ -458,16 +460,17 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUserForTeacher(TransactionStatus status,Integer page,
+    public PaginationResponse<List<UserTransactionResponse>> getTransactionOfCurrentUserForTeacher(
+            TransactionStatus status, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Long userId = securityContextService.getCurrentUser().getId();
         Page<TransactionResponseInterface> userTransaction;
-        if(status.equals(TransactionStatus.ALL)){
+        if (status.equals(TransactionStatus.ALL)) {
             userTransaction = transactionRepository.getTransactionsByTeacherId(
-                userId,
-                pageable);
-        }else{
+                    userId,
+                    pageable);
+        } else {
             userTransaction = transactionRepository.getTransactionsByTeacherIdAndStatus(userId, status, pageable);
         }
         return PaginationResponse.<List<UserTransactionResponse>>builder()
@@ -475,5 +478,16 @@ public class TransactionServiceImpl implements TransactionService {
                 .totalPage(userTransaction.getTotalPages())
                 .totalRow(userTransaction.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public Double getTotalInComeByMonth() {
+        return transactionRepository.getIncomeOfCurrentMonth();
+    }
+
+    @Override
+    public List<TransactionByMonth> getTransactionByMonths() {
+        List<TransactionByMonthInterface> transactionByMonthInterfaces = transactionRepository.getTransactionsByMonth();
+        return transactionMapper.mapTransactionByMonths(transactionByMonthInterfaces);
     }
 }
