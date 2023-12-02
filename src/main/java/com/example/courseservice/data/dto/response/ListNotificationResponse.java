@@ -1,9 +1,8 @@
-package com.example.courseservice.data.dto.request;
+package com.example.courseservice.data.dto.response;
 
 import java.util.List;
 
 import com.example.courseservice.data.constants.NotificationType;
-import com.example.courseservice.data.dto.response.NotificationResponse;
 
 import lombok.Builder;
 import lombok.Data;

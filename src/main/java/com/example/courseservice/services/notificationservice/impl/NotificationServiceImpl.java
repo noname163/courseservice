@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.NotificationTitle;
 import com.example.courseservice.data.constants.NotificationType;
-import com.example.courseservice.data.dto.request.ListNotificationResponse;
+import com.example.courseservice.data.dto.response.ListNotificationResponse;
 import com.example.courseservice.data.dto.response.NotificationResponse;
 import com.example.courseservice.data.entities.Notification;
 import com.example.courseservice.data.object.NotificationContent;
