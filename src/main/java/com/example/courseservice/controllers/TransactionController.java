@@ -67,13 +67,14 @@ public class TransactionController {
     @PreAuthorize("hasAuthority('STUDENT')")
     @GetMapping("/user")
     public ResponseEntity<PaginationResponse<List<UserTransactionResponse>>> getTransactionOfCurrentUser(
+            @RequestParam(required = false, defaultValue = "ALL") TransactionStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(transactionService.getTransactionOfCurrentUser(page, size, field, sortType));
+                .body(transactionService.getTransactionOfCurrentUser(status, page, size, field, sortType));
     }
 
     @Operation(summary = "Admin get transaction")
@@ -108,13 +109,14 @@ public class TransactionController {
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/teacher")
     public ResponseEntity<PaginationResponse<List<UserTransactionResponse>>> teacherGetTransaction(
+            @RequestParam(required = false, defaultValue = "ALL") TransactionStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(transactionService.getTransactionOfCurrentUserForTeacher(page, size, field,
+                .body(transactionService.getTransactionOfCurrentUserForTeacher(status, page, size, field,
                         sortType));
     }
 

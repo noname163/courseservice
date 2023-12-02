@@ -6,5 +6,6 @@ public enum TransactionStatus {
     SUCCESS,
     REFUND,
     REFUND_SUCCES,
-    REJECT_REFUND
+    REJECT_REFUND,
+    ALL
 }
