@@ -14,6 +14,7 @@ import lombok.Setter;
 @Builder
 public class CourseDetailResponse{
     private Long id;
+    private Long courseRealId;
     private int totalStudent;
     private String description;
     private String name;
