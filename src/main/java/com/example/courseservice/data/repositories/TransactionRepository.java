@@ -1,5 +1,6 @@
 package com.example.courseservice.data.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,7 +118,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "FROM Transaction t " +
             "WHERE EXTRACT(YEAR FROM t.paymentDate) = EXTRACT(YEAR FROM CURRENT_DATE) " +
             "AND t.status = 'SUCCESS' " +
-            "GROUP BY CONCAT(EXTRACT(MONTH FROM t.paymentDate), '/', EXTRACT(YEAR FROM t.paymentDate)), t.paymentDate " +
+            "GROUP BY t.paymentDate " +
+            "HAVING COUNT(DISTINCT EXTRACT(MONTH FROM t.paymentDate)) = 1 " +
             "ORDER BY EXTRACT(YEAR FROM t.paymentDate) DESC, EXTRACT(MONTH FROM t.paymentDate) DESC")
     List<TransactionByMonthInterface> getTransactionsByMonth();
 
