@@ -23,7 +23,6 @@ public class CourseRequest {
     @Size(min = 20, message = "Name cannot less than 20 characters")
     private String name;
     @NotNull
-    @Size(min = 1000, message = "Price cannot less than 1000")
     private Double price;
     @NotNull
     @NotBlank
