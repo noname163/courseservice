@@ -25,7 +25,6 @@ public class CourseRequest {
     @NotNull
     private Double price;
     @NotNull
-    @NotBlank
     private Subject subject;
     @NotNull
     private long levelId;
