@@ -8,11 +8,13 @@ import javax.validation.constraints.Size;
 
 import com.example.courseservice.data.constants.Validation;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 public class AdminPaymentTeacherRequest {
     @NotNull
     private Long id;
