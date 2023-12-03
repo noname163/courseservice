@@ -287,7 +287,8 @@ public class TransactionServiceImpl implements TransactionService {
             userTransaction = transactionRepository.findTransactionsByUserId(userId,
                     pageable);
         } else {
-            userTransaction = transactionRepository.findTransactionsByUserIdAndStatus(userId, transactionStatus,
+            userTransaction = transactionRepository.findTransactionsByUserIdAndStatus(userId,
+                    transactionStatus,
                     pageable);
         }
         return PaginationResponse.<List<UserTransactionResponse>>builder()
@@ -471,7 +472,8 @@ public class TransactionServiceImpl implements TransactionService {
                     userId,
                     pageable);
         } else {
-            userTransaction = transactionRepository.getTransactionsByTeacherIdAndStatus(userId, status, pageable);
+            userTransaction = transactionRepository.getTransactionsByTeacherIdAndStatus(userId, status,
+                    pageable);
         }
         return PaginationResponse.<List<UserTransactionResponse>>builder()
                 .data(transactionMapper.mapToTransactionResponseList(userTransaction.getContent()))
@@ -487,7 +489,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionByMonth> getTransactionByMonths() {
-        List<TransactionByMonthInterface> transactionByMonthInterfaces = transactionRepository.getTransactionsByMonth();
-        return transactionMapper.mapTransactionByMonths(transactionByMonthInterfaces);
+        List<TransactionByMonthInterface> transactions = transactionRepository.getTransactionsByMonth();
+        List<TransactionByMonth> transactionByMonths = transactionMapper.mapTransactionByMonths(transactions);
+    
+        Map<String, TransactionByMonth> result = new HashMap<>();
+        
+        for (TransactionByMonth transaction : transactionByMonths) {
+            if (result.containsKey(transaction.getMonthOfYear())) {
+                TransactionByMonth existingTransaction = result.get(transaction.getMonthOfYear());
+                existingTransaction.setAmount(existingTransaction.getAmount() + transaction.getAmount());
+            } else {
+                result.put(transaction.getMonthOfYear(), transaction);
+            }
+        }
+    
+        return new ArrayList<>(result.values());
     }
 }
