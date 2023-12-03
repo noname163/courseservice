@@ -13,6 +13,7 @@ import lombok.Setter;
 @Setter
 public class VideoItemResponse {
     private long id;
+    private long courseId;
     private String thumbnail;
     private String videoUrl;
     private Long like;

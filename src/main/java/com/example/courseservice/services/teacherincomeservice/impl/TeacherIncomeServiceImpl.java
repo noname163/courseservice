@@ -2,8 +2,11 @@ package com.example.courseservice.services.teacherincomeservice.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +20,6 @@ import com.example.courseservice.data.constants.TeacherIncomeStatus;
 import com.example.courseservice.data.dto.request.AdminPaymentTeacherRequest;
 import com.example.courseservice.data.dto.request.SendMailRequest;
 import com.example.courseservice.data.dto.request.TeacherIncomeRequest;
-import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.TeacherIncomeForAdmin;
@@ -99,9 +101,21 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
     @Override
     public List<CourseRevenueByMonth> getCurrentTeacherIncomeIn10Motnh() {
         Long userId = securityContextService.getCurrentUser().getId();
-        List<CourseRevenueByMonthInterface> courseRevenueByMonths = teacherIncomeRepository
+        List<CourseRevenueByMonthInterface> courseRevenueByMonthsInterfaces = teacherIncomeRepository
                 .getTeacherRevenueByMonth(userId);
-        return teacherIncomeMapper.mapToCourseRevenueByMonths(courseRevenueByMonths);
+        List<CourseRevenueByMonth> courseRevenueByMonths = teacherIncomeMapper.mapToCourseRevenueByMonths(courseRevenueByMonthsInterfaces);
+
+        Map<String, CourseRevenueByMonth> result = new HashMap<>();
+        
+        for (CourseRevenueByMonth transaction : courseRevenueByMonths) {
+            if (result.containsKey(transaction.getMonth())) {
+                CourseRevenueByMonth existingTransaction = result.get(transaction.getMonth());
+                existingTransaction.setRevenue(existingTransaction.getRevenue() + transaction.getRevenue());
+            } else {
+                result.put(transaction.getMonth(), transaction);
+            }
+        }
+        return new ArrayList<>(result.values());
     }
 
     @Override
