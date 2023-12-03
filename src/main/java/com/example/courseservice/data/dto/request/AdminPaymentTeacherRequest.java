@@ -2,6 +2,7 @@ package com.example.courseservice.data.dto.request;
 
 import java.time.LocalDateTime;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -25,6 +26,6 @@ public class AdminPaymentTeacherRequest {
     @NotNull
     private LocalDateTime paymentDate;
     @NotNull
-    @Size(min = 1000, message = "Payment amount cannot smaller than 1000")
+    @Min(1000)
     private Double amount;
 }
