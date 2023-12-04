@@ -21,4 +21,6 @@ public interface StudentEnrollCourseService {
     public boolean isStudentEnrolled(String studentEmail, Long CourseId);
 
     public void insertStudentEnroll(StudentEnrollRequest studentEnrollRequest);
+
+    public void unEnrollCourse(Long studentId, Long courseId);
 }

@@ -7,7 +7,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.example.courseservice.data.constants.Validation;
 import com.example.courseservice.data.object.Subject;
 import com.example.courseservice.data.object.Topic;
 
@@ -20,7 +19,7 @@ public class CourseRequest {
     private String description;
     @NotNull
     @NotBlank
-    @Size(min = 20, message = "Name cannot less than 20 characters")
+    @Size(min = 10, message = "Name cannot less than 10 characters")
     private String name;
     @NotNull
     private Double price;

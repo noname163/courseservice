@@ -109,4 +109,13 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
                 CommonStatus.AVAILABLE);
     }
 
+    @Override
+    public void unEnrollCourse(Long studentId, Long courseId) {
+        StudentEnrolledCourses studentEnrolledCourses = studentEnrolledCoursesRepository
+                .findByStudentIdAndCourseId(studentId, courseId)
+                .orElseThrow(() -> new BadRequestException("Not found course with id " + courseId));
+
+        studentEnrolledCoursesRepository.delete(studentEnrolledCourses);
+    }
+
 }

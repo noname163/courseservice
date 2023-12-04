@@ -20,6 +20,8 @@ public interface StudentEnrolledCoursesRepository extends JpaRepository<StudentE
 
     Optional<StudentEnrolledCourses> findByStudentEmailAndCourseId(String email, Long courseId);
 
+    Optional<StudentEnrolledCourses> findByStudentIdAndCourseId(Long studentId, Long courseId);
+
     @Query("SELECT c.id FROM Course c " +
             "WHERE c IN :courses " + // Filter courses from the provided list
             "AND NOT EXISTS (" +
