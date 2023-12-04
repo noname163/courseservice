@@ -365,6 +365,7 @@ public class TransactionServiceImpl implements TransactionService {
             sendMailTemplate = SendMailTemplate.acceptedRefundEmail(transaction.getUserEmail(),
                     course.getName(),
                     adminRefundAction.getTransactionCode());
+            studentEnrollCourseService.unEnrollCourse(transaction.getUserId(), course.getId());
         } else {
             transaction.setAdminNote(adminRefundAction.getReason());
             transaction.setStatus(TransactionStatus.REJECT_REFUND);
