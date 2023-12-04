@@ -150,7 +150,7 @@ public class TransactionServiceImpl implements TransactionService {
         DateTimeFormatter localDateFormat = DateTimeFormatter.ofPattern(Validation.DATE_TIME_FORMAT);
 
         String vnp_createdDate = currentTime.format(localDateFormat);
-        vnp_Params.put("vnp_createdDate", vnp_createdDate);
+        vnp_Params.put("vnp_CreateDate", vnp_createdDate);
 
         String vnp_ExpireDate = currentTime.plusMinutes(15l).format(localDateFormat);
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
