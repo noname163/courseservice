@@ -126,7 +126,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT COALESCE(SUM(t.amount), 0.0) " +
             "FROM Transaction t " +
             "WHERE EXTRACT(MONTH FROM t.paymentDate) = EXTRACT(MONTH FROM CURRENT_DATE) " +
-            "AND EXTRACT(YEAR FROM t.paymentDate) = EXTRACT(YEAR FROM CURRENT_DATE)")
+            "AND EXTRACT(YEAR FROM t.paymentDate) = EXTRACT(YEAR FROM CURRENT_DATE) " +
+            "AND t.status = 'SUCCESS'")
     Double getIncomeOfCurrentMonth();
 
     @Query("SELECT COUNT(t) " +

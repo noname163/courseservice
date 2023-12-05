@@ -151,12 +151,15 @@ public class CourseServiceImpl implements CourseService {
     public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus) {
         CourseDetailResponseInterface result;
         Set<Long> isWatched = new HashSet<>();
+        List<Long> enrolled = new ArrayList<>();
         if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
             result = courseRepository
                     .getCourseDetailsByCourseIdAndStatusNot(id, CommonStatus.BANNED);
             if (securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
                 isWatched = studentVideoProgressRepository
                         .getCompletedVideoIdsByStudentAndCourse(securityContextService.getCurrentUser().getId(), id);
+                enrolled = studentEnrollCourseService
+                        .getListCourseId(securityContextService.getCurrentUser().getEmail());
             }
         } else {
             result = courseRepository
@@ -167,6 +170,7 @@ public class CourseServiceImpl implements CourseService {
         }
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(result);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, commonStatus);
+        courseDetailResponse.setIsAccess(false);
         if (!isWatched.isEmpty() && !videos.isEmpty()) {
             for (CourseVideoResponse video : videos) {
                 if (isWatched.contains(video.getId())) {
@@ -175,6 +179,9 @@ public class CourseServiceImpl implements CourseService {
             }
             courseDetailResponse.setTotalCompleted(isWatched.size());
             courseDetailResponse.setProgress((float) isWatched.size() / videos.size() * 100);
+        }
+        if (enrolled != null && !enrolled.isEmpty() && enrolled.contains(id)) {
+            courseDetailResponse.setIsAccess(true);
         }
         List<String> topics = courseTopicService.getTopicsByCourseId(id);
         courseDetailResponse.setCourseVideoResponses(videos);
