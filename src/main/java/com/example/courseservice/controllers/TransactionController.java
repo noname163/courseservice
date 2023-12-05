@@ -88,7 +88,7 @@ public class TransactionController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/admin")
     public ResponseEntity<PaginationResponse<List<UserTransactionResponse>>> adminGetTransaction(
-            @RequestParam(required = false, defaultValue = "") TransactionStatus status,
+            @RequestParam(required = false, defaultValue = "SUCCESS") TransactionStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
