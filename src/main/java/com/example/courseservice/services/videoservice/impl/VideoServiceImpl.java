@@ -149,6 +149,7 @@ public class VideoServiceImpl implements VideoService {
         VideoDetailResponse videoResponse = videoMapper.mapEntityToDto(video);
         videoResponse.setVideoItemResponses(videoItemResponses);
         videoResponse.setCourseId(course.getId());
+        videoResponse.setDuration(video.getDuration());
 
         return videoResponse;
     }
