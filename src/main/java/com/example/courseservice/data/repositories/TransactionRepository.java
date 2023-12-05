@@ -128,4 +128,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "WHERE EXTRACT(MONTH FROM t.paymentDate) = EXTRACT(MONTH FROM CURRENT_DATE) " +
             "AND EXTRACT(YEAR FROM t.paymentDate) = EXTRACT(YEAR FROM CURRENT_DATE)")
     Double getIncomeOfCurrentMonth();
+
+    @Query("SELECT COUNT(t) " +
+            "FROM Transaction t " +
+            "JOIN Course c ON t.course = c " +
+            "WHERE c.teacherId = :teacherId " +
+            "AND t.status = :status ")
+    Long countTransactionsByTeacherIdAndStatus(@Param("teacherId") Long teacherId, @Param("status") TransactionStatus status);
 }
