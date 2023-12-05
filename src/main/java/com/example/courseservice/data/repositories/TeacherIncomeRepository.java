@@ -58,9 +58,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
-            "c.teacherName AS teacherName, "+
-            "c.teacherAvatar AS teacherAvatar, "+
-            "c.subject AS subject, "+
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.subject AS subject, " +
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.receivedMoney AS receivedMoney, " +
@@ -77,9 +77,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
-            "c.teacherName AS teacherName, "+
-            "c.teacherAvatar AS teacherAvatar, "+
-            "c.subject AS subject, "+
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.subject AS subject, " +
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.receivedMoney AS receivedMoney, " +
@@ -98,9 +98,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
-            "c.teacherName AS teacherName, "+
-            "c.teacherAvatar AS teacherAvatar, "+
-            "c.subject AS subject, "+
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.subject AS subject, " +
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.status AS teacherIncomeStatus, " +
@@ -120,9 +120,9 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "t.id AS id, " +
             "c.id AS courseId, " +
             "c.name AS courseName, " +
-            "c.teacherName AS teacherName, "+
-            "c.teacherAvatar AS teacherAvatar, "+
-            "c.subject AS subject, "+
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.subject AS subject, " +
             "CONCAT(t.month, '/', t.year) AS monthOfYear, " +
             "t.money AS revenue, " +
             "t.status AS teacherIncomeStatus, " +
@@ -136,5 +136,12 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "ORDER BY t.year DESC, t.month DESC")
     Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearForTeacher(
             @Param("teacherId") Long teacherId, Pageable pageable);
+
+    @Query("SELECT COALESCE(SUM(ti.money), 0) " +
+            "FROM TeacherIncome ti " +
+            "WHERE ti.userId = :userId " +
+            "AND EXTRACT(YEAR FROM ti.paymentDate) = EXTRACT(YEAR FROM CURRENT_DATE) " +
+            "AND EXTRACT(MONTH FROM ti.paymentDate) = EXTRACT(MONTH FROM CURRENT_DATE)")
+    Double getTotalIncomeByUserIdAndCurrentMonth(@Param("userId") Long userId);
 
 }

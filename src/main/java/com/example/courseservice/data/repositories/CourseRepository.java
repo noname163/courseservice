@@ -30,6 +30,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     public List<Course> findCourseByTeacherEmail(String email);
 
+    public Long countByTeacherId(Long id);
+
     public Boolean existsByTeacherEmailAndId(String email, Long courseId);
 
     public Page<Course> findByCommonStatusAndSubjectIn(Pageable pageable, CommonStatus commonStatus,
@@ -335,12 +337,12 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             @Param("searchTerm") String searchTerm,
             Pageable pageable);
 
-            @Query("SELECT " +
+    @Query("SELECT " +
             "c.id AS id, " +
             "c.thumbnial AS thumbnial, " +
             "c.teacherName AS teacherName, " +
             "c.teacherAvatar AS teacherAvatar, " +
-            "c.teacherId AS teacherId, "+
+            "c.teacherId AS teacherId, " +
             "c.name AS courseName, " +
             "COALESCE(AVG(r.rate), 0) AS averageRating, " +
             "SIZE(c.ratings) AS numberOfRate, " +
@@ -373,6 +375,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             @Param("levelList") List<Long> levelList,
             @Param("topicList") List<Long> topicList,
             Pageable pageable);
-    
 
+    @Query("SELECT COUNT(DISTINCT sec.studentId) " +
+            "FROM Course c " +
+            "JOIN c.studentEnrolledCourses sec " +
+            "WHERE c.teacherId = :teacherId")
+    Long countStudentsEnrolledByTeacherId(@Param("teacherId") Long teacherId);
 }
