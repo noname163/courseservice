@@ -17,6 +17,7 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.response.AdminDasboardResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.dto.response.TeacherDashboardResponse;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.dashboardservice.DashBoardService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
@@ -47,6 +48,19 @@ public class DashBoardController {
     @GetMapping()
     public ResponseEntity<AdminDasboardResponse> getAdminDashBoard() {
         return ResponseEntity.status(HttpStatus.OK).body(dashBoardService.getAdminDasboardResponse());
+    }
+    @Operation(summary = "Get teacher dashboard")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get teacher dashboard successfully.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = AdminDasboardResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    })
+    @PreAuthorize("hasAuthority('TEACHER')")
+    @GetMapping("/teacher")
+    public ResponseEntity<TeacherDashboardResponse> getTeacherDashBoard() {
+        return ResponseEntity.status(HttpStatus.OK).body(dashBoardService.getTeacherDashboardResponse());
     }
 
 }
