@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -199,6 +200,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         videoConvert.setStatus(CommonStatus.DRAFT);
         videoConvert.setCourseTemporary(course);
         videoConvert.setOrdinalNumber(ordinalNumber);
+        videoConvert.setCreatedDate(LocalDateTime.now());
         VideoTemporary videoInsert = videoTemporaryRepository.save(videoConvert);
         FileResponse videoFile = fileService.fileStorage(video);
         FileResponse thumbnialFile = fileService.fileStorage(thumbnial);
