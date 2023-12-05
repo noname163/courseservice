@@ -19,6 +19,7 @@ import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.mappers.TeacherIncomeMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.dashboardservice.DashBoardService;
+import com.example.courseservice.services.teacherincomeservice.TeacherIncomeService;
 import com.example.courseservice.services.transactionservice.TransactionService;
 
 @Service
@@ -31,6 +32,8 @@ public class DashBoardServiceImpl implements DashBoardService {
     private TransactionService transactionService;
     @Autowired
     private TeacherIncomeRepository teacherIncomeRepository;
+    @Autowired
+    private TeacherIncomeService teacherIncomeService;
     @Autowired
     private SecurityContextService securityContextService;
     @Autowired
@@ -58,8 +61,7 @@ public class DashBoardServiceImpl implements DashBoardService {
         Long totalCourse = courseRepository.countByTeacherId(currentUser.getId());
         Long totalStudent = courseRepository.countStudentsEnrolledByTeacherId(currentUser.getId());
         Double monthlyIncome = teacherIncomeRepository.getTotalIncomeByUserIdAndCurrentMonth(currentUser.getId());
-        List<CourseRevenueByMonth> courseRevenueByMonths = teacherIncomeMapper
-                .mapToCourseRevenueByMonths(teacherIncomeRepository.getTeacherRevenueByMonth(currentUser.getId()));
+        List<CourseRevenueByMonth> courseRevenueByMonths = teacherIncomeService.getCurrentTeacherIncomeIn10Motnh();
         return TeacherDashboardResponse
                 .builder()
                 .courseRevenueByMonths(courseRevenueByMonths)
