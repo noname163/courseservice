@@ -18,6 +18,8 @@ import com.example.courseservice.data.object.CourseVideoResponseInterface;
 public interface VideoRepository extends JpaRepository<Video, Long> {
     Page<Video> findByCourseAndStatusOrderByOrdinalNumberAsc(Course course, CommonStatus status, Pageable pageable);
 
+    Page<Video> findByCourseOrderByOrdinalNumberAsc(Course course, Pageable pageable);
+
     Page<Video> findByStatusOrderByOrdinalNumberAsc(CommonStatus status, Pageable pageable);
 
     Page<Video> findByStatusAndCourseInOrderByOrdinalNumberAsc(CommonStatus status, List<Course> courses,
@@ -31,6 +33,8 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             Pageable pageable);
 
     List<Video> findByCourseAndStatusOrderByOrdinalNumberAsc(Course course, CommonStatus status);
+
+    List<Video> findByCourseOrderByOrdinalNumberAsc(Course course);
 
     List<Video> findByCourseIdAndStatusOrderByOrdinalNumberAsc(Long courseId, CommonStatus status);
 

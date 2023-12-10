@@ -140,8 +140,12 @@ public class VideoServiceImpl implements VideoService {
         if (video.getVideoStatus().equals(VideoStatus.PRIVATE) && !isVideoAccessible(video)) {
             throw new InValidAuthorizationException("Buy course to view this video");
         }
-
-        List<Video> videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course, commonStatus);
+        List<Video> videos;
+        if (securityContextService.getIsAuthenticatedAndIsStudent()) {
+            videos = videoRepository.findByCourseOrderByOrdinalNumberAsc(course);
+        } else {
+            videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course, commonStatus);
+        }
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
         // Set access status for each video item response
         videoItemResponses = setVideoAccessStatus(videoItemResponses, course.getId());
@@ -167,8 +171,15 @@ public class VideoServiceImpl implements VideoService {
                     .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
                     .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
         }
-        Page<Video> videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course,
+        Page<Video> videos;
+
+        if(securityContextService.isLogin()!=null){
+            videos = videoRepository.findByCourseOrderByOrdinalNumberAsc(course, pageable);
+        }
+        else{
+            videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course,
                 CommonStatus.AVAILABLE, pageable);
+        }
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
         if (securityContextService.isLogin() != null) {
             setVideoAccessStatus(videoItemResponses, courseId);
