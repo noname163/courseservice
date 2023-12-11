@@ -114,6 +114,9 @@ public class TransactionServiceImpl implements TransactionService {
         Course course = courseRepository.findById(paymentRequest.getCourseId())
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist course with id " + paymentRequest.getCourseId()));
+        if(course.getVideos().size()<0){
+            throw new BadRequestException("Cannot buy course without video");
+        }
         String orderType = course.getName();
         Long amount = (long) (course.getPrice().doubleValue() * 100);
         String bankCode = paymentRequest.getBankCode();

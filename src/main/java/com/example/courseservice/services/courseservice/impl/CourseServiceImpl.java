@@ -118,7 +118,6 @@ public class CourseServiceImpl implements CourseService {
             SortType sortType) {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-
         if (Boolean.TRUE.equals(securityContextService.getLoginStatus())
                 && securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
             PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(
@@ -128,20 +127,19 @@ public class CourseServiceImpl implements CourseService {
                 return result;
             }
         }
-
+        Page<CourseResponseInterface> listCourse;
         if (commonStatus.equals(CommonStatus.ALL)) {
-            Page<CourseResponseInterface> listCourse = courseRepository.findByAllCommonStatus(pageable);
-            return PaginationResponse.<List<CourseResponse>>builder()
-                    .data(courseMapper.mapInterfacesToDtos(listCourse.getContent()))
-                    .totalPage(listCourse.getTotalPages())
-                    .totalRow(listCourse.getTotalElements())
-                    .build();
+            listCourse = courseRepository.findByAllCommonStatus(pageable);
+
+        }
+        else{
+            listCourse = courseRepository.getByCommonStatusJPQL(commonStatus, pageable);
         }
 
-        Page<CourseResponseInterface> listCourse = courseRepository.getByCommonStatusJPQL(commonStatus, pageable);
+        List<CourseResponse> result = filterCourseVideos0(courseMapper.mapInterfacesToDtos(listCourse.getContent()));
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapInterfacesToDtos(listCourse.getContent()))
+                .data(result)
                 .totalPage(listCourse.getTotalPages())
                 .totalRow(listCourse.getTotalElements())
                 .build();
@@ -329,7 +327,7 @@ public class CourseServiceImpl implements CourseService {
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapInterfacesToDtos(courses.getContent()))
+                .data(filterCourseVideos0(courseMapper.mapInterfacesToDtos(courses.getContent())))
                 .totalPage(courses.getTotalPages())
                 .totalRow(courses.getTotalElements())
                 .build();
@@ -351,11 +349,23 @@ public class CourseServiceImpl implements CourseService {
 
         Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCourses(searchTerm, pageable);
 
+        List<CourseResponse> result = filterCourseVideos0(courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()));
+
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()))
+                .data(result)
                 .totalPage(courseResponseInterface.getTotalPages())
                 .totalRow(courseResponseInterface.getTotalElements())
                 .build();
+    }
+
+    private List<CourseResponse> filterCourseVideos0(List<CourseResponse> courseResponses){
+        List<CourseResponse> result = new ArrayList<>();
+        for (CourseResponse courseResponse : courseResponses) {
+            if(courseResponse.getTotalVideo()>0){
+                result.add(courseResponse);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -408,8 +418,9 @@ public class CourseServiceImpl implements CourseService {
         Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmail(email, enrolled,
                 CommonStatus.AVAILABLE, pageable);
 
+        
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
+                .data(filterCourseVideos0(courseMapper.mapInterfacesToDtos(listSubject.getContent())))
                 .totalPage(listSubject.getTotalPages())
                 .totalRow(listSubject.getTotalElements())
                 .build();
@@ -431,7 +442,7 @@ public class CourseServiceImpl implements CourseService {
             courseResponses = studentProgressService.setStudentProgressForListCourseResponse(courseResponses);
         }
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseResponses)
+                .data(filterCourseVideos0(courseResponses))
                 .totalPage(courseResponseInterface.getTotalPages())
                 .totalRow(courseResponseInterface.getTotalElements())
                 .build();
