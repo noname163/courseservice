@@ -97,7 +97,13 @@ public class VideoTmpServiceImpl implements VideoTmpService {
 
         CourseTemporary courseTemporary = courseTmpService.createNewCourseTemporaryByCourse(course);
         List<VideoTemporary> videoTemporaries = courseTemporary.getVideoTemporaries();
-        int ordinalNumber = videos.size() + videoTemporaries.size() + 1;
+        int ordinalNumber = 1;
+        if (videos != null) {
+            ordinalNumber += videos.size();
+        }
+        if (videoTemporaries != null) {
+            ordinalNumber += videoTemporaries.size();
+        }
         VideoTemporary videoInsert = videoTemporaryRepository.save(
                 VideoTemporary
                         .builder()
@@ -168,7 +174,7 @@ public class VideoTmpServiceImpl implements VideoTmpService {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<VideoTemporary> videotemp;
         if (commonStatus.equals(CommonStatus.ALL)) {
-            videotemp = videoTemporaryRepository.findByStatusNot(CommonStatus.DRAFT,pageable);
+            videotemp = videoTemporaryRepository.findByStatusNot(CommonStatus.DRAFT, pageable);
         } else {
             videotemp = videoTemporaryRepository.findByStatus(commonStatus, pageable);
         }
@@ -266,15 +272,15 @@ public class VideoTmpServiceImpl implements VideoTmpService {
     }
 
     @Override
-    public PaginationResponse<List<VideoItemResponse>> getUpdateVideoForCurrentUser(CommonStatus status,Integer page, Integer size,
+    public PaginationResponse<List<VideoItemResponse>> getUpdateVideoForCurrentUser(CommonStatus status, Integer page,
+            Integer size,
             String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Long teacherId = securityContextService.getCurrentUser().getId();
         Page<VideoTemporary> videotemp;
-        if(status.equals(CommonStatus.ALL)){
+        if (status.equals(CommonStatus.ALL)) {
             videotemp = videoTemporaryRepository.findVideosByTeacherId(teacherId, pageable);
-        }
-        else{
+        } else {
             videotemp = videoTemporaryRepository.findVideosByTeacherIdAndStatus(teacherId, status, pageable);
         }
         return PaginationResponse.<List<VideoItemResponse>>builder()
