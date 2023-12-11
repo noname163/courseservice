@@ -97,7 +97,8 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             @Param("status") CommonStatus commonStatus);
 
     @Query("SELECT COUNT(v) FROM Video v " +
-            "WHERE v.course.teacherId = :teacherId")
+            "WHERE v.course.teacherId = :teacherId "+
+            "AND v.status <> 'DELETED'")
     Long countVideosByTeacherId(@Param("teacherId") Long teacherId);
 
 }
