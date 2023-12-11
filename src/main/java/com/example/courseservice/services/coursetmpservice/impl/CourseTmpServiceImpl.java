@@ -264,7 +264,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             courseDetailResponse.setCourseRealId(courseId);
             courseVideoTemporaryResponse.addAll(courseVideoResponse);
         }
-        
+
         List<String> topics = courseTopicService.getTopicsByCourseTmpId(id);
         courseDetailResponse.setTopics(topics);
         courseDetailResponse.setLevel(level.getName());
@@ -393,7 +393,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             if (courseTemporary.getStatus().equals(CommonStatus.REJECT)) {
                 throw new BadRequestException("Edit course before request verify.");
             }
-            if(courseTemporary.getVideoTemporaries().isEmpty()){
+            if (courseTemporary.getVideoTemporaries().isEmpty()) {
                 throw new BadRequestException("Course must have video to verify.");
             }
             if (courseTemporary.getCourseTopics().isEmpty()) {

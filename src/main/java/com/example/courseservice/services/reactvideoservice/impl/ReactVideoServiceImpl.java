@@ -1,5 +1,6 @@
 package com.example.courseservice.services.reactvideoservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ public class ReactVideoServiceImpl implements ReactVideoService {
                 reactVideoRepository.save(ReactVideo
                         .builder()
                         .reactStatus(reactRequest.getStatus())
+                        .createdDate(LocalDateTime.now())
+                        .video(video)
                         .studentId(currentUser.getId())
                         .studentName(currentUser.getFullname())
                         .build());
@@ -50,6 +53,7 @@ public class ReactVideoServiceImpl implements ReactVideoService {
                 if (reactVideo.getReactStatus().equals(reactRequest.getStatus())) {
                     reactVideo.setReactStatus(ReactStatus.NONE);
                 }
+                reactVideo.setUpdateTime(LocalDateTime.now());
                 reactVideo.setReactStatus(reactRequest.getStatus());
                 reactVideoRepository.save(reactVideo);
             }
