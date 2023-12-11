@@ -114,6 +114,9 @@ public class TransactionServiceImpl implements TransactionService {
         Course course = courseRepository.findById(paymentRequest.getCourseId())
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist course with id " + paymentRequest.getCourseId()));
+        if(course.getVideos().size()<0){
+            throw new BadRequestException("Cannot buy course without video");
+        }
         String orderType = course.getName();
         Long amount = (long) (course.getPrice().doubleValue() * 100);
         String bankCode = paymentRequest.getBankCode();
@@ -415,7 +418,7 @@ public class TransactionServiceImpl implements TransactionService {
         DateTimeFormatter localDateFormat = DateTimeFormatter.ofPattern(Validation.DATE_TIME_FORMAT);
 
         String vnp_createdDate = currentTime.format(localDateFormat);
-        vnp_Params.put("vnp_createdDate", vnp_createdDate);
+        vnp_Params.put("vnp_CreateDate", vnp_createdDate);
 
         String vnp_ExpireDate = currentTime.plusMinutes(15l).format(localDateFormat);
         vnp_Params.put("vnp_TransactionDate", vnp_createdDate);

@@ -89,24 +89,26 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<CourseResponseInterface> getByCommonStatusJPQL(@Param("status") CommonStatus status, Pageable pageable);
 
     @Query("SELECT c.id AS id, " +
-            "c.thumbnial AS thumbnial, " +
-            "c.teacherName AS teacherName, " +
-            "c.teacherAvatar AS teacherAvatar, " +
-            "c.name AS courseName, " +
-            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
-            "SIZE(c.ratings) AS numberOfRate, " +
-            "SIZE(c.videos) AS totalVideo, " +
-            "c.subject AS subject, " +
-            "c.level.name AS level, " +
-            "c.price AS price, " +
-            "c.createdDate AS createdDate, " +
-            "c.updateTime AS updateDate, " +
-            "c.commonStatus AS status " +
-            "FROM Course c " +
-            "LEFT JOIN c.ratings r " +
-            "GROUP BY c.id, c.level.name " +
-            "ORDER BY averageRating DESC")
-    Page<CourseResponseInterface> findByAllCommonStatus(Pageable pageable);
+        "c.thumbnial AS thumbnial, " +
+        "c.teacherName AS teacherName, " +
+        "c.teacherAvatar AS teacherAvatar, " +
+        "c.name AS courseName, " +
+        "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+        "SIZE(c.ratings) AS numberOfRate, " +
+        "COUNT(v) AS totalVideo, " +
+        "c.subject AS subject, " +
+        "c.level.name AS level, " +
+        "c.price AS price, " +
+        "c.createdDate AS createdDate, " +
+        "c.updateTime AS updateDate, " +
+        "c.commonStatus AS status " +
+        "FROM Course c " +
+        "LEFT JOIN c.ratings r " +
+        "LEFT JOIN c.videos v WITH v.status = 'AVAILABLE' " +
+        "GROUP BY c.id, c.level.name " +
+        "ORDER BY averageRating DESC")
+Page<CourseResponseInterface> findByAllCommonStatus(Pageable pageable);
+
 
     @Query("SELECT c.id AS id, " +
             "c.thumbnial AS thumbnial, " +

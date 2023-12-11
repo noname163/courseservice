@@ -1,5 +1,6 @@
 package com.example.courseservice.services.studentenrollcourseservice.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,6 +82,7 @@ public class StudentEnrollCourseServiceImpl implements StudentEnrollCourseServic
                 .studentEmail(studentEnrollRequest.getEmail())
                 .studentId(studentEnrollRequest.getStudentId())
                 .status(StudentEnrolledStatus.ENROLLED)
+                .createdDate(LocalDateTime.now())
                 .course(course)
                 .build());
     }

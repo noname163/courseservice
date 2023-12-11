@@ -32,6 +32,7 @@ public class CourseTemporaryMapper {
         course.setPrice(Optional.ofNullable(courseTemporary.getPrice()).orElse(course.getPrice()));
         course.setSubject(Optional.ofNullable(courseTemporary.getSubject()).orElse(course.getSubject()));
         course.setUpdateTime(courseTemporary.getUpdateTime());
+        course.setTeacherId(courseTemporary.getTeacherId());
         course.setUpdateTime(LocalDateTime.now());
         course.setThumbnial(Optional.ofNullable(courseTemporary.getThumbnial()).orElse(course.getThumbnial()));
         course.setCommonStatus(courseTemporary.getStatus());
