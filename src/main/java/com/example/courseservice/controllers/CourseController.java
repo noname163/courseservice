@@ -433,7 +433,7 @@ public class CourseController {
                         sortType));
     }
 
-    @Operation(summary = "Search temporary courses for teacher")
+    @Operation(summary = "Filter course for user ")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
@@ -456,7 +456,8 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.filterCourseByMultiple(subjectList, minPrice, maxPrice, minRate, maxRate, levelList, topicList, page, size, field, sortType));
+                .body(courseService.filterCourseByMultiple(subjectList, minPrice, maxPrice, minRate, maxRate, levelList,
+                        topicList, page, size, field, sortType));
     }
 
 }
