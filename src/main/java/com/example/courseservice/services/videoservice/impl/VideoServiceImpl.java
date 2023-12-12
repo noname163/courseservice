@@ -147,9 +147,7 @@ public class VideoServiceImpl implements VideoService {
         }
         VideoDetailResponse videoResponse = videoMapper.mapEntityToDto(video);
         if (securityContextService.getIsAuthenticatedAndIsStudent()) {
-            List<StudentNoteResponse> studentNoteResponse = studentNoteService.getNoteByVideoId(videoId);
             videoResponse.setReactStatus(reactVideoService.getReactStatusByStudentIdAndVideoId(videoId));
-            videoResponse.setStudentNoteResponses(studentNoteResponse);
         }
         videoResponse.setCourseId(course.getId());
         videoResponse.setDuration(video.getDuration());
