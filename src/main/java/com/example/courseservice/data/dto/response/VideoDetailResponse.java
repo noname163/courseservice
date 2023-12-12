@@ -24,5 +24,6 @@ public class VideoDetailResponse {
     private ReactStatus reactStatus;
     private VideoStatus videoStatus;
     private Float duration;
+    List<CommentResponse> commentResponses;
     List<VideoItemResponse> videoItemResponses;
 }

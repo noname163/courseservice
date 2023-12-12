@@ -25,6 +25,7 @@ import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VideoContentUpdate;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.response.CommentResponse;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
@@ -43,6 +44,7 @@ import com.example.courseservice.data.repositories.StudentVideoProgressRepositor
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
+import com.example.courseservice.mappers.CommentMapper;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.commentservice.CommentService;
@@ -75,6 +77,8 @@ public class VideoServiceImpl implements VideoService {
     private StudentVideoProgressRepository studentVideoProgressRepository;
     @Autowired
     private ReactVideoService reactVideoService;
+    @Autowired
+    private CommentMapper commentMapper;
 
     @Override
     @Transactional
@@ -140,18 +144,12 @@ public class VideoServiceImpl implements VideoService {
         if (video.getVideoStatus().equals(VideoStatus.PRIVATE) && !isVideoAccessible(video)) {
             throw new InValidAuthorizationException("Buy course to view this video");
         }
-        List<Video> videos;
-        if (securityContextService.getIsAuthenticatedAndIsStudent()) {
-            videos = videoRepository.findByCourseOrderByOrdinalNumberAsc(course);
-        } else {
-            videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course, commonStatus);
-        }
-        List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
-        // Set access status for each video item response
-        videoItemResponses = setVideoAccessStatus(videoItemResponses, course.getId());
-
+        List<CommentResponse> commentResponses = commentMapper.mapEntitiesToDtos(video.getComments());
         VideoDetailResponse videoResponse = videoMapper.mapEntityToDto(video);
-        videoResponse.setVideoItemResponses(videoItemResponses);
+        if (securityContextService.getIsAuthenticatedAndIsStudent()) {
+           videoResponse.setReactStatus(reactVideoService.getReactStatusByStudentIdAndVideoId(videoId));
+        } 
+        videoResponse.setCommentResponses(commentResponses);;
         videoResponse.setCourseId(course.getId());
         videoResponse.setDuration(video.getDuration());
 
