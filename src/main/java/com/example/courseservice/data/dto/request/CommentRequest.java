@@ -12,7 +12,7 @@ import lombok.Data;
 public class CommentRequest {
     @NotBlank
     @NotNull
-    @Size(min = 50, message = "Comment content cannot smaller than 50 characters")
+    @Size(min = 10, message = "Comment content cannot smaller than 10 characters")
     private String commentContent;
     @NotNull
     private long videoId;
