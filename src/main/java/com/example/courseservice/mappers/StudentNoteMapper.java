@@ -25,6 +25,9 @@ public class StudentNoteMapper {
 
     public List<StudentNoteResponse> mapToStudentNoteResponseList(
             List<StudentNote> studentNoteResponseInterfaces) {
+        if (studentNoteResponseInterfaces.isEmpty()) {
+            return List.of();
+        }
         return studentNoteResponseInterfaces.stream()
                 .map(this::mapToStudentNoteResponse)
                 .collect(Collectors.toList());

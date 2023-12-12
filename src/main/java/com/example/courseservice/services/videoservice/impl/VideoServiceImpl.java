@@ -25,9 +25,11 @@ import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VideoContentUpdate;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.response.CommentResponse;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
+import com.example.courseservice.data.dto.response.StudentNoteResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
@@ -43,12 +45,14 @@ import com.example.courseservice.data.repositories.StudentVideoProgressRepositor
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
+import com.example.courseservice.mappers.CommentMapper;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.commentservice.CommentService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
+import com.example.courseservice.services.studentnoteservice.StudentNoteService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 
@@ -75,6 +79,8 @@ public class VideoServiceImpl implements VideoService {
     private StudentVideoProgressRepository studentVideoProgressRepository;
     @Autowired
     private ReactVideoService reactVideoService;
+    @Autowired
+    private StudentNoteService studentNoteService;
 
     @Override
     @Transactional
@@ -136,22 +142,15 @@ public class VideoServiceImpl implements VideoService {
     public VideoDetailResponse getAvailableVideoDetailById(Long videoId, CommonStatus commonStatus) {
         Video video = getVideoByIdAndCommonStatus(videoId, CommonStatus.AVAILABLE);
         Course course = video.getCourse();
-        // Check if the video is private and user is not authenticated or not enrolled
         if (video.getVideoStatus().equals(VideoStatus.PRIVATE) && !isVideoAccessible(video)) {
             throw new InValidAuthorizationException("Buy course to view this video");
         }
-        List<Video> videos;
-        if (securityContextService.getIsAuthenticatedAndIsStudent()) {
-            videos = videoRepository.findByCourseOrderByOrdinalNumberAsc(course);
-        } else {
-            videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course, commonStatus);
-        }
-        List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos);
-        // Set access status for each video item response
-        videoItemResponses = setVideoAccessStatus(videoItemResponses, course.getId());
-
         VideoDetailResponse videoResponse = videoMapper.mapEntityToDto(video);
-        videoResponse.setVideoItemResponses(videoItemResponses);
+        if (securityContextService.getIsAuthenticatedAndIsStudent()) {
+            List<StudentNoteResponse> studentNoteResponse = studentNoteService.getNoteByVideoId(videoId);
+            videoResponse.setReactStatus(reactVideoService.getReactStatusByStudentIdAndVideoId(videoId));
+            videoResponse.setStudentNoteResponses(studentNoteResponse);
+        }
         videoResponse.setCourseId(course.getId());
         videoResponse.setDuration(video.getDuration());
 
@@ -173,12 +172,11 @@ public class VideoServiceImpl implements VideoService {
         }
         Page<Video> videos;
 
-        if(securityContextService.isLogin()!=null){
+        if (securityContextService.isLogin() != null) {
             videos = videoRepository.findByCourseOrderByOrdinalNumberAsc(course, pageable);
-        }
-        else{
+        } else {
             videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course,
-                CommonStatus.AVAILABLE, pageable);
+                    CommonStatus.AVAILABLE, pageable);
         }
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
         if (securityContextService.isLogin() != null) {
