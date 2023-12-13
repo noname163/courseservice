@@ -23,7 +23,8 @@ public interface CourseService {
 
     public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus);
 
-    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String searchTerm, CommonStatus status,Integer page, Integer size, String field,
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String searchTerm, CommonStatus status,
+            Integer page, Integer size, String field,
             SortType sortType);
 
     public PaginationResponse<List<CourseResponse>> getListCourseByEmailForUser(String email, Integer page,
@@ -32,7 +33,12 @@ public interface CourseService {
     public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, CommonStatus commonStatus,
             List<String> value, Integer page, Integer size, String field, SortType sortType);
 
-    public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size,
+    public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page,
+            Integer size,
+            String field, SortType sortType);
+
+    public PaginationResponse<List<CourseResponse>> getListCourseForAdmin(String searchTerm, CommonStatus commonStatus, Integer page,
+            Integer size,
             String field, SortType sortType);
 
     public Long verifyCourse(VerifyRequest verifyRequest);
