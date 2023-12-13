@@ -15,6 +15,7 @@ import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.CourseVideoResponseInterface;
+import com.example.courseservice.data.object.VideoAdminResponseInterface;
 import com.example.courseservice.data.object.VideoItemResponseInterface;
 
 @Component
@@ -160,6 +161,42 @@ public class VideoMapper {
             List<CourseVideoResponseInterface> courseVideoResponseInterfaces) {
         return courseVideoResponseInterfaces.stream()
                 .map(this::mapToCourseVideoResponse)
+                .collect(Collectors.toList());
+    }
+
+    public VideoAdminResponse mapToVideoAdminResponse(VideoAdminResponseInterface videoAdminResponseInterface) {
+        if (videoAdminResponseInterface == null) {
+            return null;
+        }
+
+        return VideoAdminResponse.builder()
+                .id(videoAdminResponseInterface.getId())
+                .url(videoAdminResponseInterface.getUrl())
+                .name(videoAdminResponseInterface.getName())
+                .teacherName(videoAdminResponseInterface.getTeacherName())
+                .teacherAvatar(videoAdminResponseInterface.getTeacherAvatar())
+                .description(videoAdminResponseInterface.getDescription())
+                .subject(videoAdminResponseInterface.getSubject())
+                .thumbnail(videoAdminResponseInterface.getThumbnail())
+                .material(videoAdminResponseInterface.getMaterial())
+                .courseName(videoAdminResponseInterface.getCourseName())
+                .like(Optional.ofNullable(videoAdminResponseInterface.getLike()).orElse(0l))
+                .dislike(Optional.ofNullable(videoAdminResponseInterface.getDislike()).orElse(0l))
+                .duration(videoAdminResponseInterface.getDuration())
+                .status(videoAdminResponseInterface.getStatus())
+                .createdDate(videoAdminResponseInterface.getCreatedDate())
+                .updateDate(videoAdminResponseInterface.getUpdateDate())
+                .videoStatus(videoAdminResponseInterface.getVideoStatus())
+                .ordinalNumber(videoAdminResponseInterface.getOrdinalNumber())
+                .build();
+    }
+
+    public List<VideoAdminResponse> mapToVideoAdminResponseList(List<VideoAdminResponseInterface> videoAdminResponseInterfaces) {
+        if(videoAdminResponseInterfaces.isEmpty()){
+            return List.of();
+        }
+        return videoAdminResponseInterfaces.stream()
+                .map(this::mapToVideoAdminResponse)
                 .collect(Collectors.toList());
     }
 }
