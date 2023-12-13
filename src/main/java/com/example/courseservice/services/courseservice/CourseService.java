@@ -23,7 +23,7 @@ public interface CourseService {
 
     public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus);
 
-    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(Integer page, Integer size, String field,
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String searchTerm, CommonStatus status,Integer page, Integer size, String field,
             SortType sortType);
 
     public PaginationResponse<List<CourseResponse>> getListCourseByEmailForUser(String email, Integer page,

@@ -98,13 +98,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(Integer page, Integer size,
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String searchTerm, CommonStatus status,Integer page, Integer size,
             String field, SortType sortType) {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<CourseResponseInterface> listSubject = courseRepository
-                .getCourseByEmailAndStatusNot(currentUser.getEmail(), CommonStatus.DELETED, pageable);
+        Page<CourseResponseInterface> listSubject = courseRepository.searchCoursesForTeacher(currentUser.getId(), searchTerm, status.toString(), pageable);
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
                 .totalPage(listSubject.getTotalPages())

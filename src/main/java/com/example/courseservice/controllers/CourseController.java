@@ -229,13 +229,15 @@ public class CourseController {
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/teacher")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesByTeacherEmail(
+            @RequestParam(required = false, defaultValue = "") String searchTerm,
+            @RequestParam(required = false, defaultValue = "ALL") CommonStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getListCourseByEmail(page, size, field, sortType));
+                .body(courseService.getListCourseByEmail(searchTerm, status, page, size, field, sortType));
     }
 
     @Operation(summary = "Get courses by teacher email for user")
