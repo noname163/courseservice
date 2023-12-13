@@ -158,7 +158,7 @@ public class VideoTemporaryMapper {
                 .courseName(videoAdminResponseInterface.getCourseName())
                 .duration(videoAdminResponseInterface.getDuration())
                 .status(videoAdminResponseInterface.getStatus())
-                .createdDate(videoAdminResponseInterface.getcreatedDate())
+                .createdDate(videoAdminResponseInterface.getCreatedDate())
                 .updateDate(videoAdminResponseInterface.getUpdateDate())
                 .videoStatus(videoAdminResponseInterface.getVideoStatus())
                 .build();

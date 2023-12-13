@@ -383,4 +383,61 @@ Page<CourseResponseInterface> findByAllCommonStatus(Pageable pageable);
             "JOIN c.studentEnrolledCourses sec " +
             "WHERE c.teacherId = :teacherId")
     Long countStudentsEnrolledByTeacherId(@Param("teacherId") Long teacherId);
+
+    @Query("SELECT c.id AS id, " +
+            "c.id AS courseRealId, " +
+            "c.teacherId AS teacherId, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.name AS courseName, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createdDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "WHERE c.teacherId = :teacherId " +
+            "AND (:name is null or lower(c.name) like lower(concat('%', :name, '%'))) " +
+            "AND (:status = 'ALL' or c.commonStatus = :status) " +
+            "GROUP BY c.id, c.teacherId, c.thumbnial, c.teacherName, c.teacherAvatar, " +
+            "c.name, c.subject, c.level.name, c.price, c.createdDate, c.updateTime, " +
+            "c.commonStatus")
+    Page<CourseResponseInterface> searchCoursesForTeacher(
+            @Param("teacherId") Long teacherId,
+            @Param("name") String name,
+            @Param("status") String status,
+            Pageable pageable);
+    @Query("SELECT c.id AS id, " +
+            "c.id AS courseRealId, " +
+            "c.teacherId AS teacherId, " +
+            "c.thumbnial AS thumbnial, " +
+            "c.teacherName AS teacherName, " +
+            "c.teacherAvatar AS teacherAvatar, " +
+            "c.name AS courseName, " +
+            "SIZE(c.ratings) AS numberOfRate, " +
+            "SIZE(c.videos) AS totalVideo, " +
+            "COALESCE(AVG(r.rate), 0) AS averageRating, " +
+            "c.subject AS subject, " +
+            "c.level.name AS level, " +
+            "c.price AS price, " +
+            "c.createdDate AS createdDate, " +
+            "c.updateTime AS updateDate, " +
+            "c.commonStatus AS status " +
+            "FROM Course c " +
+            "LEFT JOIN c.ratings r " +
+            "WHERE (:name is null or lower(c.name) like lower(concat('%', :name, '%'))) " +
+            "AND (:status = 'ALL' or c.commonStatus = :status) " +
+            "GROUP BY c.id, c.thumbnial, c.teacherName, c.teacherAvatar, " +
+            "c.name, c.subject, c.level.name, c.price, c.createdDate, c.updateTime, " +
+            "c.commonStatus")
+    Page<CourseResponseInterface> searchCoursesForAdmin(
+            @Param("name") String name,
+            @Param("status") String status,
+            Pageable pageable);
 }

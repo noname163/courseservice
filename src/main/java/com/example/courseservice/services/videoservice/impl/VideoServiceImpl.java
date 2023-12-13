@@ -2,7 +2,6 @@ package com.example.courseservice.services.videoservice.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,19 +24,17 @@ import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VideoContentUpdate;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
-import com.example.courseservice.data.dto.response.CommentResponse;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
-import com.example.courseservice.data.dto.response.StudentNoteResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Course;
-import com.example.courseservice.data.entities.CourseTemporary;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.UserInformation;
+import com.example.courseservice.data.object.VideoAdminResponseInterface;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.data.repositories.CourseTemporaryRepository;
@@ -45,14 +42,11 @@ import com.example.courseservice.data.repositories.StudentVideoProgressRepositor
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
-import com.example.courseservice.mappers.CommentMapper;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
-import com.example.courseservice.services.commentservice.CommentService;
 import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
-import com.example.courseservice.services.studentnoteservice.StudentNoteService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 
@@ -79,8 +73,6 @@ public class VideoServiceImpl implements VideoService {
     private StudentVideoProgressRepository studentVideoProgressRepository;
     @Autowired
     private ReactVideoService reactVideoService;
-    @Autowired
-    private StudentNoteService studentNoteService;
 
     @Override
     @Transactional
@@ -201,17 +193,9 @@ public class VideoServiceImpl implements VideoService {
     public PaginationResponse<List<VideoAdminResponse>> getVideoForAdmin(CommonStatus commonStatus, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        if (CommonStatus.ALL.equals(commonStatus)) {
-            Page<Video> videos = videoRepository.findAll(pageable);
-            return PaginationResponse.<List<VideoAdminResponse>>builder()
-                    .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
-                    .totalPage(videos.getTotalPages())
-                    .totalRow(videos.getTotalElements())
-                    .build();
-        }
-        Page<Video> videos = videoRepository.findByStatusOrderByOrdinalNumberAsc(commonStatus, pageable);
+        Page<VideoAdminResponseInterface> videos = videoRepository.findAllVideosAdminResponse(commonStatus.toString(), pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
-                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                .data(videoMapper.mapToVideoAdminResponseList(videos.getContent()))
                 .totalPage(videos.getTotalPages())
                 .totalRow(videos.getTotalElements())
                 .build();
@@ -221,25 +205,13 @@ public class VideoServiceImpl implements VideoService {
     public PaginationResponse<List<VideoAdminResponse>> getVideoForTeacher(CommonStatus commonStatus,
             Integer page,
             Integer size, String field, SortType sortType) {
-        String email = securityContextService.getCurrentUser().getEmail();
+        Long teacherId = securityContextService.getCurrentUser().getId();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        List<Course> courses = courseRepository.findCourseByTeacherEmail(email);
-        if (courses.isEmpty()) {
-            return null;
-        }
-        if (CommonStatus.ALL.equals(commonStatus)) {
-            Page<Video> videos = videoRepository.findByCourseInAndStatusNotOrderByOrdinalNumberAsc(courses,
-                    CommonStatus.DELETED, pageable);
-            return PaginationResponse.<List<VideoAdminResponse>>builder()
-                    .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
-                    .totalPage(videos.getTotalPages())
-                    .totalRow(videos.getTotalElements())
-                    .build();
-        }
-        Page<Video> videos = videoRepository.findByStatusAndCourseInOrderByOrdinalNumberAsc(commonStatus, courses,
+
+        Page<VideoAdminResponseInterface> videos = videoRepository.findAllVideosByTeacherId(teacherId, commonStatus.toString(),
                 pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
-                .data(videoMapper.mapVideosToVideoAdminResponses(videos.getContent()))
+                .data(videoMapper.mapToVideoAdminResponseList(videos.getContent()))
                 .totalPage(videos.getTotalPages())
                 .totalRow(videos.getTotalElements())
                 .build();

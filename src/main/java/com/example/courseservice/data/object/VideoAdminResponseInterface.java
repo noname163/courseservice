@@ -10,6 +10,7 @@ public interface VideoAdminResponseInterface {
     String getUrl();
     String getName();
     String getTeacherName();
+    String getTeacherAvatar();
     String getDescription();
     String getSubject();
     String getThumbnail();
@@ -19,7 +20,8 @@ public interface VideoAdminResponseInterface {
     Long getDislike();
     Float getDuration();
     CommonStatus getStatus();
-    LocalDateTime getcreatedDate();
+    LocalDateTime getCreatedDate();
     LocalDateTime getUpdateDate();
     VideoStatus getVideoStatus();
+    Integer getOrdinalNumber();
 }

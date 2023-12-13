@@ -98,13 +98,14 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(Integer page, Integer size,
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String searchTerm, CommonStatus status,
+            Integer page, Integer size,
             String field, SortType sortType) {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<CourseResponseInterface> listSubject = courseRepository
-                .getCourseByEmailAndStatusNot(currentUser.getEmail(), CommonStatus.DELETED, pageable);
+        Page<CourseResponseInterface> listSubject = courseRepository.searchCoursesForTeacher(currentUser.getId(),
+                searchTerm, status.toString(), pageable);
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapInterfacesToDtos(listSubject.getContent()))
                 .totalPage(listSubject.getTotalPages())
@@ -127,14 +128,7 @@ public class CourseServiceImpl implements CourseService {
                 return result;
             }
         }
-        Page<CourseResponseInterface> listCourse;
-        if (commonStatus.equals(CommonStatus.ALL)) {
-            listCourse = courseRepository.findByAllCommonStatus(pageable);
-
-        }
-        else{
-            listCourse = courseRepository.getByCommonStatusJPQL(commonStatus, pageable);
-        }
+        Page<CourseResponseInterface> listCourse = courseRepository.getByCommonStatusJPQL(commonStatus, pageable);
 
         List<CourseResponse> result = filterCourseVideos0(courseMapper.mapInterfacesToDtos(listCourse.getContent()));
 
@@ -349,7 +343,8 @@ public class CourseServiceImpl implements CourseService {
 
         Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCourses(searchTerm, pageable);
 
-        List<CourseResponse> result = filterCourseVideos0(courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()));
+        List<CourseResponse> result = filterCourseVideos0(
+                courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()));
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(result)
@@ -358,10 +353,10 @@ public class CourseServiceImpl implements CourseService {
                 .build();
     }
 
-    private List<CourseResponse> filterCourseVideos0(List<CourseResponse> courseResponses){
+    private List<CourseResponse> filterCourseVideos0(List<CourseResponse> courseResponses) {
         List<CourseResponse> result = new ArrayList<>();
         for (CourseResponse courseResponse : courseResponses) {
-            if(courseResponse.getTotalVideo()>0){
+            if (courseResponse.getTotalVideo() > 0) {
                 result.add(courseResponse);
             }
         }
@@ -418,7 +413,6 @@ public class CourseServiceImpl implements CourseService {
         Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmail(email, enrolled,
                 CommonStatus.AVAILABLE, pageable);
 
-        
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(filterCourseVideos0(courseMapper.mapInterfacesToDtos(listSubject.getContent())))
                 .totalPage(listSubject.getTotalPages())
@@ -446,6 +440,21 @@ public class CourseServiceImpl implements CourseService {
                 .totalPage(courseResponseInterface.getTotalPages())
                 .totalRow(courseResponseInterface.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public PaginationResponse<List<CourseResponse>> getListCourseForAdmin(String searchTerm, CommonStatus commonStatus,
+            Integer page, Integer size, String field, SortType sortType) {
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
+
+        Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCoursesForAdmin(searchTerm, commonStatus.toString(), pageable);
+
+        return PaginationResponse.<List<CourseResponse>>builder()
+                .data(courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()))
+                .totalPage(courseResponseInterface.getTotalPages())
+                .totalRow(courseResponseInterface.getTotalElements())
+                .build();
+
     }
 
 }
