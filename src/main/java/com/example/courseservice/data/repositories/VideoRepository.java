@@ -14,6 +14,7 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.CourseVideoResponseInterface;
+import com.example.courseservice.data.object.VideoAdminResponseInterface;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
     Page<Video> findByCourseAndStatusOrderByOrdinalNumberAsc(Course course, CommonStatus status, Pageable pageable);
@@ -97,8 +98,59 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
             @Param("status") CommonStatus commonStatus);
 
     @Query("SELECT COUNT(v) FROM Video v " +
-            "WHERE v.course.teacherId = :teacherId "+
+            "WHERE v.course.teacherId = :teacherId " +
             "AND v.status <> 'DELETED'")
     Long countVideosByTeacherId(@Param("teacherId") Long teacherId);
 
+    @Query("SELECT v.id AS id, " +
+            "v.urlVideo AS url, " +
+            "v.name AS name, " +
+            "v.course.teacherName AS teacherName, " +
+            "v.course.teacherAvatar AS teacherAvatar, " +
+            "v.description AS description, " +
+            "v.course.subject AS subject, " +
+            "v.urlThumbnail AS thumbnail, " +
+            "v.urlMaterial AS material, " +
+            "v.course.name AS courseName, " +
+            "SUM(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.LIKE THEN 1 ELSE 0 END) AS likeCount, " +
+            "SUM(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.DISLIKE THEN 1 ELSE 0 END) AS dislikeCount, " +
+            "v.duration AS duration, " +
+            "v.status AS status, " +
+            "v.createdDate AS createdDate, " +
+            "v.updateTime AS updateDate, " +
+            "v.videoStatus AS videoStatus, " +
+            "v.ordinalNumber AS ordinalNumber " +
+            "FROM Video v " +
+            "LEFT JOIN v.reactVideos rv " +
+            "WHERE (:status = 'ALL' OR v.status = :status) " + 
+            "GROUP BY v.id, v.course.teacherName, v.course.teacherAvatar, v.course.subject, v.course.name")
+    Page<VideoAdminResponseInterface> findAllVideosAdminResponse(@Param("status") String status,Pageable pageable);
+
+    @Query("SELECT v.id AS id, " +
+            "v.urlVideo AS url, " +
+            "v.name AS name, " +
+            "v.course.teacherName AS teacherName, " +
+            "v.course.teacherAvatar AS teacherAvatar, " +
+            "v.description AS description, " +
+            "v.course.subject AS subject, " +
+            "v.urlThumbnail AS thumbnail, " +
+            "v.urlMaterial AS material, " +
+            "v.course.name AS courseName, " +
+            "SUM(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.LIKE THEN 1 ELSE 0 END) AS likeCount, " +
+            "SUM(CASE WHEN rv.reactStatus = com.example.courseservice.data.constants.ReactStatus.DISLIKE THEN 1 ELSE 0 END) AS dislikeCount, " +
+            "v.duration AS duration, " +
+            "v.status AS status, " +
+            "v.createdDate AS createdDate, " +
+            "v.updateTime AS updateDate, " +
+            "v.videoStatus AS videoStatus, " +
+            "v.ordinalNumber AS ordinalNumber " +
+            "FROM Video v " +
+            "LEFT JOIN v.reactVideos rv " +
+            "WHERE v.course.teacherId = :teacherId " +
+            "AND (:status = 'ALL' OR v.status = :status) " + 
+            "GROUP BY v.id, v.course.teacherName, v.course.teacherAvatar, v.course.subject, v.course.name")
+    Page<VideoAdminResponseInterface> findAllVideosByTeacherId(
+            @Param("teacherId") Long teacherId,
+            @Param("status") String status,
+            Pageable pageable);
 }

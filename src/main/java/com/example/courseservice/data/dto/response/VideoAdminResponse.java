@@ -15,14 +15,15 @@ public class VideoAdminResponse {
     private String url;
     private String name;
     private String teacherName;
+    private String teacherAvatar;
     private String description;
     private String subject;
     private String thumbnail;
     private String material;
     private String courseName;
-    private long like;
-    private long dislike;
-    private float duration;
+    private Long like;
+    private Long dislike;
+    private Float duration;
     private CommonStatus status;
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;

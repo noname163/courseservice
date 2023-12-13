@@ -52,9 +52,10 @@ public class ReactVideoServiceImpl implements ReactVideoService {
                 ReactVideo reactVideo = reactVideoOtp.get();
                 if (reactVideo.getReactStatus().equals(reactRequest.getStatus())) {
                     reactVideo.setReactStatus(ReactStatus.NONE);
+                } else {
+                    reactVideo.setUpdateTime(LocalDateTime.now());
+                    reactVideo.setReactStatus(reactRequest.getStatus());
                 }
-                reactVideo.setUpdateTime(LocalDateTime.now());
-                reactVideo.setReactStatus(reactRequest.getStatus());
                 reactVideoRepository.save(reactVideo);
             }
 
