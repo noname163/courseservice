@@ -26,10 +26,10 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +
             "ct.teacherName AS teacherName, " +
-            "ct.teacherEmail AS teacherEmail, "+
-            "ct.teacherAvatar AS teacherAvatar, "+
-            "ct.course.id AS courseRealId, "+
-            "ct.teacherId AS teacherId, "+
+            "ct.teacherEmail AS teacherEmail, " +
+            "ct.teacherAvatar AS teacherAvatar, " +
+            "ct.course.id AS courseRealId, " +
+            "ct.teacherId AS teacherId, " +
             "ct.name AS courseName, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
             "ct.subject AS subject, " +
@@ -49,10 +49,10 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +
             "ct.teacherName AS teacherName, " +
-            "ct.teacherEmail AS teacherEmail, "+
-            "ct.teacherAvatar AS teacherAvatar, "+
-            "ct.course.id AS courseRealId, "+
-            "ct.teacherId AS teacherId, "+
+            "ct.teacherEmail AS teacherEmail, " +
+            "ct.teacherAvatar AS teacherAvatar, " +
+            "ct.course.id AS courseRealId, " +
+            "ct.teacherId AS teacherId, " +
             "ct.name AS courseName, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
             "ct.subject AS subject, " +
@@ -72,9 +72,9 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +
             "ct.teacherName AS teacherName, " +
-            "ct.teacherAvatar AS teacherAvatar, "+
+            "ct.teacherAvatar AS teacherAvatar, " +
             "ct.name AS courseName, " +
-            "ct.course.id AS courseRealId, "+
+            "ct.course.id AS courseRealId, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
             "ct.subject AS subject, " +
             "l.name AS level, " +
@@ -95,7 +95,61 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +
             "ct.teacherName AS teacherName, " +
-            "ct.teacherAvatar AS teacherAvatar, "+
+            "ct.teacherAvatar AS teacherAvatar, " +
+            "ct.name AS courseName, " +
+            "ct.course.id AS courseRealId, " +
+            "SIZE(ct.videoTemporaries) AS totalVideo, " +
+            "ct.subject AS subject, " +
+            "l.name AS level, " +
+            "0 AS totalCompletedVideo, " +
+            "true AS isAccess, " +
+            "0.0 AS progress, " +
+            "ct.price AS price, " +
+            "ct.createdDate AS createdDate, " +
+            "ct.updateTime AS updateDate, " +
+            "ct.status AS status " +
+            "FROM CourseTemporary ct " +
+            "LEFT JOIN ct.videoTemporaries vt " +
+            "LEFT JOIN ct.courseTopics ctt " +
+            "LEFT JOIN Level l ON ct.levelId = l.id " +
+            "WHERE (:name is null or lower(ct.name) like lower(concat('%', :name, '%'))) " +
+            "AND (:status = 'ALL' or ct.status = :status) " +
+            "AND ct.teacherEmail = :email " +
+            "GROUP BY ct.id, l.name")
+    Page<CourseResponseInterface> searchByNameForTeacher(@Param("name") String name,
+            @Param("email") String email,
+            @Param("status") String status, Pageable pageable);
+
+    @Query("SELECT ct.id AS id, " +
+            "ct.thumbnial AS thumbnial, " +
+            "ct.teacherName AS teacherName, " +
+            "ct.teacherAvatar AS teacherAvatar, " +
+            "ct.name AS courseName, " +
+            "ct.course.id AS courseRealId, " +
+            "SIZE(ct.videoTemporaries) AS totalVideo, " +
+            "ct.subject AS subject, " +
+            "l.name AS level, " +
+            "0 AS totalCompletedVideo, " +
+            "true AS isAccess, " +
+            "0.0 AS progress, " +
+            "ct.price AS price, " +
+            "ct.createdDate AS createdDate, " +
+            "ct.updateTime AS updateDate, " +
+            "ct.status AS status " +
+            "FROM CourseTemporary ct " +
+            "LEFT JOIN ct.videoTemporaries vt " +
+            "LEFT JOIN ct.courseTopics ctt " +
+            "LEFT JOIN Level l ON ct.levelId = l.id " +
+            "WHERE (:name is null or lower(ct.name) like lower(concat('%', :name, '%'))) " +
+            "AND ((:status = 'ALL' and ct.status<>'DRAFT') or (ct.status = :status and ct.status<>'DRAFT') ) " +
+            "GROUP BY ct.id, l.name")
+    Page<CourseResponseInterface> searchByNameForAdmin(@Param("name") String name,
+            @Param("status") String status, Pageable pageable);
+
+    @Query("SELECT ct.id AS id, " +
+            "ct.thumbnial AS thumbnial, " +
+            "ct.teacherName AS teacherName, " +
+            "ct.teacherAvatar AS teacherAvatar, " +
             "ct.name AS courseName, " +
             "SIZE(ct.videoTemporaries) AS totalVideo, " +
             "ct.subject AS subject, " +
