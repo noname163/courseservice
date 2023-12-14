@@ -303,9 +303,11 @@ public class CourseServiceImpl implements CourseService {
     public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus) {
         CourseDetailResponseInterface course = courseRepository
                 .getCourseDetailsByCourseIdIgnoreStatus(id);
+        List<String> topics = courseTopicService.getTopicsByCourseId(id);
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, CommonStatus.ALL);
         courseDetailResponse.setCourseVideoResponses(videos);
+        courseDetailResponse.setTopics(topics);
         return courseDetailResponse;
 
     }
