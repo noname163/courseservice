@@ -65,6 +65,7 @@ public class CourseTemporary {
 
     private Long levelId;
 
+    @Enumerated(EnumType.STRING)
     private CommonStatus status;
 
     @OneToMany(mappedBy = "courseTemporary")

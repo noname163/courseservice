@@ -24,13 +24,13 @@ public interface CourseTmpService {
 
     public void editTmpCourse(CourseTemporaryUpdateRequest courseUpdateRequest, MultipartFile thumbnail);
 
-    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status, Integer page,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(String searchTerm, CommonStatus status, Integer page,
             Integer size, String field, SortType sortType);
 
     public PaginationResponse<List<CourseResponse>> searchTemporaryCourseForTeacher(String searchTerm, Integer page,
             Integer size, String field, SortType sortType);
 
-    public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(CommonStatus status, Integer page,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(String searchTerm, CommonStatus status, Integer page,
             Integer size, String field, SortType sortType);
 
     public PaginationResponse<List<CourseResponse>> filterCourseTmpStatus(CommonStatus status, Integer page,

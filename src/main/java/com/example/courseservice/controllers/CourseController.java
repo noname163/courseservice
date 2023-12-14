@@ -127,7 +127,8 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getListCourseForAdmin(searchTerm, commonStatus, page, size, field, sortType));
+                .body(courseService.getListCourseForAdmin(searchTerm, commonStatus, page, size, field,
+                        sortType));
     }
 
     @Operation(summary = "Get courses verify for admin")
@@ -141,18 +142,15 @@ public class CourseController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/admin/verify-list")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesTemporaryForAdmin(
+            @RequestParam(required = false, defaultValue = "") String searchTerm,
+            @RequestParam(required = false, defaultValue = "ALL") CommonStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        List<CommonStatus> status = new ArrayList<>();
-        status.add(CommonStatus.DRAFT);
-        status.add(CommonStatus.REJECT);
-        status.add(CommonStatus.DELETED);
-        status.add(CommonStatus.UPDATING);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpAndStatusNot(status, page, size, field,
+                .body(courseTmpService.getCourseTmpAndStatusNot(searchTerm, status, page, size, field,
                         sortType));
     }
 
@@ -189,13 +187,15 @@ public class CourseController {
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/teacher/waiting-list")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesTemporaryForTeacher(
+            @RequestParam(required = false, defaultValue = "") String searchTerm,
+            @RequestParam(required = false, defaultValue = "ALL") CommonStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpByEmailAndStatusNot(CommonStatus.DELETED, page, size,
+                .body(courseTmpService.getCourseTmpByEmailAndStatusNot(searchTerm, status, page, size,
                         field, sortType));
     }
 
@@ -238,7 +238,8 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getListCourseByEmail(searchTerm, status, page, size, field, sortType));
+                .body(courseService.getListCourseByEmail(searchTerm, status, page, size, field,
+                        sortType));
     }
 
     @Operation(summary = "Get courses by teacher email for user")
@@ -459,7 +460,8 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.filterCourseByMultiple(subjectList, minPrice, maxPrice, minRate, maxRate, levelList,
+                .body(courseService.filterCourseByMultiple(subjectList, minPrice, maxPrice, minRate,
+                        maxRate, levelList,
                         topicList, page, size, field, sortType));
     }
 
