@@ -202,14 +202,14 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(List<CommonStatus> status,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpAndStatusNot(String searchTerm, CommonStatus status,
             Integer page,
             Integer size, String field,
             SortType sortType) {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByStatusNot(status,
-                pageable);
+        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository
+                .searchByNameForAdmin(searchTerm, status.toString(), pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseTemporaryMapper.mapInterfacesToDtos(courseTemporary.getContent()))
@@ -256,6 +256,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         Course course = courseTemporary.getCourse();
         CourseDetailResponse courseDetailResponse = courseTemporaryMapper
                 .mapCourseDetailResponse(courseTemporary);
+        List<String> topics;
         if (course != null) {
             Long courseId = course.getId();
             List<CourseVideoResponse> courseVideoResponse = videoService.getVideoByCourseIdAndCommonStatus(
@@ -263,9 +264,11 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                     CommonStatus.AVAILABLE);
             courseDetailResponse.setCourseRealId(courseId);
             courseVideoTemporaryResponse.addAll(courseVideoResponse);
+            topics = courseTopicService.getTopicsByCourseId(courseId);
         }
-
-        List<String> topics = courseTopicService.getTopicsByCourseTmpId(id);
+        else{
+            topics = courseTopicService.getTopicsByCourseTmpId(id);
+        }
         courseDetailResponse.setTopics(topics);
         courseDetailResponse.setLevel(level.getName());
         courseDetailResponse.setCourseVideoResponses(courseVideoTemporaryResponse);
@@ -365,13 +368,13 @@ public class CourseTmpServiceImpl implements CourseTmpService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(CommonStatus status,
+    public PaginationResponse<List<CourseResponse>> getCourseTmpByEmailAndStatusNot(String searchTerm,
+            CommonStatus status,
             Integer page, Integer size, String field, SortType sortType) {
         String email = securityContextService.getCurrentUser().getEmail();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository.getByEmailAndStatusNot(email,
-                status,
-                pageable);
+        Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository
+                .searchByNameForTeacher(searchTerm, email, status.toString(), pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseTemporaryMapper.mapInterfacesToDtos(courseTemporary.getContent()))
@@ -469,7 +472,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<CourseResponseInterface> courseTemporary;
         if (user.getRole().equals("TEACHER")) {
-            courseTemporary = courseTemporaryRepository.filterByEmailAndStatus(user.getEmail(), status, pageable);
+            courseTemporary = courseTemporaryRepository.filterByEmailAndStatus(user.getEmail(), status,
+                    pageable);
         } else {
             courseTemporary = courseTemporaryRepository.filterByStatus(status, pageable);
         }
