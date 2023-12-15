@@ -303,9 +303,11 @@ public class CourseServiceImpl implements CourseService {
     public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus) {
         CourseDetailResponseInterface course = courseRepository
                 .getCourseDetailsByCourseIdIgnoreStatus(id);
+        List<String> topics = courseTopicService.getTopicsByCourseId(id);
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
         List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, CommonStatus.ALL);
         courseDetailResponse.setCourseVideoResponses(videos);
+        courseDetailResponse.setTopics(topics);
         return courseDetailResponse;
 
     }
@@ -315,9 +317,9 @@ public class CourseServiceImpl implements CourseService {
         List<Long> coursesId = studentEnrollCourseService.getListCourseId(email);
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-
+        List<CommonStatus> commonStatus = List.of(CommonStatus.DELETED, CommonStatus.BANNED);
         Page<CourseResponseInterface> courses = courseRepository.getAvailableCoursesByCommonStatusNotAndNotInList(
-                CommonStatus.BANNED, coursesId,
+                commonStatus, coursesId,
                 pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
