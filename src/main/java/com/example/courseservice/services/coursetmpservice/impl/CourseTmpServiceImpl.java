@@ -210,7 +210,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         Page<CourseResponseInterface> courseTemporary = courseTemporaryRepository
-                .searchByNameForAdmin(searchTerm, status.toString(), pageable);
+                .searchByNameForAdmin(searchTerm, status, pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseTemporaryMapper.mapInterfacesToDtos(courseTemporary.getContent()))
