@@ -143,14 +143,13 @@ public class CourseController {
     @GetMapping("/admin/verify-list")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesTemporaryForAdmin(
             @RequestParam(required = false, defaultValue = "") String searchTerm,
-            @RequestParam(required = false, defaultValue = "ALL") CommonStatus status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpAndStatusNot(searchTerm, status, page, size, field,
+                .body(courseTmpService.getCourseTmpAndStatusNot(searchTerm, CommonStatus.WAITING, page, size, field,
                         sortType));
     }
 

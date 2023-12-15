@@ -141,10 +141,10 @@ public interface CourseTemporaryRepository extends JpaRepository<CourseTemporary
             "LEFT JOIN ct.courseTopics ctt " +
             "LEFT JOIN Level l ON ct.levelId = l.id " +
             "WHERE (:name is null or lower(ct.name) like lower(concat('%', :name, '%'))) " +
-            "AND ((:status = 'ALL' and ct.status<>'DRAFT') or (ct.status = :status and ct.status<>'DRAFT') ) " +
+            "AND ct.status = :status " +
             "GROUP BY ct.id, l.name")
     Page<CourseResponseInterface> searchByNameForAdmin(@Param("name") String name,
-            @Param("status") String status, Pageable pageable);
+            @Param("status") CommonStatus status, Pageable pageable);
 
     @Query("SELECT ct.id AS id, " +
             "ct.thumbnial AS thumbnial, " +
