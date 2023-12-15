@@ -134,7 +134,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 : courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
 
         courseTemporary.setThumbnial(thumbnailUrl != null ? thumbnailUrl.getUrl() : course.getThumbnial());
-        courseTemporary.setStatus(CommonStatus.DRAFT);
+        courseTemporary.setStatus(CommonStatus.UPDATING);
         courseTemporary.setTeacherEmail(currentUser.getEmail());
         courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
         courseTemporary.setTeacherId(currentUser.getId());
@@ -396,7 +396,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             if (courseTemporary.getStatus().equals(CommonStatus.REJECT)) {
                 throw new BadRequestException("Edit course before request verify.");
             }
-            if (courseTemporary.getVideoTemporaries().isEmpty()) {
+            if (courseTemporary.getVideoTemporaries().isEmpty() && courseTemporary.getStatus().equals(CommonStatus.DRAFT)) {
                 throw new BadRequestException("Course must have video to verify.");
             }
             if (courseTemporary.getCourseTopics().isEmpty()) {
