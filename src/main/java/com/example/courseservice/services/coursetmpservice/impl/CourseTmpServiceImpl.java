@@ -134,8 +134,9 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 : courseTemporaryMapper.mapDtoToEntity(courseUpdateRequest, course);
 
         courseTemporary.setThumbnial(thumbnailUrl != null ? thumbnailUrl.getUrl() : course.getThumbnial());
-        courseTemporary.setStatus(CommonStatus.DRAFT);
+        courseTemporary.setStatus(CommonStatus.UPDATING);
         courseTemporary.setTeacherEmail(currentUser.getEmail());
+        courseTemporary.setCreatedDate(LocalDateTime.now());
         courseTemporary.setTeacherAvatar(course.getTeacherAvatar());
         courseTemporary.setTeacherId(currentUser.getId());
         courseTemporary.setSubject(course.getSubject());
@@ -265,8 +266,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             courseDetailResponse.setCourseRealId(courseId);
             courseVideoTemporaryResponse.addAll(courseVideoResponse);
             topics = courseTopicService.getTopicsByCourseId(courseId);
-        }
-        else{
+        } else {
             topics = courseTopicService.getTopicsByCourseTmpId(id);
         }
         courseDetailResponse.setTopics(topics);
@@ -396,7 +396,8 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             if (courseTemporary.getStatus().equals(CommonStatus.REJECT)) {
                 throw new BadRequestException("Edit course before request verify.");
             }
-            if (courseTemporary.getVideoTemporaries().isEmpty()) {
+            if (courseTemporary.getVideoTemporaries().isEmpty() && courseTemporary.getCourse() == null
+                    && !courseTemporary.getStatus().equals(CommonStatus.UPDATING)) {
                 throw new BadRequestException("Course must have video to verify.");
             }
             if (courseTemporary.getCourseTopics().isEmpty()) {
