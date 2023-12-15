@@ -126,12 +126,12 @@ Page<CourseResponseInterface> findByAllCommonStatus(Pageable pageable);
             "c.commonStatus AS status " +
             "FROM Course c " +
             "LEFT JOIN c.ratings r " +
-            "WHERE c.commonStatus <> :status " +
+            "WHERE c.commonStatus NOT IN :status " +
             "AND c.id NOT IN :excludedIds " +
             "GROUP BY c.id, c.level.name " +
             "ORDER BY averageRating DESC")
     Page<CourseResponseInterface> getAvailableCoursesByCommonStatusNotAndNotInList(
-            @Param("status") CommonStatus status,
+            @Param("status") List<CommonStatus> status,
             @Param("excludedIds") List<Long> excludedIds,
             Pageable pageable);
 
