@@ -174,7 +174,6 @@ public class CourseTmpServiceImpl implements CourseTmpService {
                 .orElseThrow(() -> new InValidAuthorizationException(
                         "Require permission to edit this course"));
         if (courseTemporary.getStatus().equals(CommonStatus.WAITING)
-                && courseTemporary.getStatus().equals(CommonStatus.UPDATING)
                 && courseTemporary.getStatus().equals(CommonStatus.BANNED)) {
             throw new BadRequestException("Cannot edit course temporary in this status");
         }
@@ -308,6 +307,7 @@ public class CourseTmpServiceImpl implements CourseTmpService {
             course.setName(Optional.ofNullable(courseTemporary.getName()).orElse(course.getName()));
             course.setPrice(Optional.ofNullable(courseTemporary.getPrice()).orElse(course.getPrice()));
             course.setUpdateTime(LocalDateTime.now());
+            course.setThumbnial(Optional.ofNullable(courseTemporary.getThumbnial()).orElse(course.getThumbnial()));
             course.setTeacherId(courseTemporary.getTeacherId());
             course = courseRepository.save(course);
             courseTopicService.updateCourseTopicByCourseTemporary(courseTemporary, course);
