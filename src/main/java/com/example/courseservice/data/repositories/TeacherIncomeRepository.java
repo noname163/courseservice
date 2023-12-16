@@ -110,6 +110,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "JOIN t.course c " +
             "WHERE t.status = :status " +
             "AND t.userId = :teacherId " +
+            "AND t.receivedMoney IS NOT NULL "+
             "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status,t.paymentDate,t.receivedMoney, t.year, t.month,t.id, c.teacherName, c.teacherAvatar, c.subject "
             +
             "ORDER BY t.year DESC, t.month DESC")
@@ -131,6 +132,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "FROM TeacherIncome t " +
             "JOIN t.course c " +
             "WHERE t.userId = :teacherId " +
+            "AND t.receivedMoney IS NOT NULL "+
             "GROUP BY c.id, c.name, CONCAT(t.month, '/', t.year), t.money, t.status, t.paymentDate,t.receivedMoney, t.year, t.month, t.id,c.teacherName, c.teacherAvatar, c.subject "
             +
             "ORDER BY t.year DESC, t.month DESC")
