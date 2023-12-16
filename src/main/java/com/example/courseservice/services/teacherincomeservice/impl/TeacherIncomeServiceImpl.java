@@ -201,7 +201,7 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
                         .date(LocalDateTime.now())
                         .build());
         sendEmailService.sendMailService(SendMailRequest
-                .builder().subject("Gửi Yêu Cầu Thành Công")
+                .builder().subject("Chuyển tiền thanh toán tháng " + teacherIncome.getMonth() +"/" + teacherIncome.getYear())
                 .mailTemplate(SendMailTemplate.paymentTeacherEmail(course.getTeacherName(), course.getName(),
                         adminPaymentTeacherRequest.getPaymentCode(),
                         String.valueOf(amount)))
