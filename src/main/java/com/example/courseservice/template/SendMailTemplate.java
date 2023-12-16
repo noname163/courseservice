@@ -99,7 +99,7 @@ public class SendMailTemplate {
                 "<p>Cảm ơn bạn, " + name + ", </p>" +
                 "<p>Chúng tôi đã gửi tiền khóa học " + courseName + " của bạn</p>" +
                 "<p>Với mã giao dịch là "+transactionId+"</p>" +
-                "<p>Với khoản tiền là"+ amount+ "Vui lòng kiểm tra số tài khoản của bạn</p>"+
+                "<p>Với khoản tiền là "+ amount+ " Vui lòng kiểm tra số tài khoản của bạn</p>"+
                 "<p>Chúng bạn có trải nghiệm tuyệt vời trên hệ thống của chúng tôi</p>"+
                 "<p>Mọi thắc mắc vui lòng liên hệ email cepasupport@gmail.com</p>"+
                 "</body></html>";
