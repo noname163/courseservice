@@ -137,11 +137,11 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
     Page<CourseReportInterface> getCourseReportsOrderByMonthAndYearForTeacher(
             @Param("teacherId") Long teacherId, Pageable pageable);
 
-    @Query("SELECT COALESCE(SUM(ti.money), 0) " +
+    @Query("SELECT COALESCE(SUM(ti.receivedMoney), 0) " +
             "FROM TeacherIncome ti " +
             "WHERE ti.userId = :userId " +
             "AND EXTRACT(YEAR FROM ti.paymentDate) = EXTRACT(YEAR FROM CURRENT_DATE) " +
-            "AND EXTRACT(MONTH FROM ti.paymentDate) = EXTRACT(MONTH FROM CURRENT_DATE)")
+            "AND EXTRACT(MONTH FROM ti.paymentDate) = EXTRACT(MONTH FROM CURRENT_DATE) ")
     Double getTotalIncomeByUserIdAndCurrentMonth(@Param("userId") Long userId);
 
 }
