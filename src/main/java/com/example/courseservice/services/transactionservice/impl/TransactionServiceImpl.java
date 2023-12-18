@@ -114,7 +114,7 @@ public class TransactionServiceImpl implements TransactionService {
         Course course = courseRepository.findById(paymentRequest.getCourseId())
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist course with id " + paymentRequest.getCourseId()));
-        if(course.getVideos().size()<0){
+        if (course.getVideos().size() < 0) {
             throw new BadRequestException("Cannot buy course without video");
         }
         String orderType = course.getName();
@@ -365,6 +365,8 @@ public class TransactionServiceImpl implements TransactionService {
         if (adminRefundAction.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
             transaction.setRefundEvidence(adminRefundAction.getTransactionCode());
             transaction.setStatus(TransactionStatus.REFUND_SUCCES);
+            teacherIncomeService.handleRefund(course, transaction.getPaymentDate().getMonthValue(),
+                    transaction.getPaymentDate().getYear(), transaction.getAmount());
             sendMailTemplate = SendMailTemplate.acceptedRefundEmail(transaction.getUserEmail(),
                     course.getName(),
                     adminRefundAction.getTransactionCode());
@@ -495,9 +497,9 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionByMonth> getTransactionByMonths() {
         List<TransactionByMonthInterface> transactions = transactionRepository.getTransactionsByMonth();
         List<TransactionByMonth> transactionByMonths = transactionMapper.mapTransactionByMonths(transactions);
-    
+
         Map<String, TransactionByMonth> result = new HashMap<>();
-        
+
         for (TransactionByMonth transaction : transactionByMonths) {
             if (result.containsKey(transaction.getMonthOfYear())) {
                 TransactionByMonth existingTransaction = result.get(transaction.getMonthOfYear());
@@ -506,7 +508,7 @@ public class TransactionServiceImpl implements TransactionService {
                 result.put(transaction.getMonthOfYear(), transaction);
             }
         }
-    
+
         return new ArrayList<>(result.values());
     }
 }

@@ -11,6 +11,7 @@ import com.example.courseservice.data.dto.response.CourseRevenueByMonth;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.TeacherIncomeForAdmin;
 import com.example.courseservice.data.dto.response.TeacherIncomeResponse;
+import com.example.courseservice.data.entities.Course;
 
 public interface TeacherIncomeService {
     public void createTeacherIncome(TeacherIncomeRequest teacherIncomeRequest);
@@ -26,5 +27,8 @@ public interface TeacherIncomeService {
         
     public PaginationResponse<List<TeacherIncomeForAdmin>> getTeacherIncomeForTeacher(TeacherIncomeStatus status,Integer page,
             Integer size, String field, SortType sortType);
+
     public void adminPaymentForTeacher(AdminPaymentTeacherRequest adminPaymentTeacherRequest);
+
+    public void handleRefund(Course course, Integer month, Integer year, Double amount);
 }

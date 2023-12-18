@@ -103,10 +103,11 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         Long userId = securityContextService.getCurrentUser().getId();
         List<CourseRevenueByMonthInterface> courseRevenueByMonthsInterfaces = teacherIncomeRepository
                 .getTeacherRevenueByMonth(userId);
-        List<CourseRevenueByMonth> courseRevenueByMonths = teacherIncomeMapper.mapToCourseRevenueByMonths(courseRevenueByMonthsInterfaces);
+        List<CourseRevenueByMonth> courseRevenueByMonths = teacherIncomeMapper
+                .mapToCourseRevenueByMonths(courseRevenueByMonthsInterfaces);
 
         Map<String, CourseRevenueByMonth> result = new HashMap<>();
-        
+
         for (CourseRevenueByMonth transaction : courseRevenueByMonths) {
             if (result.containsKey(transaction.getMonth())) {
                 CourseRevenueByMonth existingTransaction = result.get(transaction.getMonth());
@@ -162,7 +163,7 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
                 .orElseThrow(() -> new BadRequestException(
                         "Cannot found transaction with id " + adminPaymentTeacherRequest.getId()));
         Course course = teacherIncome.getCourse();
-        double amount = adminPaymentTeacherRequest.getAmount()*100;
+        double amount = adminPaymentTeacherRequest.getAmount() * 100;
         if (teacherIncome.getMoney() < amount) {
             throw new BadRequestException("Amount cannot bigger than income of teacher");
         }
@@ -201,11 +202,22 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
                         .date(LocalDateTime.now())
                         .build());
         sendEmailService.sendMailService(SendMailRequest
-                .builder().subject("Chuyển tiền thanh toán tháng " + teacherIncome.getMonth() +"/" + teacherIncome.getYear())
+                .builder()
+                .subject("Chuyển tiền thanh toán tháng " + teacherIncome.getMonth() + "/" + teacherIncome.getYear())
                 .mailTemplate(SendMailTemplate.paymentTeacherEmail(course.getTeacherName(), course.getName(),
                         adminPaymentTeacherRequest.getPaymentCode(),
                         String.valueOf(amount)))
                 .userEmail(course.getTeacherEmail()).build());
+    }
+
+    @Override
+    public void handleRefund(Course course, Integer month, Integer year, Double amount) {
+        TeacherIncome teacherIncome = teacherIncomeRepository.findByCourseAndMonthAndYear(course, month, year)
+                .orElseThrow(
+                        () -> new BadRequestException("Cannot found teacher income of course " + course.getName()));
+
+        teacherIncome.setMoney(teacherIncome.getMoney() - amount);
+        teacherIncomeRepository.save(teacherIncome);
     }
 
 }
