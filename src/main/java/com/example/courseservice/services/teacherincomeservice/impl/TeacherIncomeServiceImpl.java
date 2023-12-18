@@ -222,9 +222,9 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
         sendEmailService.sendMailService(SendMailRequest
                 .builder()
                 .subject("Thông báo hoàn tiền cho học sinh khóa học " + course.getName())
-                .mailTemplate(SendMailTemplate.notificationRefundEmailForTeacher(course.getName(), amount, remain))
+                .mailTemplate(SendMailTemplate.notificationRefundEmailForTeacher(course.getName(), String.valueOf(amount), String.valueOf(remain)))
                 .userEmail(course.getTeacherEmail()).build());
-                
+
         teacherIncomeRepository.save(teacherIncome);
     }
 
