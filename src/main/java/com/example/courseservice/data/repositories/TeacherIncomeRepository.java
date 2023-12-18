@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.courseservice.data.constants.TeacherIncomeStatus;
+import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.TeacherIncome;
 import com.example.courseservice.data.object.CourseReportInterface;
 import com.example.courseservice.data.object.CourseRevenueByMonthInterface;
@@ -145,5 +146,7 @@ public interface TeacherIncomeRepository extends JpaRepository<TeacherIncome, Lo
             "AND EXTRACT(YEAR FROM ti.paymentDate) = EXTRACT(YEAR FROM CURRENT_DATE) " +
             "AND EXTRACT(MONTH FROM ti.paymentDate) = EXTRACT(MONTH FROM CURRENT_DATE) ")
     Double getTotalIncomeByUserIdAndCurrentMonth(@Param("userId") Long userId);
+
+    Optional<TeacherIncome> findByCourseAndMonthAndYear(Course course, Integer month, Integer year);
 
 }
