@@ -216,7 +216,15 @@ public class TeacherIncomeServiceImpl implements TeacherIncomeService {
                 .orElseThrow(
                         () -> new BadRequestException("Cannot found teacher income of course " + course.getName()));
 
-        teacherIncome.setMoney(teacherIncome.getMoney() - amount);
+        Double remain = teacherIncome.getMoney() - amount;
+        teacherIncome.setMoney(remain);
+
+        sendEmailService.sendMailService(SendMailRequest
+                .builder()
+                .subject("Thông báo hoàn tiền cho học sinh khóa học " + course.getName())
+                .mailTemplate(SendMailTemplate.notificationRefundEmailForTeacher(course.getName(), amount, remain))
+                .userEmail(course.getTeacherEmail()).build());
+                
         teacherIncomeRepository.save(teacherIncome);
     }
 

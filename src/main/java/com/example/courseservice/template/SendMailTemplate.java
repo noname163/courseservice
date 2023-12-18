@@ -70,39 +70,52 @@ public class SendMailTemplate {
         return "<html><body>" +
                 "<p>Cảm ơn bạn, " + name + ", </p>" +
                 "<p>Chúng tôi đã nhận được yêu cầu hoàn tiền khóa học " + courseName + " của bạn</p>" +
-                "<p>Với mã giao dịch là "+transactionId+"</p>" +
-                "<p>Chúng tôi sẽ xử lý trong thời gian 1 tuần</p>"+
-                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>"+
+                "<p>Với mã giao dịch là " + transactionId + "</p>" +
+                "<p>Chúng tôi sẽ xử lý trong thời gian 1 tuần</p>" +
+                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>" +
                 "</body></html>";
     }
+
     public static String rejectRefundEmail(String name, String courseName, String transactionId, String reason) {
         return "<html><body>" +
                 "<p>Cảm ơn bạn, " + name + ", </p>" +
                 "<p>Chúng tôi đã nhận được yêu cầu hoàn tiền khóa học " + courseName + " của bạn</p>" +
-                "<p>Với mã giao dịch là "+transactionId+"</p>" +
-                "<p>Tuy nhiên yêu cầu của bạn không được chấp nhận với lý do: </p>"+
-                "<p>"+reason+"</p>"+
-                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>"+
+                "<p>Với mã giao dịch là " + transactionId + "</p>" +
+                "<p>Tuy nhiên yêu cầu của bạn không được chấp nhận với lý do: </p>" +
+                "<p>" + reason + "</p>" +
+                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>" +
                 "</body></html>";
     }
+
     public static String acceptedRefundEmail(String name, String courseName, String transactionId) {
         return "<html><body>" +
                 "<p>Cảm ơn bạn, " + name + ", </p>" +
                 "<p>Chúng tôi đã nhận được yêu cầu hoàn tiền khóa học " + courseName + " của bạn</p>" +
-                "<p>Với mã giao dịch là "+transactionId+"</p>" +
-                "<p>Chúng tôi đã hoàn lại tiền cho bạn. Vui lòng kiểm tra số tài khoản của bạn</p>"+
-                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>"+
+                "<p>Với mã giao dịch là " + transactionId + "</p>" +
+                "<p>Chúng tôi đã hoàn lại tiền cho bạn. Vui lòng kiểm tra số tài khoản của bạn</p>" +
+                "<p>Chúng bạn học tập hiệu quả với hệ thống của chúng tôi</p>" +
                 "</body></html>";
     }
+
     public static String paymentTeacherEmail(String name, String courseName, String transactionId, String amount) {
         return "<html><body>" +
                 "<p>Cảm ơn bạn, " + name + ", </p>" +
                 "<p>Chúng tôi đã gửi tiền khóa học " + courseName + " của bạn</p>" +
-                "<p>Với mã giao dịch là "+transactionId+"</p>" +
-                "<p>Với khoản tiền là "+ amount+ " Vui lòng kiểm tra số tài khoản của bạn</p>"+
-                "<p>Chúng bạn có trải nghiệm tuyệt vời trên hệ thống của chúng tôi</p>"+
-                "<p>Mọi thắc mắc vui lòng liên hệ email cepasupport@gmail.com</p>"+
+                "<p>Với mã giao dịch là " + transactionId + "</p>" +
+                "<p>Với khoản tiền là " + amount + " Vui lòng kiểm tra số tài khoản của bạn</p>" +
+                "<p>Chúng bạn có trải nghiệm tuyệt vời trên hệ thống của chúng tôi</p>" +
+                "<p>Mọi thắc mắc vui lòng liên hệ email cepasupport@gmail.com</p>" +
                 "</body></html>";
     }
 
+    public static String notificationRefundEmailForTeacher(String courseName, Double amount,
+            Double remain) {
+        return "<html><body>" +
+                "<p>Chúng tôi rất tiếc khi phải thông báo khóa học, " + courseName + ", </p>" +
+                "<p>Đã có học sinh yêu cầu hoàn tiền và đã được chấp nhận</p>" +
+                "<p>Chúng tôi đã hoàn lại tiền cho học sinh. Vì vậy thu nhập của bạn đã giảm " + amount + " VND</p>" +
+                "<p>Số tiền còn lại của bạn là " + remain + " VND</p>" +
+                "<p>Cảm ơn bạn đã đọc mail</p>" +
+                "</body></html>";
+    }
 }
