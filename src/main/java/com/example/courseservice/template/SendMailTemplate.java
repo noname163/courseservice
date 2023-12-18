@@ -108,8 +108,8 @@ public class SendMailTemplate {
                 "</body></html>";
     }
 
-    public static String notificationRefundEmailForTeacher(String courseName, Double amount,
-            Double remain) {
+    public static String notificationRefundEmailForTeacher(String courseName, String amount,
+            String remain) {
         return "<html><body>" +
                 "<p>Chúng tôi rất tiếc khi phải thông báo khóa học, " + courseName + ", </p>" +
                 "<p>Đã có học sinh yêu cầu hoàn tiền và đã được chấp nhận</p>" +
