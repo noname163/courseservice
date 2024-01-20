@@ -6,12 +6,14 @@ import com.example.courseservice.data.constants.VideoStatus;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 @Builder
 @Data
 public class VideoUpdateRequest {
-    @NotNull(message = "Course id is require")
-    private Long courseId;
+    @NotNull(message = "Video id is require")
+    @NonNull
+    private Long videoId;
     private String name;
     private String description;
     private VideoStatus videoStatus;

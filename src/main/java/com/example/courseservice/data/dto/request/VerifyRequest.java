@@ -1,7 +1,6 @@
 package com.example.courseservice.data.dto.request;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.example.courseservice.data.constants.VerifyStatus;
 

@@ -13,6 +13,8 @@ import com.example.courseservice.data.entities.ReactVideo;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.ReactVideoRepository;
+import com.example.courseservice.data.repositories.VideoRepository;
+import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
@@ -28,13 +30,15 @@ public class ReactVideoServiceImpl implements ReactVideoService {
     @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
-    private VideoService videoService;
+    private VideoRepository videoRepository;
 
     @Override
     public void createReact(ReactRequest reactRequest) {
 
         UserInformation currentUser = securityContextService.getCurrentUser();
-        Video video = videoService.getVideoByIdAndCommonStatus(reactRequest.getVideoId(), CommonStatus.AVAILABLE);
+        Video video = videoRepository
+                .findByIdAndStatusOrderByOrdinalNumberAsc(reactRequest.getVideoId(), CommonStatus.AVAILABLE)
+                .orElseThrow(() -> new BadRequestException("Not exist video with id " + reactRequest.getVideoId()));
 
         if (studentEnrollCourseService.isStudentEnrolled(currentUser.getEmail(), video.getCourse().getId())) {
             Optional<ReactVideo> reactVideoOtp = reactVideoRepository

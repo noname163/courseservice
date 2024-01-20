@@ -3,6 +3,7 @@ package com.example.courseservice.services.courseservice.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,14 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
-import com.example.courseservice.data.constants.VerifyStatus;
 import com.example.courseservice.data.dto.request.CourseRequest;
+import com.example.courseservice.data.dto.request.CourseUpdateRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
-import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
@@ -31,29 +31,24 @@ import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
-import com.example.courseservice.data.repositories.CourseTemporaryRepository;
 import com.example.courseservice.data.repositories.StudentVideoProgressRepository;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.exceptions.EmptyException;
 import com.example.courseservice.mappers.CourseMapper;
-import com.example.courseservice.mappers.CourseTemporaryMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 import com.example.courseservice.services.courseservice.CourseService;
-import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
-import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.levelservice.LevelService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.studentprogressservice.StudentProgressService;
-import com.example.courseservice.services.uploadservice.UploadService;
+import com.example.courseservice.services.uploadservice.CloudinaryService;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
 public class CourseServiceImpl implements CourseService {
     @Autowired
-    private UploadService uploadService;
-    @Autowired
-    private FileService fileService;
+    private CloudinaryService uploadService;
     @Autowired
     private CourseMapper courseMapper;
     @Autowired
@@ -62,8 +57,6 @@ public class CourseServiceImpl implements CourseService {
     private PageableUtil pageableUtil;
     @Autowired
     private CourseTopicService courseTopicService;
-    @Autowired
-    private CourseTmpService courseTmpService;
     @Autowired
     private LevelService levelService;
     @Autowired
@@ -77,22 +70,18 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     @Lazy
     private StudentProgressService studentProgressService;
-    @Autowired
-    private CourseTemporaryRepository courseTemporaryRepository;
-    @Autowired
-    private CourseTemporaryMapper courseTemporaryMapper;
 
     private final Double MAXRATE = 5d;
 
     @Override
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {
         Level level = levelService.getLevel(courseRequest.getLevelId());
-        FileResponse fileResponse = fileService.fileStorage(thumbnail);
-        CloudinaryUrl thumbinial = uploadService.uploadMedia(fileResponse);
+        CloudinaryUrl thumbinial = uploadService.uploadMedia(thumbnail);
         Course course = courseMapper.mapDtoToEntity(courseRequest);
         course.setThumbnial(thumbinial.getUrl());
         course.setLevel(level);
         course.setCommonStatus(CommonStatus.WAITING);
+        course.setCloudinaryId(thumbinial.getPublicId());
         course.setCourseTopics(courseTopicService.courseTopicsByString(courseRequest.getTopic()));
         courseRepository.save(course);
     }
@@ -270,13 +259,34 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Long verifyCourse(VerifyRequest verifyRequest) {
-        if (verifyRequest.getVerifyStatus().equals(VerifyStatus.ACCEPTED)) {
-            return courseTmpService.insertCourseTmpToReal(verifyRequest);
-        } else {
-            courseTmpService.rejectCourse(verifyRequest);
-            return 0l;
+        Course updateCourse = courseRepository.findByIdAndCommonStatus(verifyRequest.getId(), CommonStatus.WAITING)
+                .orElseThrow(() -> new BadRequestException("Cannot find course with status waiting"));
+    
+        Course existingCourse = updateCourse.getCourseId();
+    
+        if (existingCourse == null) {
+            throw new BadRequestException("Cannot find course for update");
         }
+    
+        if (!updateCourse.getCloudinaryId().isBlank()) {
+            existingCourse.setCloudinaryId(updateCourse.getCloudinaryId());
+            existingCourse.setThumbnial(updateCourse.getThumbnial());
+        }
+        if (!updateCourse.getName().isBlank()) {
+            existingCourse.setName(updateCourse.getName());
+        }
+        if (!updateCourse.getDescription().isBlank()) {
+            existingCourse.setDescription(updateCourse.getDescription());
+        }
+        if (updateCourse.getPrice() != 0) {
+            existingCourse.setPrice(updateCourse.getPrice());
+        }
+        courseRepository.save(existingCourse);
+        courseRepository.delete(updateCourse);
+    
+        return existingCourse.getId(); 
     }
+    
 
     @Override
     public Course getCourseByIdAndEmail(Long id, String email) {
@@ -370,36 +380,17 @@ public class CourseServiceImpl implements CourseService {
             SortType sortType) {
 
         String email = securityContextService.getCurrentUser().getEmail();
-        Pageable pageableStart = pageableUtil.getPageable(page, size, field, sortType);
+        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        // Fetch data from both repositories
-        Page<CourseResponseInterface> courseTmpResponseInterface = courseTemporaryRepository
-                .getByEmailAndStatusNot(email, CommonStatus.DELETED, pageableStart);
-        int remainSize = size - courseTmpResponseInterface.getContent().size();
-        if (remainSize == 0) {
-            return PaginationResponse.<List<CourseResponse>>builder()
-                    .data(courseTemporaryMapper.mapInterfacesToDtos(courseTmpResponseInterface.getContent()))
-                    .totalPage(courseTmpResponseInterface.getTotalPages())
-                    .totalRow(courseTmpResponseInterface.getTotalElements())
-                    .build();
-        }
-        Pageable pageableEnd = pageableUtil.getPageable(page, remainSize, field, sortType);
         Page<CourseResponseInterface> courseResponseInterface = courseRepository.getCourseByEmail(email,
-                pageableEnd);
+                pageable);
 
-        // Map data to DTOs
         List<CourseResponse> courseResponse = courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent());
-        List<CourseResponse> courseTemporaryResponse = courseTemporaryMapper
-                .mapInterfacesToDtos(courseTmpResponseInterface.getContent());
-
-        // Concatenate the two lists
-        List<CourseResponse> result = new ArrayList<>(courseTemporaryResponse);
-        result.addAll(courseResponse);
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(result)
-                .totalPage(courseTmpResponseInterface.getTotalPages() + courseResponseInterface.getTotalPages())
-                .totalRow(courseResponseInterface.getTotalElements() + courseTmpResponseInterface.getTotalElements())
+                .data(courseResponse)
+                .totalPage(courseResponseInterface.getTotalPages())
+                .totalRow(courseResponseInterface.getTotalElements())
                 .build();
     }
 
@@ -449,7 +440,8 @@ public class CourseServiceImpl implements CourseService {
             Integer page, Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCoursesForAdmin(searchTerm, commonStatus.toString(), pageable);
+        Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCoursesForAdmin(searchTerm,
+                commonStatus.toString(), pageable);
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()))
@@ -457,6 +449,49 @@ public class CourseServiceImpl implements CourseService {
                 .totalRow(courseResponseInterface.getTotalElements())
                 .build();
 
+    }
+
+    @Override
+    public void updateCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thumbinail) {
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        Course course = courseRepository
+                .findCourseByTeacherEmailAndId(currentUser.getEmail(), courseUpdateRequest.getCourseId())
+                .orElseThrow(() -> new BadRequestException("Owner permission to edit content"));
+
+        Course courseUpdate = new Course();
+        if (thumbinail != null) {
+            CloudinaryUrl cloudinaryUrl = uploadService.uploadMedia(thumbinail);
+            courseUpdate.setThumbnial(cloudinaryUrl.getUrl());
+            courseUpdate.setCloudinaryId(cloudinaryUrl.getPublicId());
+        }
+        if (courseUpdateRequest.getLevelId() != null) {
+            Level level = levelService.getLevel(courseUpdateRequest.getLevelId());
+            courseUpdate.setLevel(level);
+        }
+
+        courseUpdate.setCourseId(course);
+        courseUpdate.setName(Optional.ofNullable(courseUpdateRequest.getName()).orElse(""));
+        courseUpdate.setDescription(Optional.ofNullable(courseUpdateRequest.getDescription()).orElse(""));
+        courseUpdate.setPrice(Optional.ofNullable(courseUpdateRequest.getPrice()).orElse(0.0));
+        courseUpdate.setCommonStatus(CommonStatus.UPDATING);
+
+        courseRepository.save(courseUpdate);
+    }
+
+    @Override
+    public void requestVerifyCourse(List<Long> ids) {
+        Set<Long> setIds = ids.stream().distinct().collect(Collectors.toSet());
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        List<Course> courses = courseRepository.findByIdInAndCommonStatusAndTeacherId(setIds, CommonStatus.DRAFT,
+                currentUser.getId());
+        if (courses == null || courses.isEmpty()) {
+            throw new EmptyException("Cannot found any course with id provide");
+        }
+        for (Course course : courses) {
+            course.setCommonStatus(CommonStatus.WAITING);
+        }
+
+        courseRepository.saveAll(courses);
     }
 
 }

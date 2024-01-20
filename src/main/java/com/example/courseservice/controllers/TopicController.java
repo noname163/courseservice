@@ -41,31 +41,31 @@ public class TopicController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "Add topic for temporary course")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Add successfull."),
-            @ApiResponse(responseCode = "400", description = "Invalid information", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @PostMapping("/add-topic-waiting-course")
-    public ResponseEntity<Void> addTopicForTmpCourse(@RequestBody @Valid TopicEditRequest topicEditRequest){
-        courseTopicService.addTopicByCourseTmpId(topicEditRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    // @Operation(summary = "Add topic for temporary course")
+    // @ApiResponses(value = {
+    //         @ApiResponse(responseCode = "200", description = "Add successfull."),
+    //         @ApiResponse(responseCode = "400", description = "Invalid information", content = {
+    //                 @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    // })
+    // @PreAuthorize("hasAuthority('TEACHER')")
+    // @PostMapping("/add-topic-waiting-course")
+    // public ResponseEntity<Void> addTopicForTmpCourse(@RequestBody @Valid TopicEditRequest topicEditRequest){
+    //     courseTopicService.addTopicByCourseTmpId(topicEditRequest);
+    //     return ResponseEntity.status(HttpStatus.CREATED).build();
+    // }
 
-    @Operation(summary = "Remove topic for temporary course")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Add successfull."),
-            @ApiResponse(responseCode = "400", description = "Invalid information", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @DeleteMapping("/remove-topic-waiting-course")
-    public ResponseEntity<Void> removeTopicForTmpCourse(@RequestBody @Valid TopicEditRequest topicEditRequest){
-        courseTopicService.removeTopicByCourseTmpId(topicEditRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    // @Operation(summary = "Remove topic for temporary course")
+    // @ApiResponses(value = {
+    //         @ApiResponse(responseCode = "200", description = "Add successfull."),
+    //         @ApiResponse(responseCode = "400", description = "Invalid information", content = {
+    //                 @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
+    // })
+    // @PreAuthorize("hasAuthority('TEACHER')")
+    // @DeleteMapping("/remove-topic-waiting-course")
+    // public ResponseEntity<Void> removeTopicForTmpCourse(@RequestBody @Valid TopicEditRequest topicEditRequest){
+    //     courseTopicService.removeTopicByCourseTmpId(topicEditRequest);
+    //     return ResponseEntity.status(HttpStatus.CREATED).build();
+    // }
 
     @Operation(summary = "Remove topic for course")
     @ApiResponses(value = {

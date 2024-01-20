@@ -10,8 +10,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -57,6 +59,8 @@ public class Video {
 
     private LocalDateTime updateTime;
 
+    private String cloudinaryId;
+
     @Enumerated(EnumType.STRING)
     private CommonStatus status;
 
@@ -72,9 +76,6 @@ public class Video {
     private List<ReactVideo> reactVideos;
 
     @OneToMany(mappedBy = "video")
-    private List<VideoTemporary> videoTemporaries;
-
-    @OneToMany(mappedBy = "video")
     private List<StudentNote> studentNotes;
 
     @OneToMany(mappedBy = "video")
@@ -86,6 +87,9 @@ public class Video {
     @OneToMany(mappedBy = "video")
     private List<Material> materials;
 
+    @OneToOne()
+    @JoinColumn(name = "video_id")
+    private Video videoId;
 
     @OneToMany(mappedBy = "video")
     private List<StudentVideoProgress> studentVideoProgressList;
