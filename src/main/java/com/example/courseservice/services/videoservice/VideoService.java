@@ -6,23 +6,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
-import com.example.courseservice.data.dto.request.VerifyRequest;
-import com.example.courseservice.data.dto.request.VideoContentUpdate;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
+import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
-import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.VideoUpdate;
 
 public interface VideoService {
-    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial,
-            MultipartFile material);
+    public Video saveVideoInformation(VideoRequest videoRequest);
+
+    public void saveVideoFile(Video video,CloudinaryUrl videoFile, CloudinaryUrl material, CloudinaryUrl thumbnail);
+
+    public Video updateVideo(VideoUpdateRequest videoUpdateRequest); 
 
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
@@ -50,14 +51,9 @@ public interface VideoService {
 
     public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId);
 
-    public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,
-            MultipartFile thumbnail);
-
     public void deleteVideo(Long videoId);
 
     public List<CourseVideoResponse> getVideoByCourseIdAndCommonStatus(Long courseId, CommonStatus commonStatus);
-
-    public void editVideoContent(VideoContentUpdate videoUpdateRequest);
 
     public PaginationResponse<List<VideoAdminResponse>> getVideoByCourseId(Long courseId, Integer page,
             Integer size, String field, SortType sortType);

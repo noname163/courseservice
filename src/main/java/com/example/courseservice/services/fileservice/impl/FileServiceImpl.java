@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.courseservice.data.dto.response.FileConvertResponse;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.fileservice.FileService;
@@ -24,6 +25,7 @@ public class FileServiceImpl implements FileService {
             byte[] fileData;
             try {
                 fileData = file.getBytes();
+                System.out.println("Conten type "+ file.getContentType());
                 return FileResponse
                         .builder()
                         .contentType(file.getContentType())
@@ -37,6 +39,22 @@ public class FileServiceImpl implements FileService {
 
         }
         return null;
+    }
+
+    @Override
+    public FileConvertResponse convertFileToFileResponse(MultipartFile videoFile, MultipartFile thumbinal,
+            MultipartFile material) {
+                FileConvertResponse fileResponse = FileConvertResponse.builder().build();
+                if(videoFile!=null){
+                    fileResponse.setVideo(fileStorage(videoFile));
+                }
+                if(thumbinal!=null){
+                    fileResponse.setThumbnail(fileStorage(thumbinal));
+                }
+                if(material!=null){
+                    fileResponse.setMaterial(fileStorage(material));
+                }
+                return fileResponse;
     }
 
 }

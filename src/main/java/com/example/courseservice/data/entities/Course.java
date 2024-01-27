@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -23,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Entity
 @Table(name = "Course")
@@ -48,6 +50,8 @@ public class Course {
 
     private String thumbnial;
 
+    private String cloudinaryId;
+
     private Long subjectId;
 
     private String subject;
@@ -55,14 +59,20 @@ public class Course {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private LocalDateTime createdDate;
+    @Default
+    private LocalDateTime createdDate = LocalDateTime.now();
 
-    private LocalDateTime updateTime;
+    @Default
+    private LocalDateTime updateTime= LocalDateTime.now();
 
     private Double price;
 
     @Enumerated(EnumType.STRING)
     private CommonStatus commonStatus;
+
+    @OneToOne()
+    @JoinColumn(name = "course_id")
+    private Course courseId;
 
     @ManyToOne()
     @JoinColumn(name = "level_id")
@@ -79,12 +89,6 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<Transaction> transactions;
-
-    @OneToMany(mappedBy = "course")
-    private List<CourseTemporary> courseTemporaries;
-
-    @OneToMany(mappedBy = "course")
-    private List<VideoTemporary> videoTemporaries;
     
     @OneToMany(mappedBy = "course")
     private List<Video> videos;
