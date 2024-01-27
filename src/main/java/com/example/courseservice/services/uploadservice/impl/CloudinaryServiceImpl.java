@@ -13,13 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.VideoUrls;
 import com.example.courseservice.data.object.MediaType;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.MediaUploadException;
-import com.example.courseservice.services.uploadservice.UploadService;
+import com.example.courseservice.services.uploadservice.CloudinaryService;
 import com.example.courseservice.utils.EnvironmentVariable;
 import com.example.courseservice.utils.StringUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,7 +30,7 @@ import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
-public class UploadServiceImpl implements UploadService {
+public class CloudinaryServiceImpl implements CloudinaryService {
     @Autowired
     private Cloudinary cloudinary;
     @Autowired
@@ -156,7 +157,6 @@ public class UploadServiceImpl implements UploadService {
             log.info("Start uploading file: {}", file.getFileName());
             // Perform the upload
             var uploadResult = cloudinary.uploader().upload(file.getFileStorage(), options);
-
             // Extract information from the upload result
             String publicId = uploadResult.get("public_id").toString();
             String url = uploadResult.get("secure_url").toString();
@@ -215,6 +215,20 @@ public class UploadServiceImpl implements UploadService {
                     .build();
         } catch (IOException e) {
             throw new MediaUploadException("Failed to upload media", e);
+        }
+    }
+
+    @Override
+    public void deleteMedia(String publicId) {
+        try {
+            Map<String, String> result = cloudinary.api().deleteResources(List.of(publicId),ObjectUtils.emptyMap());
+            log.info("Remove file with id " + publicId +" success");
+            for (String value : result.values()) {
+                log.info(value);
+            }
+        } catch (Exception e) {
+            log.error("Remove file with public id " + publicId + " fail");
+            log.error("Reason " + e.getMessage());
         }
     }
 }

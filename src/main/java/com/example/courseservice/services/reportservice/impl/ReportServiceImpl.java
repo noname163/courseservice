@@ -36,7 +36,7 @@ import com.example.courseservice.services.authenticationservice.SecurityContextS
 import com.example.courseservice.services.notificationservice.NotificationService;
 import com.example.courseservice.services.reportservice.ReportService;
 import com.example.courseservice.services.sendmailservice.SendEmailService;
-import com.example.courseservice.services.uploadservice.UploadService;
+import com.example.courseservice.services.uploadservice.CloudinaryService;
 import com.example.courseservice.template.SendMailTemplate;
 import com.example.courseservice.utils.PageableUtil;
 
@@ -50,7 +50,7 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private SecurityContextService securityContextService;
     @Autowired
-    private UploadService uploadService;
+    private CloudinaryService uploadService;
     @Autowired
     private NotificationService notificationService;
     @Autowired

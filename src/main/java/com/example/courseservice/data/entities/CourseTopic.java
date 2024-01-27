@@ -19,7 +19,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "Course_Topic",uniqueConstraints = @UniqueConstraint(columnNames = {"topic_name", "course_temporary_id"}))
+@Table(name = "Course_Topic",uniqueConstraints = @UniqueConstraint(columnNames = {"topic_name", "course_id"}))
 @Data
 @Builder
 @NoArgsConstructor
@@ -42,8 +42,4 @@ public class CourseTopic {
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
-
-    @ManyToOne
-    @JoinColumn(name = "course_temporary_id",unique = true)
-    private CourseTemporary courseTemporary;
 }

@@ -1,6 +1,5 @@
 package com.example.courseservice.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -24,7 +23,6 @@ import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
-import com.example.courseservice.data.dto.request.CourseTemporaryUpdateRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
 import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
@@ -32,7 +30,6 @@ import com.example.courseservice.data.dto.response.CourseResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.services.courseservice.CourseService;
-import com.example.courseservice.services.coursetmpservice.CourseTmpService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,8 +43,6 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
-    @Autowired
-    private CourseTmpService courseTmpService;
 
     @Operation(summary = "Update courses")
     @ApiResponses(value = {
@@ -59,7 +54,7 @@ public class CourseController {
     @PutMapping("/teacher/update")
     public ResponseEntity<Void> updateCourse(@Valid @RequestPart CourseUpdateRequest courseRequest,
             @RequestPart(required = false) MultipartFile thumbnail) {
-        courseTmpService.updateRealCourse(courseRequest, thumbnail);
+        courseService.updateCourse(courseRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -73,7 +68,7 @@ public class CourseController {
     @PostMapping("/teacher/create")
     public ResponseEntity<Void> createCourse(@Valid @RequestPart CourseRequest courseRequest,
             @RequestPart() MultipartFile thumbnail) {
-        courseTmpService.createCourse(courseRequest, thumbnail);
+        courseService.createCourse(courseRequest, thumbnail);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -129,73 +124,6 @@ public class CourseController {
                 .status(HttpStatus.OK)
                 .body(courseService.getListCourseForAdmin(searchTerm, commonStatus, page, size, field,
                         sortType));
-    }
-
-    @Operation(summary = "Get courses verify for admin")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/admin/verify-list")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesTemporaryForAdmin(
-            @RequestParam(required = false, defaultValue = "") String searchTerm,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpAndStatusNot(searchTerm, CommonStatus.WAITING, page, size, field,
-                        sortType));
-    }
-
-    @Operation(summary = "Filter course temporary for admin and teacher")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAnyAuthority('ADMIN','TEACHER')")
-    @GetMapping("/teacher/course-temporary/filter")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> filterCoursesTemporaryForAdminAndTeacher(
-            @RequestParam(required = true) CommonStatus status,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseTmpService.filterCourseTmpStatus(status, page, size, field,
-                        sortType));
-    }
-
-    @Operation(summary = "Get courses waiting for teacher")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @GetMapping("/teacher/waiting-list")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesTemporaryForTeacher(
-            @RequestParam(required = false, defaultValue = "") String searchTerm,
-            @RequestParam(required = false, defaultValue = "ALL") CommonStatus status,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseTmpByEmailAndStatusNot(searchTerm, status, page, size,
-                        field, sortType));
     }
 
     @Operation(summary = "Get all courses for teacher")
@@ -297,22 +225,6 @@ public class CourseController {
                 .build();
     }
 
-    @Operation(summary = "Delete draft courses for teacher")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Delete draft course successfully."),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @DeleteMapping("/teacher/draft")
-    public ResponseEntity<Void> deleteDraftCourseForTeacher(
-            @RequestParam(required = true) Long courseId) {
-        courseTmpService.deleteDraftCourse(courseId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .build();
-    }
-
     @Operation(summary = "Filter courses for student")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
@@ -352,23 +264,6 @@ public class CourseController {
                 .body(courseService.getCourseDetail(id, CommonStatus.AVAILABLE));
     }
 
-    @Operation(summary = "Get draft courses detail")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get draft course detail successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = CourseDetailResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAnyAuthority('TEACHER','ADMIN')")
-    @GetMapping("/admin/detail/draft")
-    public ResponseEntity<CourseDetailResponse> getCoursesDraftDetail(
-            @RequestParam(required = true, defaultValue = "0") Long id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseTmpService.getCourseDetail(id));
-    }
-
     @Operation(summary = "Get courses detail for admin and teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course detail successfully.", content = {
@@ -395,45 +290,8 @@ public class CourseController {
     @PreAuthorize("hasAuthority('TEACHER')")
     @PutMapping("/teacher/send-verify-request")
     public ResponseEntity<Void> requestVerifyCourses(@RequestBody @Valid List<Long> ids) {
-        courseTmpService.requestVerifyCourses(ids);
+        courseService.requestVerifyCourse(ids);
         return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @Operation(summary = "Teacher request admin verify courses")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Send request successfully."),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @PutMapping("/teacher/edit-waiting-course")
-    public ResponseEntity<Void> editCoursesTemporary(
-            @RequestPart @Valid CourseTemporaryUpdateRequest courseTemporaryUpdateRequest,
-            @RequestPart(required = false) MultipartFile thumbnail) {
-        courseTmpService.editTmpCourse(courseTemporaryUpdateRequest, thumbnail);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @Operation(summary = "Search temporary courses for teacher")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @GetMapping("/teacher/search/temporary-course")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> searchTemporaryCourse(
-            @RequestParam(required = false) String searchTerm,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseTmpService.searchTemporaryCourseForTeacher(searchTerm, page, size, field,
-                        sortType));
     }
 
     @Operation(summary = "Filter course for user ")

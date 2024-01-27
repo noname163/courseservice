@@ -11,40 +11,34 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.constants.VideoStatus;
-import com.example.courseservice.data.dto.request.VideoContentUpdate;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
+import com.example.courseservice.data.dto.request.VideoUpdateRequest;
+import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
-import com.example.courseservice.data.dto.response.FileResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
-import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoAdminResponseInterface;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.data.repositories.CourseRepository;
-import com.example.courseservice.data.repositories.CourseTemporaryRepository;
 import com.example.courseservice.data.repositories.StudentVideoProgressRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
-import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.reactvideoservice.ReactVideoService;
 import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
 import com.example.courseservice.services.videoservice.VideoService;
@@ -52,32 +46,32 @@ import com.example.courseservice.utils.PageableUtil;
 
 @Service
 public class VideoServiceImpl implements VideoService {
-    @Autowired
     private VideoRepository videoRepository;
-    @Autowired
     private CourseRepository courseRepository;
-    @Autowired
-    @Lazy
-    private CourseTemporaryRepository courseTemporaryRepository;
-    @Autowired
     private VideoMapper videoMapper;
-    @Autowired
     private PageableUtil pageableUtil;
-    @Autowired
-    private FileService fileService;
-    @Autowired
     private SecurityContextService securityContextService;
-    @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
-    @Autowired
     private StudentVideoProgressRepository studentVideoProgressRepository;
-    @Autowired
     private ReactVideoService reactVideoService;
+
+    public VideoServiceImpl(VideoRepository videoRepository, CourseRepository courseRepository, VideoMapper videoMapper,
+            PageableUtil pageableUtil,  SecurityContextService securityContextService,
+            StudentEnrollCourseService studentEnrollCourseService,
+            StudentVideoProgressRepository studentVideoProgressRepository, ReactVideoService reactVideoService) {
+        this.videoRepository = videoRepository;
+        this.courseRepository = courseRepository;
+        this.videoMapper = videoMapper;
+        this.pageableUtil = pageableUtil;
+        this.securityContextService = securityContextService;
+        this.studentEnrollCourseService = studentEnrollCourseService;
+        this.studentVideoProgressRepository = studentVideoProgressRepository;
+        this.reactVideoService = reactVideoService;
+    }
 
     @Override
     @Transactional
-    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial,
-            MultipartFile material) {
+    public Video saveVideoInformation(VideoRequest videoRequest) {
         Course course = courseRepository
                 .findByIdAndCommonStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + videoRequest.getCourseId()));
@@ -89,20 +83,26 @@ public class VideoServiceImpl implements VideoService {
         videoConvert.setStatus(CommonStatus.UNAVAILABLE);
         videoConvert.setCourse(course);
         videoConvert.setOrdinalNumber(ordinalNumber);
-        Video videoInsert = videoRepository.save(videoConvert);
-        FileResponse videoFile = fileService.fileStorage(video);
-        FileResponse thumbnialFile = fileService.fileStorage(thumbnial);
-        VideoResponse videoResponse = VideoResponse
-                .builder()
-                .videoId(videoInsert.getId())
-                .video(videoFile)
-                .thumbnail(thumbnialFile)
-                .build();
-        if (material != null) {
-            FileResponse materialFile = fileService.fileStorage(material);
-            videoResponse.setMaterial(materialFile);
+        return videoRepository.save(videoConvert);
+    }
+
+    @Override
+    public void saveVideoFile(Video video, CloudinaryUrl videoFile, CloudinaryUrl material, CloudinaryUrl thumbnail) {
+        if (video == null) {
+            throw new NullPointerException("Video cannot null");
         }
-        return videoResponse;
+        if (videoFile != null) {
+            video.setCloudinaryId(videoFile.getPublicId());
+            video.setDuration(videoFile.getDuration());
+            video.setUrlVideo(videoFile.getUrl());
+        }
+        if (material != null) {
+            video.setUrlMaterial(material.getUrl());
+        }
+        if (thumbnail != null) {
+            video.setUrlThumbnail(thumbnail.getUrl());
+        }
+        videoRepository.save(video);
     }
 
     @Override
@@ -193,7 +193,8 @@ public class VideoServiceImpl implements VideoService {
     public PaginationResponse<List<VideoAdminResponse>> getVideoForAdmin(CommonStatus commonStatus, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Page<VideoAdminResponseInterface> videos = videoRepository.findAllVideosAdminResponse(commonStatus.toString(), pageable);
+        Page<VideoAdminResponseInterface> videos = videoRepository.findAllVideosAdminResponse(commonStatus.toString(),
+                pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
                 .data(videoMapper.mapToVideoAdminResponseList(videos.getContent()))
                 .totalPage(videos.getTotalPages())
@@ -208,7 +209,8 @@ public class VideoServiceImpl implements VideoService {
         Long teacherId = securityContextService.getCurrentUser().getId();
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<VideoAdminResponseInterface> videos = videoRepository.findAllVideosByTeacherId(teacherId, commonStatus.toString(),
+        Page<VideoAdminResponseInterface> videos = videoRepository.findAllVideosByTeacherId(teacherId,
+                commonStatus.toString(),
                 pageable);
         return PaginationResponse.<List<VideoAdminResponse>>builder()
                 .data(videoMapper.mapToVideoAdminResponseList(videos.getContent()))
@@ -286,38 +288,6 @@ public class VideoServiceImpl implements VideoService {
                     "Cannot found video with id " + videoId + " in function getVideoByIdAndCommonStatusNot");
         }
         return video.get();
-    }
-
-    @Override
-    @Transactional
-    public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,
-            MultipartFile thumbnail) {
-        UserInformation currentUser = securityContextService.getCurrentUser();
-
-        Course course = courseRepository
-                .findByIdAndCommonStatusNot(videoRequest.getCourseId(), CommonStatus.DELETED)
-                .orElseThrow(() -> new BadRequestException("Not exist course with id "
-                        + videoRequest.getCourseId() + " in function uploadVideoByCourse"));
-
-        if (!course.getTeacherEmail().equals(currentUser.getEmail())) {
-            throw new InValidAuthorizationException("Cannot edit this video");
-        }
-        Video videoConvert = videoMapper.mapDtoToEntity(videoRequest);
-        videoConvert.setStatus(CommonStatus.WAITING);
-        videoConvert.setCourse(course);
-        Video videoInsert = videoRepository.save(videoConvert);
-        FileResponse videoFile = fileService.fileStorage(video);
-        FileResponse thumbnialFile = fileService.fileStorage(thumbnail);
-
-        course.setCommonStatus(CommonStatus.UPDATING);
-        courseRepository.save(course);
-
-        return VideoResponse
-                .builder()
-                .videoId(videoInsert.getId())
-                .video(videoFile)
-                .thumbnail(thumbnialFile)
-                .build();
     }
 
     private boolean isVideoAccessible(Video video) {
@@ -424,24 +394,31 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public void editVideoContent(VideoContentUpdate videoUpdateRequest) {
-
+    public Video updateVideo(VideoUpdateRequest videoUpdateRequest) {
         UserInformation currentUser = securityContextService.getCurrentUser();
         Video video = videoRepository
                 .findById(videoUpdateRequest.getVideoId())
                 .orElseThrow(() -> new BadRequestException(
                         "Not exist video with id " + videoUpdateRequest.getVideoId() + " in function delete video"));
-
+        Course course = video.getCourse();
+        int ordinalNumber = videoRepository.findMaxOrdinalNumberByCourse(course);
         if (Boolean.FALSE.equals(
                 courseRepository.existsByTeacherEmailAndId(currentUser.getEmail(), video.getCourse().getId()))) {
             throw new InValidAuthorizationException("Cannot edit this video");
         }
 
-        video.setName(Optional.ofNullable(videoUpdateRequest.getName()).orElse(video.getName()));
-        video.setDescription(Optional.ofNullable(videoUpdateRequest.getDescription()).orElse(video.getDescription()));
-        video.setVideoStatus(Optional.ofNullable(videoUpdateRequest.getVideoStatus()).orElse(video.getVideoStatus()));
-        video.setUpdateTime(LocalDateTime.now());
-        videoRepository.save(video);
+        Video updateVideo = videoRepository.findByVideoId(video).orElse(new Video());
+        updateVideo.setName(Optional.ofNullable(videoUpdateRequest.getName()).orElse(video.getName()));
+        updateVideo.setDescription(
+                Optional.ofNullable(videoUpdateRequest.getDescription()).orElse(video.getDescription()));
+        updateVideo.setVideoStatus(
+                Optional.ofNullable(videoUpdateRequest.getVideoStatus()).orElse(video.getVideoStatus()));
+        updateVideo.setUpdateTime(LocalDateTime.now());
+        updateVideo.setStatus(CommonStatus.UPDATING);
+        updateVideo.setVideoId(video);
+        updateVideo.setCourse(course);
+        updateVideo.setOrdinalNumber(++ordinalNumber);
+        return videoRepository.save(updateVideo);
     }
 
     @Override

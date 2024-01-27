@@ -18,6 +18,7 @@ import com.example.courseservice.data.entities.Comment;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CommentRepository;
+import com.example.courseservice.data.repositories.CourseRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.CommentMapper;
@@ -33,7 +34,7 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
-    private CourseService courseService;
+    private CourseRepository courseRepository;
     @Autowired
     private StudentEnrollCourseService studentEnrollCourseService;
     @Autowired
@@ -51,7 +52,7 @@ public class CommentServiceImpl implements CommentService {
         String email = currentUser.getEmail();
         Video video = videoService.getVideoByIdAndCommonStatus(commentRequest.getVideoId(), CommonStatus.AVAILABLE);
         long courseId = video.getCourse().getId();
-        if (courseService.isCourseBelongTo(email, courseId)
+        if (Boolean.TRUE.equals(courseRepository.existsByTeacherEmailAndId(email, courseId))
                 || studentEnrollCourseService.isStudentEnrolled(email, courseId)) {
             Comment comment = Comment.builder()
                     .createdDate(LocalDateTime.now())
