@@ -47,6 +47,8 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     Optional<Video> findByIdAndStatusOrderByOrdinalNumberAsc(Long id, CommonStatus status);
 
+    Optional<Video> findByVideoId(Video videoId);
+
     Optional<Video> findByIdAndStatusNotOrderByOrdinalNumberAsc(Long id, CommonStatus status);
 
     @Query("SELECT MAX(v.ordinalNumber) FROM Video v WHERE v.course = :course")

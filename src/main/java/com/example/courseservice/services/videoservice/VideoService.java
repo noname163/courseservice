@@ -9,20 +9,21 @@ import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
+import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
 import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
-import com.example.courseservice.data.dto.response.VideoResponse;
 import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.VideoUpdate;
 
 public interface VideoService {
-    public VideoResponse saveVideo(VideoRequest videoRequest, MultipartFile video, MultipartFile thumbnial,
-            MultipartFile material);
+    public Video saveVideoInformation(VideoRequest videoRequest);
 
-    public void updateVideo(VideoUpdateRequest videoUpdateRequest, MultipartFile video, MultipartFile thumbinal, MultipartFile material); 
+    public void saveVideoFile(Video video,CloudinaryUrl videoFile, CloudinaryUrl material, CloudinaryUrl thumbnail);
+
+    public Video updateVideo(VideoUpdateRequest videoUpdateRequest); 
 
     public void insertVideoUrl(VideoUpdate videoUpdate);
 
@@ -49,9 +50,6 @@ public interface VideoService {
             Integer size, String field, SortType sortType);
 
     public void updateVideoOrder(List<VideoOrder> videoOrders, Long courseId);
-
-    public VideoResponse uploadVideoByCourse(VideoRequest videoRequest, MultipartFile video,
-            MultipartFile thumbnail);
 
     public void deleteVideo(Long videoId);
 

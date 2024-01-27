@@ -26,6 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Entity
 @Table(name = "Video")
@@ -53,11 +54,13 @@ public class Video {
     @Column(columnDefinition = "TEXT")
     private String urlMaterial;
 
-    private LocalDateTime createdDate;
+    @Default
+    private LocalDateTime createdDate = LocalDateTime.now();
 
     private float duration;
 
-    private LocalDateTime updateTime;
+    @Default
+    private LocalDateTime updateTime= LocalDateTime.now();
 
     private String cloudinaryId;
 

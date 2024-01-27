@@ -9,7 +9,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
-import com.example.courseservice.data.dto.response.VideoResponse;
+import com.example.courseservice.data.dto.response.FileConvertResponse;
+import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.VideoUpdate;
 import com.example.courseservice.services.uploadservice.CloudinaryService;
 import com.example.courseservice.services.videoservice.VideoService;
@@ -29,25 +30,21 @@ public class EventHandler implements ApplicationListener<Event> {
     @Async
     public void onApplicationEvent(Event event) {
         Map<String, Object> data = event.getData();
-        VideoResponse videoResponse = (VideoResponse) data.get("videoResponse");
+        FileConvertResponse videoResponse = (FileConvertResponse) data.get("videoResponse");
+        Video videoObj = (Video) data.get("video");
+        CloudinaryUrl videoCloudinaryUrl = null;
+        CloudinaryUrl thumbnialCloudinaryUrl = null;
+        CloudinaryUrl materialCloudinaryUrl = null;
 
-        if (videoResponse != null && videoResponse.getThumbnail() != null && videoResponse.getVideo() != null) {
-            CloudinaryUrl video = uploadService.uploadMedia(videoResponse.getVideo());
-            CloudinaryUrl thumbnial = uploadService.uploadMedia(videoResponse.getThumbnail());
-            VideoUpdate videoUpdate = VideoUpdate
-                    .builder()
-                    .videoId(videoResponse.getVideoId())
-                    .videoUrl(video.getUrl())
-                    .duration(video.getDuration())
-                    .thumbnailUrl(thumbnial.getUrl())
-                    .build();
-            if (videoResponse.getMaterial() != null) {
-                CloudinaryUrl material = uploadService.uploadMaterial(videoResponse.getMaterial());
-                videoUpdate.setMaterial(material.getUrl());
-            }
-
-            videoService.insertVideoUrl(videoUpdate);
-
+        if (videoResponse.getMaterial() != null) {
+            materialCloudinaryUrl = uploadService.uploadMaterial(videoResponse.getMaterial());
         }
+        if (videoResponse.getVideo() != null) {
+            videoCloudinaryUrl = uploadService.uploadMedia(videoResponse.getVideo());
+        }
+        if (videoResponse.getThumbnail() != null) {
+            thumbnialCloudinaryUrl = uploadService.uploadMedia(videoResponse.getThumbnail());
+        }
+        videoService.saveVideoFile(videoObj, videoCloudinaryUrl, materialCloudinaryUrl, thumbnialCloudinaryUrl);
     }
 }

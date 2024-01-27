@@ -7,8 +7,7 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class VideoResponse {
-    private long videoId;
+public class FileConvertResponse {
     private FileResponse video;
     private FileResponse thumbnail;
     private FileResponse material;

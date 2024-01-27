@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 
 @Entity
 @Table(name = "Course")
@@ -58,9 +59,11 @@ public class Course {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private LocalDateTime createdDate;
+    @Default
+    private LocalDateTime createdDate = LocalDateTime.now();
 
-    private LocalDateTime updateTime;
+    @Default
+    private LocalDateTime updateTime= LocalDateTime.now();
 
     private Double price;
 

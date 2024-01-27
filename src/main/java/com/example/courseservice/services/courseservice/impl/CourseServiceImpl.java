@@ -80,7 +80,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseMapper.mapDtoToEntity(courseRequest);
         course.setThumbnial(thumbinial.getUrl());
         course.setLevel(level);
-        course.setCommonStatus(CommonStatus.WAITING);
+        course.setCommonStatus(CommonStatus.DRAFT);
         course.setCloudinaryId(thumbinial.getPublicId());
         course.setCourseTopics(courseTopicService.courseTopicsByString(courseRequest.getTopic()));
         courseRepository.save(course);
@@ -261,13 +261,13 @@ public class CourseServiceImpl implements CourseService {
     public Long verifyCourse(VerifyRequest verifyRequest) {
         Course updateCourse = courseRepository.findByIdAndCommonStatus(verifyRequest.getId(), CommonStatus.WAITING)
                 .orElseThrow(() -> new BadRequestException("Cannot find course with status waiting"));
-    
+
         Course existingCourse = updateCourse.getCourseId();
-    
+
         if (existingCourse == null) {
             throw new BadRequestException("Cannot find course for update");
         }
-    
+
         if (!updateCourse.getCloudinaryId().isBlank()) {
             existingCourse.setCloudinaryId(updateCourse.getCloudinaryId());
             existingCourse.setThumbnial(updateCourse.getThumbnial());
@@ -283,10 +283,9 @@ public class CourseServiceImpl implements CourseService {
         }
         courseRepository.save(existingCourse);
         courseRepository.delete(updateCourse);
-    
-        return existingCourse.getId(); 
+
+        return existingCourse.getId();
     }
-    
 
     @Override
     public Course getCourseByIdAndEmail(Long id, String email) {
@@ -458,7 +457,13 @@ public class CourseServiceImpl implements CourseService {
                 .findCourseByTeacherEmailAndId(currentUser.getEmail(), courseUpdateRequest.getCourseId())
                 .orElseThrow(() -> new BadRequestException("Owner permission to edit content"));
 
-        Course courseUpdate = new Course();
+        Course courseUpdate;
+        if (course.getCommonStatus().equals(CommonStatus.DRAFT)) {
+            courseUpdate = course;
+        } else {
+            courseUpdate = courseRepository.findCourseByCourseId(course)
+                    .orElse(new Course());
+        }
         if (thumbinail != null) {
             CloudinaryUrl cloudinaryUrl = uploadService.uploadMedia(thumbinail);
             courseUpdate.setThumbnial(cloudinaryUrl.getUrl());
@@ -474,7 +479,10 @@ public class CourseServiceImpl implements CourseService {
         courseUpdate.setDescription(Optional.ofNullable(courseUpdateRequest.getDescription()).orElse(""));
         courseUpdate.setPrice(Optional.ofNullable(courseUpdateRequest.getPrice()).orElse(0.0));
         courseUpdate.setCommonStatus(CommonStatus.UPDATING);
-
+        courseUpdate.setSubject(Optional.ofNullable(courseUpdateRequest.getSubject().getName()).orElse(""));
+        courseUpdate.setSubjectId(Optional.ofNullable(courseUpdateRequest.getSubject().getId()).orElse(0l));
+        courseUpdate.setTeacherEmail(currentUser.getEmail());
+        courseUpdate.setTeacherId(currentUser.getId());
         courseRepository.save(courseUpdate);
     }
 

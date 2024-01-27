@@ -28,6 +28,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     public Optional<Course> findCourseByTeacherEmailAndId(String email, Long id);
 
+    public Optional<Course> findCourseByCourseId(Course course);
+
     public List<Course> findCourseByTeacherEmail(String email);
 
     public Long countByTeacherId(Long id);

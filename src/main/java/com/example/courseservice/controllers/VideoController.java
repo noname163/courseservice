@@ -30,6 +30,7 @@ import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
+import com.example.courseservice.services.fileservice.FileService;
 import com.example.courseservice.services.videoservice.VideoService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +46,8 @@ public class VideoController {
     private VideoService videoService;
     @Autowired
     private EventPublisher eventPublisher;
+    @Autowired 
+    private FileService fileService;
 
     @Operation(summary = "Create video for new course")
     @ApiResponses(value = {
@@ -60,7 +63,7 @@ public class VideoController {
             @RequestPart(required = true) MultipartFile video,
             @RequestPart(required = true) MultipartFile thumbnail,
             @RequestPart(required = false) MultipartFile material) throws IOException {
-        eventPublisher.publishEvent(videoService.saveVideo(videoRequest, video, thumbnail, material));
+        eventPublisher.publishEvent(fileService.convertFileToFileResponse(video, thumbnail, material),videoService.saveVideoInformation(videoRequest));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
@@ -189,14 +192,14 @@ public class VideoController {
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
-    @PutMapping("/teacher/edit-temporary-video")
+    @PutMapping("/teacher/edit-video")
     @PreAuthorize("hasAuthority('TEACHER')")
     public ResponseEntity<Void> editTemporaryVideo(
             @RequestPart VideoUpdateRequest videoRequest,
             @RequestPart(required = false) MultipartFile video,
             @RequestPart(required = false) MultipartFile thumbnail,
             @RequestPart(required = false) MultipartFile material) {
-        videoService.updateVideo(videoRequest, video, thumbnail, material);
+                eventPublisher.publishEvent(fileService.convertFileToFileResponse(video, thumbnail, material),videoService.updateVideo(videoRequest));
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
