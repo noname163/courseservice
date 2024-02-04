@@ -94,56 +94,14 @@ public class CourseController {
     })
     @GetMapping("/user")
     public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCourses(
+            @RequestParam(required = false) List<CommonStatus> status,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(courseService.getListCourse(CommonStatus.AVAILABLE, page, size, field, sortType));
-    }
-
-    @Operation(summary = "Get courses for admin")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/admin")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getCoursesForAdmin(
-            @RequestParam(required = false, defaultValue = "") String searchTerm,
-            @RequestParam(required = false, defaultValue = "ALL") CommonStatus commonStatus,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseService.getListCourseForAdmin(searchTerm, commonStatus, page, size, field,
-                        sortType));
-    }
-
-    @Operation(summary = "Get all courses for teacher")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @GetMapping("/teacher/get-all")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> getAllCourse(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseService.getAllCourse(page, size, field, sortType));
+                .body(courseService.getListCourse(status, page, size, field, sortType));
     }
 
     @Operation(summary = "Get courses for teacher")
@@ -225,29 +183,6 @@ public class CourseController {
                 .build();
     }
 
-    @Operation(summary = "Filter courses for student")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @GetMapping("/filter")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> filterCourseBy(
-            @RequestParam(required = true) CourseFilter filterBy,
-            @RequestParam(required = true) List<String> value,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseService.filterCourseBy(filterBy, CommonStatus.AVAILABLE, value, page, size,
-                        field,
-                        sortType));
-    }
-
     @Operation(summary = "Get courses detail")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get course detail successfully.", content = {
@@ -293,33 +228,4 @@ public class CourseController {
         courseService.requestVerifyCourse(ids);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-    @Operation(summary = "Filter course for user ")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get course successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = PaginationResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @GetMapping("/user/filter")
-    public ResponseEntity<PaginationResponse<List<CourseResponse>>> filterCourse(
-            @RequestParam(required = false) List<Long> subjectList,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) Double minRate,
-            @RequestParam(required = false) Double maxRate,
-            @RequestParam(required = false) List<Long> levelList,
-            @RequestParam(required = false) List<Long> topicList,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(courseService.filterCourseByMultiple(subjectList, minPrice, maxPrice, minRate,
-                        maxRate, levelList,
-                        topicList, page, size, field, sortType));
-    }
-
 }

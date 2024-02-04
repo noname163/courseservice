@@ -18,57 +18,42 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 
 public interface CourseService {
-        public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail);
+    public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail);
 
-        public void updateCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thmbinail);
+    public void updateCourse(CourseUpdateRequest courseUpdateRequest, MultipartFile thmbinail);
 
-        public void requestVerifyCourse(List<Long> ids);
+    public void requestVerifyCourse(List<Long> ids);
 
-        public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus);
+    public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus);
 
-        public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus);
+    public CourseDetailResponse getCourseDetailExcept(long id, CommonStatus commonStatus);
 
-        public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String searchTerm, CommonStatus status,
-                        Integer page, Integer size, String field,
-                        SortType sortType);
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmail(String searchTerm, CommonStatus status,
+            Integer page, Integer size, String field,
+            SortType sortType);
 
-        public PaginationResponse<List<CourseResponse>> getListCourseByEmailForUser(String email, Integer page,
-                        Integer size, String field, SortType sortType);
+    public PaginationResponse<List<CourseResponse>> getListCourseByEmailForUser(String email, Integer page,
+            Integer size, String field, SortType sortType);
 
-        public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, CommonStatus commonStatus,
-                        List<String> value, Integer page, Integer size, String field, SortType sortType);
+    public PaginationResponse<List<CourseResponse>> getListCourse(
+            List<CommonStatus> commonStatus, Integer page,
+            Integer size,
+            String field, SortType sortType);
 
-        public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page,
-                        Integer size,
-                        String field, SortType sortType);
+    public Long verifyCourse(VerifyRequest verifyRequest);
 
-        public PaginationResponse<List<CourseResponse>> getListCourseForAdmin(String searchTerm,
-                        CommonStatus commonStatus, Integer page,
-                        Integer size,
-                        String field, SortType sortType);
+    public Course getCourseByIdAndEmail(Long id, String email);
 
-        public Long verifyCourse(VerifyRequest verifyRequest);
+    public Course getCourseById(Long id);
 
-        public Course getCourseByIdAndEmail(Long id, String email);
+    public boolean isCourseBelongTo(String email, long courseId);
 
-        public Course getCourseById(Long id);
+    public void deleteCourse(Long courseId);
 
-        public boolean isCourseBelongTo(String email, long courseId);
+    public PaginationResponse<List<CourseResponse>> searchCourse(String searchTerm, Integer page, Integer size,
+            String field, SortType sortType);
 
-        public void deleteCourse(Long courseId);
-
-        public PaginationResponse<List<CourseResponse>> searchCourse(String searchTerm, Integer page, Integer size,
-                        String field, SortType sortType);
-
-        public PaginationResponse<List<CourseResponse>> getAllCourse(Integer page, Integer size, String field,
-                        SortType sortType);
-
-        public PaginationResponse<List<CourseResponse>> filterCourseByMultiple(List<Long> subjectList,
-                        Double minPrice,
-                        Double maxPrice,
-                        Double minRate,
-                        Double maxRate,
-                        List<Long> levelList,
-                        List<Long> topicList, Integer page, Integer size, String field,
-                        SortType sortType);
+    public PaginationResponse<List<CourseResponse>> getAllCourseForTeacher(List<CommonStatus> status, Integer page,
+            Integer size, String field,
+            SortType sortType);
 }
