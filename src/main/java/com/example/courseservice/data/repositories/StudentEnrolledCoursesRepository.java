@@ -43,4 +43,7 @@ public interface StudentEnrolledCoursesRepository extends JpaRepository<StudentE
             @Param("courses") List<Course> courses,
             @Param("status") CommonStatus status);
 
+    @Query("SELECT se.course.id FROM StudentEnrolledCourses se WHERE se.studentEmail = :studentEmail")
+    List<Long> getCourseIdsByStudentEmail(@Param("studentEmail") String studentEmail);
+
 }

@@ -37,7 +37,7 @@ public class ReactVideoServiceImpl implements ReactVideoService {
 
         UserInformation currentUser = securityContextService.getCurrentUser();
         Video video = videoRepository
-                .findByIdAndStatusOrderByOrdinalNumberAsc(reactRequest.getVideoId(), CommonStatus.AVAILABLE)
+                .findByIdAndStatus(reactRequest.getVideoId(), CommonStatus.AVAILABLE)
                 .orElseThrow(() -> new BadRequestException("Not exist video with id " + reactRequest.getVideoId()));
 
         if (studentEnrollCourseService.isStudentEnrolled(currentUser.getEmail(), video.getCourse().getId())) {

@@ -1,21 +1,17 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.courseservice.data.constants.CommonStatus;
-import com.example.courseservice.data.constants.CourseFilter;
 import com.example.courseservice.data.constants.SortType;
 import com.example.courseservice.data.dto.request.CourseRequest;
 import com.example.courseservice.data.dto.request.CourseUpdateRequest;
@@ -23,14 +19,15 @@ import com.example.courseservice.data.dto.request.VerifyRequest;
 import com.example.courseservice.data.dto.response.CloudinaryUrl;
 import com.example.courseservice.data.dto.response.CourseDetailResponse;
 import com.example.courseservice.data.dto.response.CourseResponse;
-import com.example.courseservice.data.dto.response.CourseVideoResponse;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
+import com.example.courseservice.data.entities.StudentEnrolledCourses;
 import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.repositories.CourseRepository;
+import com.example.courseservice.data.repositories.StudentEnrolledCoursesRepository;
 import com.example.courseservice.data.repositories.StudentVideoProgressRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.EmptyException;
@@ -39,39 +36,46 @@ import com.example.courseservice.services.authenticationservice.SecurityContextS
 import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.levelservice.LevelService;
-import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
-import com.example.courseservice.services.studentprogressservice.StudentProgressService;
 import com.example.courseservice.services.uploadservice.CloudinaryService;
-import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
 public class CourseServiceImpl implements CourseService {
-    @Autowired
-    private CloudinaryService uploadService;
-    @Autowired
-    private CourseMapper courseMapper;
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private PageableUtil pageableUtil;
-    @Autowired
-    private CourseTopicService courseTopicService;
-    @Autowired
-    private LevelService levelService;
-    @Autowired
-    private StudentEnrollCourseService studentEnrollCourseService;
-    @Autowired
-    private SecurityContextService securityContextService;
-    @Autowired
-    private VideoService videoService;
-    @Autowired
-    private StudentVideoProgressRepository studentVideoProgressRepository;
-    @Autowired
-    @Lazy
-    private StudentProgressService studentProgressService;
 
-    private final Double MAXRATE = 5d;
+    private CloudinaryService uploadService;
+
+    private CourseMapper courseMapper;
+
+    private CourseRepository courseRepository;
+
+    private PageableUtil pageableUtil;
+
+    private CourseTopicService courseTopicService;
+
+    private LevelService levelService;
+
+    private StudentEnrolledCoursesRepository studentEnrolledCoursesRepository;
+
+    private SecurityContextService securityContextService;
+
+    private StudentVideoProgressRepository studentVideoProgressRepository;
+
+    public CourseServiceImpl(CloudinaryService uploadService, CourseMapper courseMapper,
+            CourseRepository courseRepository, PageableUtil pageableUtil, CourseTopicService courseTopicService,
+            LevelService levelService, StudentEnrolledCoursesRepository studentEnrolledCoursesRepository,
+            SecurityContextService securityContextService,
+            StudentVideoProgressRepository studentVideoProgressRepository) {
+        this.uploadService = uploadService;
+        this.courseMapper = courseMapper;
+        this.courseRepository = courseRepository;
+        this.pageableUtil = pageableUtil;
+        this.courseTopicService = courseTopicService;
+        this.levelService = levelService;
+        this.studentEnrolledCoursesRepository = studentEnrolledCoursesRepository;
+        this.securityContextService = securityContextService;
+        this.studentVideoProgressRepository = studentVideoProgressRepository;
+    }
+
 
     @Override
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {
@@ -103,158 +107,44 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getListCourse(CommonStatus commonStatus, Integer page, Integer size,
-            String field,
-            SortType sortType) {
-
-        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())
-                && securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
-            PaginationResponse<List<CourseResponse>> result = getCourseWhenUserLogin(
-                    securityContextService.getCurrentUser().getEmail(), page, size, field,
-                    sortType);
-            if (!result.getData().isEmpty()) {
-                return result;
-            }
-        }
-        Page<CourseResponseInterface> listCourse = courseRepository.getByCommonStatusJPQL(commonStatus, pageable);
-
-        List<CourseResponse> result = filterCourseVideos0(courseMapper.mapInterfacesToDtos(listCourse.getContent()));
-
-        return PaginationResponse.<List<CourseResponse>>builder()
-                .data(result)
-                .totalPage(listCourse.getTotalPages())
-                .totalRow(listCourse.getTotalElements())
-                .build();
-    }
-
-    @Override
     public CourseDetailResponse getCourseDetail(long id, CommonStatus commonStatus) {
-        CourseDetailResponseInterface result;
-        Set<Long> isWatched = new HashSet<>();
-        List<Long> enrolled = new ArrayList<>();
-        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
-            result = courseRepository
-                    .getCourseDetailsByCourseIdAndStatusNot(id, CommonStatus.BANNED);
-            if (securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
-                isWatched = studentVideoProgressRepository
-                        .getCompletedVideoIdsByStudentAndCourse(securityContextService.getCurrentUser().getId(), id);
-                enrolled = studentEnrollCourseService
-                        .getListCourseId(securityContextService.getCurrentUser().getEmail());
-            }
+        if (Boolean.FALSE.equals(securityContextService.getLoginStatus())) {
+            return getCourseDetailResponseForGuest(id);
+        }
+        UserInformation currentUser = securityContextService.getCurrentUser();
+        if (currentUser.getRole().equals("STUDENT")) {
+            return getCourseDetailForCurrentStudent(currentUser, id);
         } else {
-            result = courseRepository
-                    .getCourseDetailsByCourseId(id, commonStatus);
+            return getCourseDetailExcept(id, commonStatus);
         }
-        if (result == null) {
-            throw new BadRequestException("Not found course with id " + id);
+    }
+
+    private CourseDetailResponse getCourseDetailForCurrentStudent(UserInformation student, long id) {
+        StudentEnrolledCourses coursesEnrolled = studentEnrolledCoursesRepository
+                .findByStudentEmailAndCourseId(student.getEmail(), id).orElse(null);
+        if (coursesEnrolled == null) {
+            return getCourseDetailResponseForGuest(id);
         }
-        CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(result);
-        List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, commonStatus);
-        courseDetailResponse.setIsAccess(false);
-        if (!isWatched.isEmpty() && !videos.isEmpty()) {
-            for (CourseVideoResponse video : videos) {
-                if (isWatched.contains(video.getId())) {
-                    video.setIsWatched(true);
-                }
-            }
-            courseDetailResponse.setTotalCompleted(isWatched.size());
-            courseDetailResponse.setProgress((float) isWatched.size() / videos.size() * 100);
+        Set<Long> completedVideo = studentVideoProgressRepository
+                .getCompletedVideoIdsByStudentAndCourse(student.getId(), id);
+        Course course = coursesEnrolled.getCourse();
+        CourseDetailResponse courseDetailResponse = courseMapper.mapCourseDetailEntityToDto(course);
+        courseDetailResponse.setIsAccess(true);
+        courseDetailResponse.setTotalCompleted(completedVideo.size());
+        if (!completedVideo.isEmpty()) {
+            int totalVideos = course.getVideos().size();
+            courseDetailResponse.setProgress(totalVideos > 0 ? ((float) completedVideo.size() / totalVideos) * 100 : 0);
         }
-        if (enrolled != null && !enrolled.isEmpty() && enrolled.contains(id)) {
-            courseDetailResponse.setIsAccess(true);
-        }
-        List<String> topics = courseTopicService.getTopicsByCourseId(id);
-        courseDetailResponse.setCourseVideoResponses(videos);
-        courseDetailResponse.setTopics(topics);
         return courseDetailResponse;
+
     }
 
-    @Override
-    public PaginationResponse<List<CourseResponse>> filterCourseBy(CourseFilter filterBy, CommonStatus commonStatus,
-            List<String> value,
-            Integer page,
-            Integer size, String field, SortType sortType) {
-        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        PaginationResponse<List<CourseResponse>> result = PaginationResponse.<List<CourseResponse>>builder().build();
-        switch (filterBy) {
-            case SUBJECT:
-                Page<Course> course = courseRepository.findByCommonStatusAndSubjectIn(pageable, commonStatus,
-                        value);
-                result.setData(courseMapper.mapEntitiesToDtos(course.getContent()));
-                result.setTotalPage(course.getTotalPages());
-                result.setTotalRow(course.getNumberOfElements());
-                break;
-            case RATE:
-                result = filterCourseByRate(value, commonStatus, pageable);
-                break;
-            case PRICE:
-                result = filterByPrice(value, commonStatus, pageable);
-                break;
-            case LEVEL:
-                result = filterCourseByLevel(value, commonStatus, pageable);
-                break;
-            default:
-                result = getListCourse(commonStatus, page, size, field, sortType);
-                break;
-        }
-        return result;
-    }
-
-    private PaginationResponse<List<CourseResponse>> filterCourseByRate(List<String> value, CommonStatus commonStatus,
-            Pageable pageable) {
-        if (value == null || value.isEmpty() || value.size() > 1) {
-            throw new BadRequestException("Invalid data require for filter by rate");
-        }
-        Double minRate = Double.parseDouble(value.stream().findFirst().get());
-        if (minRate < 0) {
-            throw new BadRequestException("Rate cannot smaller than 0");
-        }
-        Page<Course> courses = courseRepository.findByCommonStatusAndAverageRateBetween(commonStatus, minRate,
-                MAXRATE, pageable);
-        return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
-                .totalPage(courses.getTotalPages())
-                .totalRow(courses.getTotalElements())
-                .build();
-    }
-
-    private PaginationResponse<List<CourseResponse>> filterCourseByLevel(List<String> value, CommonStatus commonStatus,
-            Pageable pageable) {
-        if (value.size() > 3) {
-            throw new BadRequestException("Invalid data require for filter by rate");
-        }
-        List<Long> levelIds = value
-                .stream()
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
-        List<Level> levels = levelService.getListLevel(levelIds);
-        Page<Course> courses = courseRepository.findByCommonStatusAndLevelIn(pageable, commonStatus, levels);
-        return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
-                .totalPage(courses.getTotalPages())
-                .totalRow(courses.getTotalElements())
-                .build();
-    }
-
-    private PaginationResponse<List<CourseResponse>> filterByPrice(List<String> value, CommonStatus commonStatus,
-            Pageable pageable) {
-        if (value.size() > 2) {
-            throw new BadRequestException("Invalid data for filter by price");
-        }
-        Double price1 = Double.parseDouble(value.get(0));
-        Double price2 = Double.parseDouble(value.get(1));
-
-        Double min = Math.min(price1, price2);
-        Double max = Math.max(price1, price2);
-        Page<Course> courses = courseRepository.findByCommonStatusAndPriceBetween(commonStatus, min,
-                max, pageable);
-        return PaginationResponse.<List<CourseResponse>>builder()
-                .data(courseMapper.mapEntitiesToDtos(courses.getContent()))
-                .totalPage(courses.getTotalPages())
-                .totalRow(courses.getTotalElements())
-                .build();
-
+    private CourseDetailResponse getCourseDetailResponseForGuest(long id) {
+        Course course = courseRepository.findByIdAndCommonStatus(id, CommonStatus.AVAILABLE)
+                .orElseThrow(() -> new BadRequestException("Cannot find course with id " + id));
+        CourseDetailResponse courseDetailResponse = courseMapper.mapCourseDetailEntityToDto(course);
+        courseDetailResponse.setIsAccess(false);
+        return courseDetailResponse;
     }
 
     @Override
@@ -314,28 +204,20 @@ public class CourseServiceImpl implements CourseService {
                 .getCourseDetailsByCourseIdIgnoreStatus(id);
         List<String> topics = courseTopicService.getTopicsByCourseId(id);
         CourseDetailResponse courseDetailResponse = courseMapper.mapToCourseDetailResponse(course);
-        List<CourseVideoResponse> videos = videoService.getVideoByCourseIdAndCommonStatus(id, CommonStatus.ALL);
-        courseDetailResponse.setCourseVideoResponses(videos);
         courseDetailResponse.setTopics(topics);
         return courseDetailResponse;
 
     }
 
-    private PaginationResponse<List<CourseResponse>> getCourseWhenUserLogin(String email, Integer page,
+    private Page<CourseResponseInterface> getCourseWhenUserLogin(String email, Integer page,
             Integer size, String field, SortType sortType) {
-        List<Long> coursesId = studentEnrollCourseService.getListCourseId(email);
+        List<Long> coursesId = studentEnrolledCoursesRepository.getCourseIdsByStudentEmail(email);
 
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         List<CommonStatus> commonStatus = List.of(CommonStatus.DELETED, CommonStatus.BANNED);
-        Page<CourseResponseInterface> courses = courseRepository.getAvailableCoursesByCommonStatusNotAndNotInList(
+        return courseRepository.getAvailableCoursesByCommonStatusNotAndNotInList(
                 commonStatus, coursesId,
                 pageable);
-
-        return PaginationResponse.<List<CourseResponse>>builder()
-                .data(filterCourseVideos0(courseMapper.mapInterfacesToDtos(courses.getContent())))
-                .totalPage(courses.getTotalPages())
-                .totalRow(courses.getTotalElements())
-                .build();
     }
 
     @Override
@@ -354,8 +236,7 @@ public class CourseServiceImpl implements CourseService {
 
         Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCourses(searchTerm, pageable);
 
-        List<CourseResponse> result = filterCourseVideos0(
-                courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()));
+        List<CourseResponse> result = courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent());
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(result)
@@ -364,24 +245,16 @@ public class CourseServiceImpl implements CourseService {
                 .build();
     }
 
-    private List<CourseResponse> filterCourseVideos0(List<CourseResponse> courseResponses) {
-        List<CourseResponse> result = new ArrayList<>();
-        for (CourseResponse courseResponse : courseResponses) {
-            if (courseResponse.getTotalVideo() > 0) {
-                result.add(courseResponse);
-            }
-        }
-        return result;
-    }
-
     @Override
-    public PaginationResponse<List<CourseResponse>> getAllCourse(Integer page, Integer size, String field,
+    public PaginationResponse<List<CourseResponse>> getAllCourseForTeacher(List<CommonStatus> status, Integer page,
+            Integer size, String field,
             SortType sortType) {
 
         String email = securityContextService.getCurrentUser().getEmail();
+
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
 
-        Page<CourseResponseInterface> courseResponseInterface = courseRepository.getCourseByEmail(email,
+        Page<CourseResponseInterface> courseResponseInterface = courseRepository.getCourseByEmail(email, status,
                 pageable);
 
         List<CourseResponse> courseResponse = courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent());
@@ -399,48 +272,58 @@ public class CourseServiceImpl implements CourseService {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
         List<Long> enrolled = new ArrayList<>();
         if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
-            enrolled = studentEnrollCourseService.getListCourseId(securityContextService.getCurrentUser().getEmail());
+            enrolled = studentEnrolledCoursesRepository
+                    .getCourseIdsByStudentEmail(securityContextService.getCurrentUser().getEmail());
         }
 
-        Page<CourseResponseInterface> listSubject = courseRepository.getCourseByEmail(email, enrolled,
+        Page<CourseResponseInterface> listCourse = courseRepository.getCourseByEmailForUser(email, enrolled,
                 CommonStatus.AVAILABLE, pageable);
+        List<CourseResponse> result = courseMapper.mapInterfacesToDtos(listCourse.getContent());
+        result = setIsAccess(result, enrolled);
 
         return PaginationResponse.<List<CourseResponse>>builder()
-                .data(filterCourseVideos0(courseMapper.mapInterfacesToDtos(listSubject.getContent())))
-                .totalPage(listSubject.getTotalPages())
-                .totalRow(listSubject.getTotalElements())
+                .data(result)
+                .totalPage(listCourse.getTotalPages())
+                .totalRow(listCourse.getTotalElements())
                 .build();
     }
 
-    @Override
-    public PaginationResponse<List<CourseResponse>> filterCourseByMultiple(List<Long> subjectList, Double minPrice,
-            Double maxPrice, Double minRate, Double maxRate, List<Long> levelList, List<Long> topicList, Integer page,
-            Integer size, String field,
-            SortType sortType) {
-        Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-
-        Page<CourseResponseInterface> courseResponseInterface = courseRepository.filterCourses(subjectList, minPrice,
-                maxPrice, minRate, maxRate, levelList, topicList, pageable);
-        List<CourseResponse> courseResponses = courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent());
-
-        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())
-                && securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
-            courseResponses = studentProgressService.setStudentProgressForListCourseResponse(courseResponses);
+    private List<CourseResponse> setIsAccess(List<CourseResponse> courseResponses, List<Long> enrolleds) {
+        if (!enrolleds.isEmpty()) {
+            for (CourseResponse courseResponse : courseResponses) {
+                if (enrolleds.contains(courseResponse.getId())) {
+                    courseResponse.setIsAccess(true);
+                } else {
+                    courseResponse.setIsAccess(false);
+                }
+            }
         }
-        return PaginationResponse.<List<CourseResponse>>builder()
-                .data(filterCourseVideos0(courseResponses))
-                .totalPage(courseResponseInterface.getTotalPages())
-                .totalRow(courseResponseInterface.getTotalElements())
-                .build();
+        return courseResponses;
     }
 
     @Override
-    public PaginationResponse<List<CourseResponse>> getListCourseForAdmin(String searchTerm, CommonStatus commonStatus,
+    public PaginationResponse<List<CourseResponse>> getListCourse(List<CommonStatus> commonStatus,
             Integer page, Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-
-        Page<CourseResponseInterface> courseResponseInterface = courseRepository.searchCoursesForAdmin(searchTerm,
-                commonStatus.toString(), pageable);
+        Page<CourseResponseInterface> courseResponseInterface = null;
+        if (Boolean.TRUE.equals(securityContextService.getLoginStatus())) {
+            UserInformation userInformation = securityContextService.getCurrentUser();
+            if (userInformation.getRole().equals("ADMIN")) {
+                courseResponseInterface = courseRepository.searchCoursesForAdmin(null,
+                        commonStatus, pageable);
+            }
+            if (userInformation.getRole().equals("TEACHER")) {
+                courseResponseInterface = courseRepository.getCourseByEmail(userInformation.getEmail(), commonStatus,
+                        pageable);
+            }
+            if (securityContextService.getCurrentUser().getRole().equals("STUDENT")) {
+                courseResponseInterface = getCourseWhenUserLogin(
+                        securityContextService.getCurrentUser().getEmail(), page, size, field,
+                        sortType);
+            }
+        } else {
+            courseResponseInterface = courseRepository.getByCommonStatusJPQL(CommonStatus.AVAILABLE, pageable);
+        }
 
         return PaginationResponse.<List<CourseResponse>>builder()
                 .data(courseMapper.mapInterfacesToDtos(courseResponseInterface.getContent()))
@@ -498,8 +381,6 @@ public class CourseServiceImpl implements CourseService {
         for (Course course : courses) {
             course.setCommonStatus(CommonStatus.WAITING);
         }
-
         courseRepository.saveAll(courses);
     }
-
 }

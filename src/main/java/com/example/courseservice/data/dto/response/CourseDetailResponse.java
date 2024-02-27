@@ -36,5 +36,4 @@ public class CourseDetailResponse{
     private Float progress;
     private Boolean isAccess;
     private List<String> topics;
-    private List<CourseVideoResponse> courseVideoResponses;
 }
