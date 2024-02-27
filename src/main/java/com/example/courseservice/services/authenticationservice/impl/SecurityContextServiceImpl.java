@@ -11,7 +11,6 @@ import com.example.courseservice.configs.CustomUserDetails;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.ForbiddenException;
-import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
 
 @Service

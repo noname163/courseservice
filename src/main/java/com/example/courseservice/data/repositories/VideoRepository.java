@@ -41,15 +41,18 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     List<Video> findByCourseIdAndStatusNotOrderByOrdinalNumberAsc(Long courseId, CommonStatus status);
 
-    List<Video> findByCourseAndStatusNotOrderByOrdinalNumberAsc(Course course, CommonStatus status);
+    Page<Video> findByCourseAndStatusNotOrderByOrdinalNumberAsc(Course course, CommonStatus status, Pageable pageable);
 
     List<Video> findByCourseIdAndIdInOrderByOrdinalNumberAsc(Long courseId, Set<Long> ids);
 
-    Optional<Video> findByIdAndStatusOrderByOrdinalNumberAsc(Long id, CommonStatus status);
+    Optional<Video> findByIdAndStatus(Long id, CommonStatus status);
 
     Optional<Video> findByVideoId(Video videoId);
 
-    Optional<Video> findByIdAndStatusNotOrderByOrdinalNumberAsc(Long id, CommonStatus status);
+    @Query("SELECT v FROM Video v WHERE v.course.teacherId = :teacherId AND v.id = :videoId")
+    Optional<Video> findByTeacherIdAndVideoId(@Param("teacherId") Long teacherId, @Param("videoId") Long videoId);
+
+    Optional<Video> findByIdAndStatusNot(Long id, CommonStatus status);
 
     @Query("SELECT MAX(v.ordinalNumber) FROM Video v WHERE v.course = :course")
     Integer findMaxOrdinalNumberByCourse(@Param("course") Course course);

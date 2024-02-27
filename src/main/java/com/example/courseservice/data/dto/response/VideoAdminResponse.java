@@ -11,22 +11,11 @@ import lombok.Data;
 @Builder
 @Data
 public class VideoAdminResponse {
-    private Long id;
-    private String url;
-    private String name;
+    private String subject;
+    private String courseName;
+    private Long dislike;
+    private CommonStatus status;
+    private VideoStatus videoStatus;
     private String teacherName;
     private String teacherAvatar;
-    private String description;
-    private String subject;
-    private String thumbnail;
-    private String material;
-    private String courseName;
-    private Long like;
-    private Long dislike;
-    private Float duration;
-    private CommonStatus status;
-    private LocalDateTime createdDate;
-    private LocalDateTime updateDate;
-    private VideoStatus videoStatus;
-    private Integer ordinalNumber;
 }

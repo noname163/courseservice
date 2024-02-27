@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +25,6 @@ import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
 import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.dto.response.VideoAdminResponse;
-import com.example.courseservice.data.dto.response.VideoDetailResponse;
 import com.example.courseservice.data.dto.response.VideoItemResponse;
 import com.example.courseservice.event.EventPublisher;
 import com.example.courseservice.exceptions.BadRequestException;
@@ -46,7 +44,7 @@ public class VideoController {
     private VideoService videoService;
     @Autowired
     private EventPublisher eventPublisher;
-    @Autowired 
+    @Autowired
     private FileService fileService;
 
     @Operation(summary = "Create video for new course")
@@ -63,42 +61,26 @@ public class VideoController {
             @RequestPart(required = true) MultipartFile video,
             @RequestPart(required = true) MultipartFile thumbnail,
             @RequestPart(required = false) MultipartFile material) throws IOException {
-        eventPublisher.publishEvent(fileService.convertFileToFileResponse(video, thumbnail, material),videoService.saveVideoInformation(videoRequest));
+        eventPublisher.publishEvent(fileService.convertFileToFileResponse(video, thumbnail, material),
+                videoService.saveVideoInformation(videoRequest));
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
-
 
     @Operation(summary = "Get video detail by video id for student")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Get video detail successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoDetailResponse.class))
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoItemResponse.class))
             }),
             @ApiResponse(responseCode = "400", description = "Bad request.", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
     })
-    @GetMapping("/user/{id}")
-    public ResponseEntity<VideoDetailResponse> getVideoById(@PathVariable Long id) {
+    @GetMapping("/user/detail")
+    public ResponseEntity<VideoItemResponse> getVideoById(@RequestParam(required = true) Long id,
+            @RequestParam(required = true) CommonStatus commonStatus) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(videoService.getAvailableVideoDetailById(id, CommonStatus.AVAILABLE));
+                .body(videoService.getVideoDetailById(id, commonStatus));
     }
-
-    @Operation(summary = "Get video detail by video id for teacher and admin")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get video detail successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoDetailResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @GetMapping("/teacher/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'TEACHER')")
-    public ResponseEntity<VideoDetailResponse> getVideoForTeacherAdminById(@PathVariable Long id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(videoService.getVideoDetailByIdExcept(id, CommonStatus.DELETED));
-    }
-
 
     @Operation(summary = "Get list video by course id")
     @ApiResponses(value = {
@@ -111,35 +93,15 @@ public class VideoController {
     @GetMapping()
     public ResponseEntity<PaginationResponse<List<VideoItemResponse>>> getListVideoByCourseId(
             @RequestParam(required = true) Long courseId,
+            @RequestParam(required = true) CommonStatus commonStatus,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "20") Integer size,
             @RequestParam(required = false) String field,
             @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(videoService.getListVideoAvailableByCourse(courseId, page, size, field,
-                        sortType));
-    }
-
-    @Operation(summary = "Get list video for teacher")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get video successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoAdminResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @GetMapping("/teacher")
-    @PreAuthorize("hasAuthority('TEACHER')")
-    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoForCurrentTeacher(
-            @RequestParam(required = true, defaultValue = "ALL") CommonStatus commonStatus,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(videoService.getVideoForTeacher(commonStatus, page, size, field,
+                .body(videoService.getListVideoAvailableByCourse(commonStatus, courseId, page, size,
+                        field,
                         sortType));
     }
 
@@ -164,28 +126,6 @@ public class VideoController {
                         sortType));
     }
 
-    @Operation(summary = "Get list video for admin")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Get video successfully.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = VideoAdminResponse.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request.", content = {
-                    @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class)) })
-    })
-    @GetMapping("/admin")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<PaginationResponse<List<VideoAdminResponse>>> getListVideoForAdmin(
-            @RequestParam(required = true, defaultValue = "ALL") CommonStatus commonStatus,
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
-            @RequestParam(required = false) String field,
-            @RequestParam(required = false, defaultValue = "ASC") SortType sortType) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(videoService.getVideoForAdmin(commonStatus, page, size, field,
-                        sortType));
-    }
-
     @Operation(summary = "Edit video temporary video for teacher")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Edit temporary video successfully."),
@@ -199,7 +139,8 @@ public class VideoController {
             @RequestPart(required = false) MultipartFile video,
             @RequestPart(required = false) MultipartFile thumbnail,
             @RequestPart(required = false) MultipartFile material) {
-                eventPublisher.publishEvent(fileService.convertFileToFileResponse(video, thumbnail, material),videoService.updateVideo(videoRequest));
+        eventPublisher.publishEvent(fileService.convertFileToFileResponse(video, thumbnail, material),
+                videoService.updateVideo(videoRequest));
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
