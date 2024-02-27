@@ -1,14 +1,11 @@
 package com.example.courseservice.services.courseservice.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,7 +23,6 @@ import com.example.courseservice.data.dto.response.PaginationResponse;
 import com.example.courseservice.data.entities.Course;
 import com.example.courseservice.data.entities.Level;
 import com.example.courseservice.data.entities.StudentEnrolledCourses;
-import com.example.courseservice.data.entities.StudentVideoProgress;
 import com.example.courseservice.data.object.CourseDetailResponseInterface;
 import com.example.courseservice.data.object.CourseResponseInterface;
 import com.example.courseservice.data.object.UserInformation;
@@ -41,7 +37,6 @@ import com.example.courseservice.services.courseservice.CourseService;
 import com.example.courseservice.services.coursetopicservice.CourseTopicService;
 import com.example.courseservice.services.levelservice.LevelService;
 import com.example.courseservice.services.uploadservice.CloudinaryService;
-import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 
 @Service
@@ -81,7 +76,6 @@ public class CourseServiceImpl implements CourseService {
         this.studentVideoProgressRepository = studentVideoProgressRepository;
     }
 
-    private final Double MAXRATE = 5d;
 
     @Override
     public void createCourse(CourseRequest courseRequest, MultipartFile thumbnail) {

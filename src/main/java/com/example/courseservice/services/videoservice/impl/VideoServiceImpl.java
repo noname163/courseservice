@@ -1,7 +1,6 @@
 package com.example.courseservice.services.videoservice.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.courseservice.data.constants.CommonStatus;
 import com.example.courseservice.data.constants.SortType;
-import com.example.courseservice.data.constants.VideoStatus;
 import com.example.courseservice.data.dto.request.VideoOrder;
 import com.example.courseservice.data.dto.request.VideoRequest;
 import com.example.courseservice.data.dto.request.VideoUpdateRequest;
@@ -30,14 +28,12 @@ import com.example.courseservice.data.entities.Video;
 import com.example.courseservice.data.object.UserInformation;
 import com.example.courseservice.data.object.VideoAdminResponseInterface;
 import com.example.courseservice.data.repositories.CourseRepository;
-import com.example.courseservice.data.repositories.StudentVideoProgressRepository;
 import com.example.courseservice.data.repositories.VideoRepository;
 import com.example.courseservice.exceptions.BadRequestException;
 import com.example.courseservice.exceptions.InValidAuthorizationException;
 import com.example.courseservice.mappers.VideoMapper;
 import com.example.courseservice.services.authenticationservice.SecurityContextService;
-import com.example.courseservice.services.reactvideoservice.ReactVideoService;
-import com.example.courseservice.services.studentenrollcourseservice.StudentEnrollCourseService;
+import com.example.courseservice.services.videoservice.VideoHandle;
 import com.example.courseservice.services.videoservice.VideoService;
 import com.example.courseservice.utils.PageableUtil;
 
@@ -48,22 +44,17 @@ public class VideoServiceImpl implements VideoService {
     private VideoMapper videoMapper;
     private PageableUtil pageableUtil;
     private SecurityContextService securityContextService;
-    private StudentEnrollCourseService studentEnrollCourseService;
-    private StudentVideoProgressRepository studentVideoProgressRepository;
-    private ReactVideoService reactVideoService;
+    private VideoHandle videoHandle;
+    
 
     public VideoServiceImpl(VideoRepository videoRepository, CourseRepository courseRepository, VideoMapper videoMapper,
-            PageableUtil pageableUtil, SecurityContextService securityContextService,
-            StudentEnrollCourseService studentEnrollCourseService,
-            StudentVideoProgressRepository studentVideoProgressRepository, ReactVideoService reactVideoService) {
+            PageableUtil pageableUtil, SecurityContextService securityContextService, VideoHandle videoHandle) {
         this.videoRepository = videoRepository;
         this.courseRepository = courseRepository;
         this.videoMapper = videoMapper;
         this.pageableUtil = pageableUtil;
         this.securityContextService = securityContextService;
-        this.studentEnrollCourseService = studentEnrollCourseService;
-        this.studentVideoProgressRepository = studentVideoProgressRepository;
-        this.reactVideoService = reactVideoService;
+        this.videoHandle = videoHandle;
     }
 
     @Override
@@ -112,19 +103,19 @@ public class VideoServiceImpl implements VideoService {
     public VideoItemResponse getVideoDetailById(Long videoId, CommonStatus commonStatus) {
         UserInformation currentUser = securityContextService.getCurrentUser();
         if (securityContextService.isLogin() == null) {
-            return getVideoResponseForGuest(videoId);
+            return videoHandle.getVideoResponseForGuest(videoId);
         }
 
-        if (isStudent() && canAccessVideo(videoId)) {
-            return getVideoResponse(videoId);
+        if (videoHandle.isStudent() && videoHandle.canAccessVideo(videoId)) {
+            return videoHandle.getVideoResponse(videoId);
         }
 
-        if (isAdmin()) {
-            return getVideoResponse(videoId);
+        if (videoHandle.isAdmin()) {
+            return videoHandle.getVideoResponse(videoId);
         }
 
-        if (isTeacher() && isTeacherVideo(currentUser.getId(), videoId)) {
-            return getVideoResponse(videoId);
+        if (videoHandle.isTeacher() && videoHandle.isTeacherVideo(currentUser.getId(), videoId)) {
+            return videoHandle.getVideoResponse(videoId);
         }
 
         throw new BadRequestException("Not found video with id " + videoId);
@@ -135,15 +126,15 @@ public class VideoServiceImpl implements VideoService {
             Long courseId, Integer page,
             Integer size, String field, SortType sortType) {
         Pageable pageable = pageableUtil.getPageable(page, size, field, sortType);
-        Course course = getCourseForUser(courseId);
+        Course course = videoHandle.getCourseForUser(courseId);
         if (securityContextService.isLogin() == null) {
-            return getVideoItemResponseForGuest(course, pageable);
+            return videoHandle.getVideoItemResponseForGuest(course, pageable);
         } else {
-            if (isStudent()) {
-                return getVideoItemResponseForStudent(course, pageable);
-            } else if (isTeacher()) {
+            if (videoHandle.isStudent()) {
+                return videoHandle.getVideoItemResponseForStudent(course, pageable);
+            } else if (videoHandle.isTeacher()) {
                 return getVideoForTeacher(commonStatus, page, size, field, sortType);
-            } else if (isAdmin()) {
+            } else if (videoHandle.isAdmin()) {
                 return getVideoForAdmin(commonStatus, page, size, field, sortType);
             }
 
@@ -217,7 +208,7 @@ public class VideoServiceImpl implements VideoService {
         Page<Video> videos = videoRepository.findByStatusAndCourseInOrderByOrdinalNumberAsc(CommonStatus.AVAILABLE,
                 courses, pageable);
         List<VideoItemResponse> videoItemResponses = videoMapper.mapVideosToVideoItemResponses(videos.getContent());
-        videoItemResponses = setIsAccess(videoItemResponses, courses);
+        videoItemResponses = videoHandle.setIsAccess(videoItemResponses, courses);
         return PaginationResponse.<List<VideoItemResponse>>builder()
                 .data(videoItemResponses)
                 .totalPage(videos.getTotalPages())
@@ -289,152 +280,4 @@ public class VideoServiceImpl implements VideoService {
                 .totalRow(videos.getTotalElements())
                 .build();
     }
-
-    private PaginationResponse<List<VideoItemResponse>> getVideoItemResponseForGuest(Course course, Pageable pageable) {
-        Page<Video> videos = videoRepository.findByCourseAndStatusOrderByOrdinalNumberAsc(course,
-                CommonStatus.AVAILABLE, pageable);
-        return PaginationResponse.<List<VideoItemResponse>>builder()
-                .data(setVideoAccessStatus(videoMapper.mapVideosToVideoItemResponses(videos.getContent()),
-                        course.getId()))
-                .totalPage(videos.getTotalPages())
-                .totalRow(videos.getTotalElements())
-                .build();
-    }
-
-    private PaginationResponse<List<VideoItemResponse>> getVideoItemResponseForStudent(Course course,
-            Pageable pageable) {
-        Page<Video> videos = videoRepository.findByCourseAndStatusNotOrderByOrdinalNumberAsc(course,
-                CommonStatus.BANNED, pageable);
-        return PaginationResponse.<List<VideoItemResponse>>builder()
-                .data(setVideoAccessStatus(videoMapper.mapVideosToVideoItemResponses(videos.getContent()),
-                        course.getId()))
-                .totalPage(videos.getTotalPages())
-                .totalRow(videos.getTotalElements())
-                .build();
-    }
-
-    private boolean isStudent() {
-        return isRole("STUDENT");
-    }
-
-    private boolean isTeacher() {
-        return isRole("TEACHER");
-    }
-
-    private boolean isAdmin() {
-        return isRole("ADMIN");
-    }
-
-    private boolean isRole(String role) {
-        UserInformation userInformation = securityContextService.getCurrentUser();
-        return userInformation.getRole().equals(role);
-    }
-
-    private Course getCourseForUser(Long courseId) {
-        Course course;
-        if (securityContextService.isLogin() != null) {
-            course = courseRepository.findByIdAndCommonStatusNot(courseId, CommonStatus.BANNED)
-                    .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
-        } else {
-            course = courseRepository
-                    .findByIdAndCommonStatus(courseId, CommonStatus.AVAILABLE)
-                    .orElseThrow(() -> new BadRequestException("Cannot found any course with id " + courseId));
-        }
-        return course;
-    }
-
-    private boolean isVideoAccessible(Video video) {
-        boolean isAuthenticatedStudent = securityContextService.getIsAuthenticatedAndIsStudent();
-        boolean isVideoPrivate = video.getVideoStatus().equals(VideoStatus.PRIVATE);
-        if ((!isAuthenticatedStudent && isVideoPrivate) ||
-                (isAuthenticatedStudent && isVideoPrivate && !isStudentEnrolled(video.getCourse().getId()))) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isStudentEnrolled(Long courseId) {
-        String studentEmail = securityContextService.getCurrentUser().getEmail();
-        return studentEnrollCourseService.isStudentEnrolled(studentEmail, courseId);
-    }
-
-    private List<VideoItemResponse> setVideoAccessStatus(
-            List<VideoItemResponse> videoItemResponses, Long courseId) {
-        boolean isUserLoggedIn = false;
-        if (securityContextService.isLogin() != null && securityContextService.isLogin().getRole().equals("STUDENT")) {
-            isUserLoggedIn = true;
-        }
-        for (VideoItemResponse videoItemResponse : videoItemResponses) {
-            boolean isVideoPrivate = videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE);
-            if (!isUserLoggedIn && isVideoPrivate) {
-                videoItemResponse.setIsAccess(false);
-            }
-            if (!isVideoPrivate) {
-                videoItemResponse.setIsAccess(true);
-            }
-
-            if (isUserLoggedIn) {
-                boolean isEnrolled = isStudentEnrolled(courseId);
-                videoItemResponse.setIsAccess(isEnrolled || !isVideoPrivate);
-                Set<Long> isWatched = studentVideoProgressRepository
-                        .getCompletedVideoIdsByStudentAndCourse(securityContextService.getCurrentUser().getId(),
-                                courseId);
-                if (!isWatched.isEmpty() && isWatched.contains(videoItemResponse.getId())) {
-                    videoItemResponse.setIsWatched(true);
-                }
-            }
-            videoItemResponse.setCourseId(courseId);
-        }
-        return videoItemResponses;
-    }
-
-    private List<VideoItemResponse> setIsAccess(List<VideoItemResponse> videoItemResponses, List<Course> courses) {
-        UserInformation currentUser = securityContextService.isLogin();
-        List<VideoItemResponse> result = new ArrayList<>();
-
-        if (currentUser != null) {
-            List<Long> videoAccess = studentEnrollCourseService.getListVideoIdStudentAccess(currentUser.getEmail(),
-                    courses);
-
-            for (VideoItemResponse videoItemResponse : videoItemResponses) {
-                if (videoAccess.isEmpty()) {
-                    videoItemResponse.setIsAccess(!videoItemResponse.getVideoStatus().equals(VideoStatus.PRIVATE));
-                } else {
-                    videoItemResponse.setIsAccess(videoAccess.contains(videoItemResponse.getId()));
-                }
-                result.add(videoItemResponse);
-            }
-        } else {
-            for (VideoItemResponse videoItemResponse : videoItemResponses) {
-                videoItemResponse.setIsAccess(videoItemResponse.getVideoStatus().equals(VideoStatus.PUBLIC));
-                result.add(videoItemResponse);
-            }
-        }
-
-        return result;
-    }
-
-    private boolean canAccessVideo(Long videoId) {
-        return videoRepository.findByIdAndStatusNot(videoId, CommonStatus.BANNED)
-                .map(this::isVideoAccessible)
-                .orElse(false);
-    }
-
-    private boolean isTeacherVideo(Long teacherId, Long videoId) {
-        return videoRepository.findByTeacherIdAndVideoId(teacherId, videoId).isPresent();
-    }
-
-    private VideoItemResponse getVideoResponse(Long videoId) {
-        Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new BadRequestException("Not found video with id " + videoId));
-        return videoMapper.mapVideoToVideoItemResponse(video);
-    }
-
-    private VideoItemResponse getVideoResponseForGuest(Long videoId) {
-        Video video = videoRepository.findByIdAndStatus(videoId, CommonStatus.AVAILABLE)
-                .orElseThrow(() -> new BadRequestException("Not found video with id " + videoId));
-        return videoMapper.mapVideoToVideoItemResponse(video);
-    }
-
 }
